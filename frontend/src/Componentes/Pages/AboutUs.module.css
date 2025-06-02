@@ -1,0 +1,106 @@
+/* Base container */
+.container {
+  max-width: 1350px;
+  /* height: auto; */
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+}
+
+/* Light theme */
+.light {
+  background-color: #ffffff;
+  color: #1e1e1e;
+}
+
+/* Dark theme */
+.dark {
+  background-color: #1e1e1e;
+  color: #f5f5f5;
+}
+
+/* Headings */
+.heading {
+  font-size: 2.5rem;
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #e63946;
+}
+
+/* Subheadings */
+.subheading {
+  font-size: 1.75rem;
+  margin-bottom: 1rem;
+  color: #457b9d;
+}
+
+/* Section styling */
+.section {
+  margin-bottom: 2.5rem;
+  /* border-left: 4px solid #e63946; */
+  padding-left: 1.5rem;
+  background-color: rgba(230, 57, 70, 0.05);
+  border-radius: 6px;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+/* Responsive list */
+.list {
+  list-style-type: none;
+  padding-left: 0;
+  margin-top: 1rem;
+}
+
+.listItem {
+  margin-bottom: 0.75rem;
+  padding-left: 1.25rem;
+  position: relative;
+}
+
+.listItem::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: #e63946;
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+/* Link styles */
+a {
+  color: #e63946;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+a:hover {
+  color: #d62828;
+}
+
+/* Make text strong stand out */
+strong {
+  font-weight: bold;
+  color: #222;
+}
+
+.dark strong {
+  color: #fbd38d;
+}
+
+/* Responsive layout */
+@media (max-width: 600px) {
+  .heading {
+    font-size: 2rem;
+  }
+
+  .subheading {
+    font-size: 1.5rem;
+  }
+
+  .section {
+    padding-left: 1rem;
+  }
+}

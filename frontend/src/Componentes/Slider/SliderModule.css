@@ -1,0 +1,165 @@
+.slider-container {
+  padding: 20px;
+  overflow-x: auto;
+}
+
+.meal-card {
+  box-sizing: border-box;
+  background-color: #f8f8f8;
+  border-radius: 8px;
+  padding: 15px;
+  margin: 0 10px;
+  height: 400px;
+  max-width: 300px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  flex-shrink: 0;
+}
+
+/* Image */
+.meal-image {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+/* Texts */
+h3 {
+  font-size: 18px;
+  margin: 10px 0 5px;
+}
+
+.meal-description {
+  font-size: 14px;
+  color: #555;
+  max-height: 48px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meal-price {
+  font-weight: bold;
+  margin: 8px 0;
+}
+
+/* Button */
+.add-btn {
+  margin-top: auto;
+  background-color: #ff6600;
+  color: white;
+  border: none;
+  padding: 10px;
+  width: 100%;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.add-btn:hover {
+  background-color: #e65c00;
+}
+
+/* Theme support */
+.slider-container.light-theme {
+  background-color: white;
+  color: black;
+}
+
+.slider-container.dark-theme {
+  background-color: #121212;
+  color: white;
+}
+
+.dark-theme .meal-card {
+  background-color: #222;
+  color: white;
+}
+
+.light-theme .meal-card {
+  background-color: #fafafa;
+  color: black;
+}
+.light-theme .slider-title {
+  text-align: center;
+}
+.dark-theme .slider-title {
+  color: white;
+  text-align: center;
+}
+
+/* View All link */
+.view-all {
+  text-align: right;
+  margin-bottom: 10px;
+}
+
+.view-all a {
+  text-decoration: none;
+  color: #007bff;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.view-all a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .slider-container {
+    padding: 10px;
+  }
+
+  .meal-card {
+    max-width: 90%;
+    margin: 10px auto;
+    height: auto;
+  }
+
+  .meal-image {
+    height: 150px;
+  }
+
+  h3 {
+    font-size: 16px;
+  }
+
+  .meal-description {
+    font-size: 13px;
+  }
+
+  .add-btn {
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  .view-all {
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .meal-card {
+    padding: 12px;
+  }
+
+  .meal-image {
+    height: 140px;
+  }
+
+  h3 {
+    font-size: 15px;
+  }
+
+  .meal-description {
+    font-size: 12px;
+  }
+
+  .add-btn {
+    font-size: 13px;
+    padding: 8px;
+  }
+}

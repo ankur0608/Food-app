@@ -1,0 +1,237 @@
+/* Navbar container */
+.navbar {
+  background-color: #222;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 1000;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Logo */
+.logo img {
+  height: 42px;
+  width: auto;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.logo img:hover {
+  transform: scale(1.05);
+}
+
+/* Hamburger menu button (shown only on mobile) */
+.menuToggle {
+  display: none;
+  font-size: 1.5rem;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  margin-left: 1rem;
+}
+
+/* Main links container */
+.links {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+}
+
+/* Expanded menu on mobile */
+.links.open {
+  flex-direction: column;
+  width: 100%;
+  background-color: #222;
+  padding: 10px 0;
+  margin-top: 8px;
+  border-top: 1px solid #444;
+  position: absolute;
+  top: 60px;
+  left: 0;
+  z-index: 999;
+}
+
+/* Navigation list */
+.navList {
+  list-style: none;
+  display: flex;
+  gap: 25px;
+  margin: 0;
+  padding: 0;
+}
+
+.links.open .navList {
+  flex-direction: column;
+  gap: 15px;
+  width: 100%;
+}
+
+/* Nav items */
+.navList li {
+  display: inline-block;
+}
+
+.navList li a,
+.Link {
+  color: #eee;
+  font-size: 18px;
+  font-weight: 500;
+  text-decoration: none;
+  padding: 6px 8px;
+  border-radius: 4px;
+  transition: background-color 0.25s ease, color 0.25s ease;
+  cursor: pointer;
+  user-select: none;
+}
+
+.navList li a:hover,
+.Link:hover {
+  color: #f1c40f;
+}
+
+.active {
+  color: #f1c40f;
+  font-weight: bold;
+  border-bottom: 2px solid #f1c40f;
+}
+
+/* Logout Button */
+.logoutButton {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  font-weight: 600;
+  padding: 6px 8px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-size: 18px; /* Match link font size */
+}
+
+.logoutButton:hover {
+  color: #f1c40f;
+}
+
+/* Cart Icon */
+.cart {
+  position: relative;
+  color: #eee;
+  display: flex;
+  align-items: center;
+  padding: 6px 8px;
+  border-radius: 4px;
+  transition: background-color 0.25s ease;
+}
+
+.cart:hover {
+  background-color: #f1c40f;
+  color: #222;
+}
+
+/* Cart badge */
+.badge {
+  position: absolute;
+  top: -6px;
+  right: -10px;
+  background-color: #e74c3c;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 7px;
+  font-size: 13px;
+  font-weight: 700;
+  user-select: none;
+}
+ 
+/* Theme toggle */
+.themeLink {
+  background: none;
+  border: none;
+  color: #eee;
+  cursor: pointer;
+  font-size: 22px;
+  padding: 6px 8px;
+  border-radius: 4px;
+  transition: background-color 0.25s ease;
+  display: flex;
+  align-items: center;
+  user-select: none;
+}
+
+.themeLink:hover {
+  background-color: #f1c40f;
+  color: #222;
+}
+
+/* Extras like cart and theme button */
+.navExtras {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+/* Mobile extras container (cart + theme toggle in a row) */
+.mobileExtras {
+  display: none;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .menuToggle {
+    display: block;
+  }
+
+  .links {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .links.open {
+    display: flex;
+  }
+
+  .navList {
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+  }
+
+  .cart,
+  .themeLink {
+    align-self: flex-start;
+    margin-left: 15px;
+    margin-top: 10px;
+  }
+
+  .navExtras {
+    display: flex;
+    flex-direction: row; /* Make them stay in a row */
+    align-items: center;
+    gap: 1rem;
+    margin-top: 10px;
+    margin-left: 15px;
+    position: relative;
+  }
+
+  /* Hide extras inside collapsed links (avoids duplication) */
+  .links .cart,
+  .links .themeLink {
+    display: none;
+  }
+  .mobileExtras {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+    margin-left: auto;
+    margin-right: 0.5rem;
+  }
+
+  /* Hide desktop-only extras when menu is open or on small screen */
+  .desktopOnly {
+    display: none !important;
+  }
+}

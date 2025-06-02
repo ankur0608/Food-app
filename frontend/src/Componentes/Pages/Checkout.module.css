@@ -1,0 +1,95 @@
+/* Checkout.module.css */
+
+.checkoutForm {
+  max-width: 450px;
+  margin: 3rem auto;
+  padding: 2.5rem 2rem;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  background-color: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  box-sizing: border-box;
+  transition: box-shadow 0.3s ease;
+}
+
+.checkoutForm:hover {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.checkoutForm h2 {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #222;
+  font-weight: 700;
+  font-size: 2rem;
+  letter-spacing: 0.05em;
+}
+
+.totalAmount {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 2rem;
+  text-align: center;
+  letter-spacing: 0.03em;
+}
+
+.formInput {
+  display: block;
+  width: 100%;
+  padding: 0.85rem 1.25rem;
+  margin-bottom: 1.5rem;
+  font-size: 1.1rem;
+  border: 1.8px solid #ccc;
+  border-radius: 8px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  box-sizing: border-box;
+}
+
+.formInput:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 8px rgba(0, 123, 255, 0.6);
+  background-color: #f9fbff;
+}
+
+.formButton {
+  width: 100%;
+  padding: 0.85rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(90deg, #0069d9, #0053ba);
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.3s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 8px rgba(0, 83, 186, 0.4);
+}
+
+.formButton:hover {
+  background: linear-gradient(90deg, #0053ba, #003f8a);
+  box-shadow: 0 6px 14px rgba(0, 63, 138, 0.6);
+}
+
+@media (max-width: 480px) {
+  .checkoutForm {
+    margin: 1rem;
+    padding: 1.5rem 1rem;
+  }
+  .checkoutForm h2 {
+    font-size: 1.6rem;
+  }
+  .totalAmount {
+    font-size: 1.25rem;
+  }
+  .formInput {
+    font-size: 1rem;
+    padding: 0.7rem 1rem;
+  }
+  .formButton {
+    font-size: 1rem;
+    padding: 0.75rem;
+  }
+}

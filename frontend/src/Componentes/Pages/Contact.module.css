@@ -1,0 +1,125 @@
+/* Base container styling */
+.contact-container {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e2e2;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* Light theme */
+.light {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+/* Dark theme */
+.dark {
+  background-color: #1e1e1e;
+  color: #f0f0f0;
+  border: 1px solid #444;
+}
+
+/* Heading */
+.contact-container h1 {
+  text-align: center;
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+/* Contact form layout */
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+/* Input & Textarea styling */
+.input,
+.textarea {
+  padding: 14px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  width: 100%; /* Changed from 90% to 100% for consistency and alignment */
+  transition: border-color 0.3s, box-shadow 0.3s;
+  background-color: inherit;
+  color: inherit;
+  box-sizing: border-box;
+}
+
+.input:focus,
+.textarea:focus {
+  border-color: #0984e3;
+  box-shadow: 0 0 0 3px rgba(9, 132, 227, 0.2);
+  outline: none;
+}
+
+/* Label styling */
+label {
+  font-size: 15px;
+  font-weight: 600;
+  display: block;
+}
+
+/* Button styling */
+.button {
+  padding: 14px 20px;
+  font-size: 16px;
+  background-color: #0984e3;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s;
+  width: 100%;
+  text-align: center;
+}
+
+.button:hover {
+  background-color: #0a74c7;
+}
+
+.button:active {
+  transform: translateY(1px);
+}
+
+/* Error text */
+.error {
+  color: #d32f2f;
+  font-size: 12px;
+  margin-top: 5px;
+  font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .contact-container {
+    padding: 20px;
+    margin: 20px;
+  }
+
+  .contact-container h1 {
+    font-size: 24px;
+  }
+
+  .input,
+  .textarea {
+    font-size: 14px;
+    padding: 12px;
+  }
+
+  .button {
+    padding: 12px 18px;
+    font-size: 14px;
+  }
+}
