@@ -12,12 +12,14 @@ html,
   overflow-x: hidden;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
-.light {
+.light, .light body, .light #root {
   background-color: #ffffff;
-  color: #000000;
+  color: #181818;
+  transition: background-color 0.3s, color 0.3s;
 }
 
-.dark {
+.dark, .dark body, .dark #root {
   background-color: #121212;
   color: #f5f5f5;
+  transition: background-color 0.3s, color 0.3s;
 }

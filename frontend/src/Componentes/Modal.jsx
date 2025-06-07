@@ -3,7 +3,6 @@ import { createPortal } from "react-dom";
 import img from "../assets/5610944.png";
 import img2 from "../assets/download.png";
 import styles from "./Modal.module.css";
-
 const Modal = forwardRef(
   ({ children, buttonCaption, onModalclose, isSuccess = true }, ref) => {
     const dialog = useRef();

@@ -1,6 +1,6 @@
 import styles from "./Home.module.css";
 import { Link } from "react-router-dom";
-import fashionImg from "../../assets/react.svg";
+import homeimage from "../../assets/home-image.jpeg";
 import Slider from "../Slider/ProductSlider.jsx";
 import { useTheme } from "../Store/theme.jsx";
 
@@ -13,7 +13,7 @@ function Home() {
         <div className={styles.leftContent}>
           <h1 className={styles.heading}>Welcome to Our Platform!</h1>
           <p className={styles.paragraph}>
-            Step into the vibrant world of 
+            Step into the vibrant world of
             <span> local melas and cultural fairs</span> — all in one place!
             From traditional crafts and festive foods to thrilling rides and
             live performances, there's something for everyone to enjoy.
@@ -29,7 +29,7 @@ function Home() {
           </Link>
         </div>
         <div className={styles.rightImage}>
-          <img src={fashionImg} alt="Fashion" className={styles.image} />
+          <img src={homeimage} alt="Fashion" className={styles.image} />
         </div>
       </div>
       <Slider />

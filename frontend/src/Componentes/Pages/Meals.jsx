@@ -43,7 +43,7 @@ export default function Product() {
     <div className={`${styles["product-container"]} ${styles[theme]}`}>
       <div> <h1>Meals</h1>
 
-      {/* Search Input */}
+      {/* Search input */}
       <div className={styles.searchWrapper}>
         <FaSearch className={styles.searchIcon} />
         <input
@@ -51,7 +51,7 @@ export default function Product() {
           placeholder="Search meals..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className={styles.searchInput}
+          className={styles.searchinput}
         />
       </div></div>
      
@@ -65,7 +65,7 @@ export default function Product() {
             />
             <h3>{meal.name}</h3>
             <p className={styles["meal-price"]}>{meal.description}</p>
-            <p>${meal.price}</p>
+            <span>${meal.price}</span>
             <button onClick={() => handleAddToCart(meal)}>Add To Cart</button>
           </li>
         ))}

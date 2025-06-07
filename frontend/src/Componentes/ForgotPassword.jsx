@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import Input from "./Input";
+// import input from "./input";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./ForgotPassword.module.css";
@@ -28,7 +28,7 @@ export default function ForgotPassword() {
         className={styles.form}
       >
         <div>
-          <Input
+          <input
             className={styles.input}
             type="email"
             label="Email :"

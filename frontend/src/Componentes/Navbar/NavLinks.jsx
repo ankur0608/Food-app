@@ -23,67 +23,77 @@ function Navlinks() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     const justSignedUp = localStorage.getItem("justSignedUp");
-
-    if (token && justSignedUp === "true") {
-      setNavState("login");
-    } else if (token) {
-      setNavState("logout");
-    } else {
-      setNavState("signup");
-    }
+    setNavState(
+      token ? (justSignedUp === "true" ? "login" : "logout") : "signup"
+    );
   }, [location.pathname]);
 
   function handleLogout() {
-    const confirmLogout = window.confirm("Are you sure you want to logout?");
-    if (!confirmLogout) return;
-
+    if (!window.confirm("Are you sure you want to logout?")) return;
     localStorage.removeItem("token");
     localStorage.removeItem("justSignedUp");
     setNavState("signup");
     navigate("/signup");
-    setMenuOpen(false); // close menu on logout
+    setMenuOpen(false);
   }
 
-  useEffect(() => {
-    setMenuOpen(false);
-  }, [location.pathname]);
+  useEffect(() => setMenuOpen(false), [location.pathname]);
+
+  // Helper for cart link
+  const CartLink = ({ className }) => (
+    <NavLink
+      to="/cart"
+      className={({ isActive }) =>
+        isActive
+          ? `${styles.Link} ${styles.active} ${styles.cart} ${className || ""}`
+          : `${styles.Link} ${styles.cart} ${className || ""}`
+      }
+    >
+      <FaShoppingBag size={24} />
+      {TotalNumber > 0 && <span className={styles.badge}>{TotalNumber}</span>}
+    </NavLink>
+  );
+
+  // Helper for theme toggle
+  const ThemeToggle = ({ className, as = "button" }) =>
+    as === "button" ? (
+      <button
+        onClick={toggleTheme}
+        className={`${styles.themeLink} ${className || ""}`}
+        aria-label="Toggle Theme"
+      >
+        {theme === "light" ? (
+          <IoMoonOutline size={25} />
+        ) : (
+          <IoSunnyOutline size={25} />
+        )}
+      </button>
+    ) : (
+      <Link
+        onClick={toggleTheme}
+        className={`${styles.themeLink} ${className || ""}`}
+        aria-label="Toggle Theme"
+      >
+        {theme === "light" ? (
+          <IoMoonOutline size={25} />
+        ) : (
+          <IoSunnyOutline size={25} />
+        )}
+      </Link>
+    );
 
   return (
     <div className={styles.navbar}>
-      {/* Logo */}
       <div className={styles.logo}>
         <Link to="/">
           <img src={LogoImage} alt="Logo" />
         </Link>
       </div>
 
-      {/* Mobile-only cart and theme toggle (outside burger) */}
+      {/* Mobile-only cart and theme toggle */}
       <div className={styles.mobileExtras}>
-        <NavLink
-          to="/cart"
-          className={({ isActive }) =>
-            isActive
-              ? `${styles.Link} ${styles.active} ${styles.cart}`
-              : `${styles.Link} ${styles.cart}`
-          }
-        >
-          <FaShoppingBag size={24} />
-          {TotalNumber > 0 && (
-            <span className={styles.badge}>{TotalNumber}</span>
-          )}
-        </NavLink>
-
-        <Link
-          onClick={toggleTheme}
-          className={styles.themeLink}
-          aria-label="Toggle Theme"
-        >
-          {theme === "light" ? (
-            <IoMoonOutline size={25} />
-          ) : (
-            <IoSunnyOutline size={25} />
-          )}
-        </Link>
+        <CartLink />
+        <ThemeToggle as="link" />
       </div>
 
       {/* Hamburger menu toggle */}
@@ -114,7 +124,6 @@ function Navlinks() {
               About us
             </NavLink>
           </li>
-
           {navState === "signup" && (
             <li>
               <NavLink
@@ -125,7 +134,6 @@ function Navlinks() {
               </NavLink>
             </li>
           )}
-
           {navState === "login" && (
             <li>
               <NavLink
@@ -136,7 +144,6 @@ function Navlinks() {
               </NavLink>
             </li>
           )}
-
           {navState === "logout" && (
             <li>
               <NavLink
@@ -148,7 +155,6 @@ function Navlinks() {
               </NavLink>
             </li>
           )}
-
           <li>
             <NavLink
               to="/meals"
@@ -166,33 +172,9 @@ function Navlinks() {
             </NavLink>
           </li>
         </ul>
-
-        {/* Cart and theme toggle (inside menu - desktop only) */}
-        <NavLink
-          to="/cart"
-          className={({ isActive }) =>
-            isActive
-              ? `${styles.Link} ${styles.active} ${styles.cart} ${styles.desktopOnly}`
-              : `${styles.Link} ${styles.cart} ${styles.desktopOnly}`
-          }
-        >
-          <FaShoppingBag size={24} />
-          {TotalNumber > 0 && (
-            <span className={styles.badge}>{TotalNumber}</span>
-          )}
-        </NavLink>
-
-        <button
-          onClick={toggleTheme}
-          className={`${styles.themeLink} ${styles.desktopOnly}`}
-          aria-label="Toggle Theme"
-        >
-          {theme === "light" ? (
-            <IoMoonOutline size={25} />
-          ) : (
-            <IoSunnyOutline size={25} />
-          )}
-        </button>
+        {/* Desktop-only cart and theme toggle */}
+        <CartLink className={styles.desktopOnly} />
+        <ThemeToggle className={styles.desktopOnly} />
       </div>
     </div>
   );

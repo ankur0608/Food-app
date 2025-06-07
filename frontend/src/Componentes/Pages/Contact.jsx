@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 import styles from "./Contact.module.css";
-
+import { useTheme } from "../Store/theme.jsx";
 function Contact() {
   const {
     register,
@@ -8,7 +8,7 @@ function Contact() {
     reset,
     formState: { errors },
   } = useForm();
-
+  const { theme } = useTheme();
   function onSubmit(data) {
     console.log("FormData:", data);
     reset();

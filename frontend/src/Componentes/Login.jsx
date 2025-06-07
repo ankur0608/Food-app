@@ -1,10 +1,9 @@
 import { useForm } from "react-hook-form";
-import Input from "./Input";
 import { useRef, useState } from "react";
 import styles from "./Signup.module.css";
 import Modal from "./Modal";
 import { Link, useNavigate } from "react-router-dom";
-
+import { useTheme } from "./Store/theme.jsx";
 export default function Login() {
   const modalRef = useRef();
   const [modalOpen, setModalOpen] = useState(false);
@@ -14,7 +13,7 @@ export default function Login() {
     formState: { errors },
   } = useForm();
   const navigate = useNavigate();
-
+  const { theme } = useTheme();
   async function onSubmit(data) {
     const response = await fetch("http://localhost:5000/login", {
       method: "POST",
@@ -30,7 +29,7 @@ export default function Login() {
 
       console.log("Login success:", result);
       localStorage.setItem("token", result.token);
-      localStorage.removeItem("justSignedUp"); 
+      localStorage.removeItem("justSignedUp");
 
       modalRef.current.open();
       setModalOpen(true);
@@ -53,7 +52,7 @@ export default function Login() {
         <h1>Login successful!</h1>
         <h2>Welcome</h2>
       </Modal>
-      <div>
+      <div className={theme}>
         <div
           className={`${styles.container} ${modalOpen ? styles.blurred : ""}`}
         >
@@ -64,10 +63,13 @@ export default function Login() {
             className={styles.form}
           >
             <div>
-              <Input
+              <label htmlFor="login-email" className={styles.label}>
+                Email:
+              </label>
+              <input
                 className={styles.input}
                 type="email"
-                label="Email :"
+                id="login-email"
                 placeholder="Your Email"
                 {...register("email", {
                   required: "Email is required",
@@ -81,19 +83,20 @@ export default function Login() {
               )}
             </div>
             <div>
-              <Input
+              <label htmlFor="login-password" className={styles.label}>
+                Password:
+              </label>
+              <input
                 className={styles.input}
                 type="password"
-                label="Password :"
+                id="login-password"
                 placeholder="Password"
                 {...register("password", {
                   required: "Password is required",
                 })}
               />
               {errors.password && (
-                <small className={styles.small}>
-                  {errors.password.message}
-                </small>
+                <small className={styles.small}>{errors.password.message}</small>
               )}
             </div>
             <Link to="/ForgotPassword" className={styles.Link}>
