@@ -5,7 +5,7 @@ import { CartContext } from "../Store/CartContext";
 import { useTheme } from "../Store/theme.jsx";
 import { FaShoppingBag } from "react-icons/fa";
 import { IoMoonOutline, IoSunnyOutline } from "react-icons/io5";
-import LogoImage from "../../assets/5610944.png";
+import LogoImage from "../../assets/main-logo.png";
 
 function Navlinks() {
   const location = useLocation();
@@ -93,7 +93,7 @@ function Navlinks() {
       {/* Mobile-only cart and theme toggle */}
       <div className={styles.mobileExtras}>
         <CartLink />
-        <ThemeToggle as="link" />
+        <ThemeToggle />
       </div>
 
       {/* Hamburger menu toggle */}

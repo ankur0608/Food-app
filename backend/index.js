@@ -2,13 +2,44 @@ const express = require("express");
 const fs = require("fs");
 const cors = require("cors");
 const path = require("path");
-const { v4: uuidv4 } = require("uuid"); // for user ids and tokens
-
+const { v4: uuidv4 } = require("uuid");
+const Razorpay = require("razorpay");
+require("dotenv").config();
 const app = express();
 const PORT = 5000;
 
 app.use(cors());
 app.use(express.json());
+
+// Razorpay POST /order endpoint
+
+// 🧾 Razorpay instance
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_SECRET_ID,
+});
+
+// 🚀 Create order endpoint
+app.post("/create-order", async (req, res) => {
+  const { amount } = req.body;
+
+  try {
+    const order = await razorpay.orders.create({
+      amount: amount * 100, // Razorpay accepts paisa (INR x 100)
+      currency: "USD",
+      receipt: `receipt_${Date.now()}`,
+    });
+
+    res.status(200).json(order);
+  } catch (err) {
+    console.error("❌ Razorpay error:", err);
+    res.status(500).json({ error: "Failed to create Razorpay order" });
+  }
+});
+
+app.listen(PORT, () => {
+  console.log(`✅ Server running at http://localhost:${PORT}`);
+});
 
 // Serve static images from /images folder
 app.use("/images", express.static(path.join(__dirname, "images")));

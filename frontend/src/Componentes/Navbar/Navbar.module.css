@@ -17,6 +17,7 @@
 /* Logo */
 .logo img {
   height: 42px;
+  border-radius: 50%;
   width: auto;
   cursor: pointer;
   transition: transform 0.3s ease;

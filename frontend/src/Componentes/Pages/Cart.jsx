@@ -61,18 +61,18 @@ export default function Cart() {
                     </td>
                     <td data-label="Actions">
                       <button
-                        aria-label={`Add one ${item.name}`}
-                        className={styles.button}
-                        onClick={() => addItem({ ...item, quantity: 1 })}
-                      >
-                        +
-                      </button>
-                      <button
                         aria-label={`Remove one ${item.name}`}
                         className={styles.button}
                         onClick={() => removeItem(item.id)}
                       >
                         -
+                      </button>
+                      <button
+                        aria-label={`Add one ${item.name}`}
+                        className={styles.button}
+                        onClick={() => addItem({ ...item, quantity: 1 })}
+                      >
+                        +
                       </button>
                     </td>
                   </tr>

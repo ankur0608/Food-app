@@ -4,9 +4,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import styles from "./Checkout.module.css";
 import Modal from "../Modal";
 import { CartContext } from "../Store/CartContext.jsx";
-import { FaPhone } from "react-icons/fa6";
-import { FaRegUser } from "react-icons/fa";
-import { FaRegAddressBook } from "react-icons/fa";
+import { FaPhone, FaRegUser, FaRegAddressBook } from "react-icons/fa6";
 import { IoMailOutline } from "react-icons/io5";
 
 const CheckoutForm = () => {
@@ -19,26 +17,74 @@ const CheckoutForm = () => {
   const total = location.state?.total || 0;
 
   const savedData = JSON.parse(localStorage.getItem("signupData")) || {};
-  const { register, handleSubmit, formState: { errors } } = useForm({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
     defaultValues: {
       name: savedData.username || "",
       email: savedData.email || "",
       mobile: "",
-      address: ""
-    }
+      address: "",
+    },
   });
 
-  const onSubmit = (data) => {
-    console.log("checkout:", data);
-    localStorage.removeItem("cartItems");
-    clearCart();
-    modalRef.current.open();
-    setModalOpen(true);
-  };
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+    document.body.appendChild(script);
+  }, []);
 
   const handleModalClose = () => {
     setModalOpen(false);
     navigate("/");
+  };
+
+  const onSubmit = async (formData) => {
+    try {
+      const response = await fetch("http://localhost:5000/create-order", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ amount: total }), // backend will convert to paise
+      });
+
+      const order = await response.json();
+
+      const options = {
+        key: "rzp_test_7jWpAfUxjwYR6P",
+        amount: order.amount,
+        currency: "USD",
+        name: "Meal Checkout",
+        description: "Thank you for your purchase!",
+        image: "/assets/logo.png",
+        order_id: order.id,
+        handler: function (response) {
+          localStorage.removeItem("cartItems");
+          clearCart();
+          modalRef.current.open();
+          setModalOpen(true);
+          console.log("✅ Razorpay Success:", response);
+        },
+        prefill: {
+          name: formData.name,
+          email: formData.email,
+          contact: formData.mobile,
+        },
+        theme: {
+          color: "#0f172a",
+        },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    } catch (error) {
+      console.error("❌ Payment failed:", error);
+      alert("Something went wrong while processing your payment.");
+    }
   };
 
   return (
@@ -54,7 +100,11 @@ const CheckoutForm = () => {
         <h2>Thank you for your order!</h2>
       </Modal>
 
-      <form onSubmit={handleSubmit(onSubmit)} className={styles.checkoutForm} noValidate>
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className={styles.checkoutForm}
+        noValidate
+      >
         <h2 className={styles.heading}>Checkout</h2>
 
         <p className={styles.totalAmount}>
@@ -68,7 +118,9 @@ const CheckoutForm = () => {
             placeholder="Full Name"
             className={styles.formInput}
           />
-          {errors.name && <span className={styles.error}>{errors.name.message}</span>}
+          {errors.name && (
+            <span className={styles.error}>{errors.name.message}</span>
+          )}
         </div>
 
         <div className={styles.inputGroup}>
@@ -85,7 +137,9 @@ const CheckoutForm = () => {
             placeholder="Email"
             className={styles.formInput}
           />
-          {errors.email && <span className={styles.error}>{errors.email.message}</span>}
+          {errors.email && (
+            <span className={styles.error}>{errors.email.message}</span>
+          )}
         </div>
 
         <div className={styles.inputGroup}>
@@ -102,17 +156,23 @@ const CheckoutForm = () => {
             className={styles.formInput}
             type="tel"
           />
-          {errors.mobile && <span className={styles.error}>{errors.mobile.message}</span>}
+          {errors.mobile && (
+            <span className={styles.error}>{errors.mobile.message}</span>
+          )}
         </div>
 
         <div className={styles.inputGroup}>
           <FaRegAddressBook className={styles.inputIcon} />
           <input
-            {...register("address", { required: "Shipping Address is required" })}
+            {...register("address", {
+              required: "Shipping Address is required",
+            })}
             placeholder="Shipping Address"
             className={styles.formInput}
           />
-          {errors.address && <span className={styles.error}>{errors.address.message}</span>}
+          {errors.address && (
+            <span className={styles.error}>{errors.address.message}</span>
+          )}
         </div>
 
         <button type="submit" className={styles.formButton}>
