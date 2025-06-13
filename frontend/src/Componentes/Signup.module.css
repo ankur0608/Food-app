@@ -153,48 +153,38 @@
   color: #0056b3;
 }
 
-/* Dark mode */
-.dark {
-  background-color: #121212;
-  color: #f1f1f1;
+.inputGroup {
+  position: relative;
+  margin-bottom: 1rem;
 }
-.dark .container {
-  background-color: #1e1e1e;
-  color: #f1f1f1;
-  box-shadow: 0 8px 20px rgba(255, 255, 255, 0.05);
+
+.icon {
+  position: absolute;
+  top: 68%;
+  left: 12px;
+  transform: translateY(-50%);
+  color: #888;
+  pointer-events: none;
+  font-size: 1.1rem;
 }
-.dark .heading {
-  color: #38bdf8;
+
+/* Input field style */
+.input {
+  width: 100%;
+  padding: 10px 12px 10px 38px; /* Leave space for icon */
+  border: 1px solid #ccc;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  outline: none;
+  background: #fff;
+  color: #212529;
+  transition: border-color 0.3s, background 0.3s, color 0.3s;
+  box-sizing: border-box;
 }
-.dark .label {
-  color: #f1f1f1;
-}
-.dark .input {
-  background-color: #2a2a2a;
-  border: 1px solid #555;
-  color: #f1f1f1;
-}
-.dark .input:focus {
-  border-color: #66b2ff;
-  background: #23272f;
-}
-.dark .button {
-  background-color: #0d6efd;
-  color: #fff;
-}
-.dark .button:hover,
-.dark .button:focus {
-  background-color: #084298;
-}
-.dark .small {
-  color: #ff6b6b;
-}
-.dark .Link {
-  color: #66bfff;
-}
-.dark .Link:hover,
-.dark .Link:focus {
-  color: #38bdf8;
+
+.input:focus {
+  border-color: #007bff;
+  background: #f0f8ff;
 }
 
 /* Responsive */

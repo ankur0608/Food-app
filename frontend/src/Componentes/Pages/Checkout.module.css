@@ -38,6 +38,7 @@
 .inputGroup {
   position: relative;
   margin-bottom: 1.2rem;
+  width: 100%;
 }
 
 .inputIcon {
@@ -61,7 +62,7 @@
   transition: border-color 0.2s;
 }
 
-.forminput:focus {
+.formInput:focus {
   outline: none;
   border-color: #007bff;
   box-shadow: 0 0 8px rgba(0, 123, 255, 0.6);
@@ -71,7 +72,7 @@
 .formButton {
   width: 100%;
   padding: 0.85rem;
-  font-size: 1.2rem;
+  font-size: 1.15rem;
   font-weight: 700;
   color: #fff;
   background: linear-gradient(90deg, #0069d9, #0053ba);
@@ -89,28 +90,47 @@
 
 .error {
   color: #e74c3c;
-  font-size: 0.92rem;
-  margin-top: 0.2rem;
+  font-size: 0.9rem;
+  margin-top: 0.3rem;
   display: block;
+}
+
+@media (max-width: 768px) {
+  .checkoutForm h2 {
+    font-size: 1.75rem;
+  }
+
+  .totalAmount {
+    font-size: 1.3rem;
+  }
 }
 
 @media (max-width: 480px) {
   .checkoutForm {
-    margin: 1rem;
+    margin: 1.5rem 0.8rem;
     padding: 1.5rem 1rem;
   }
+
   .checkoutForm h2 {
-    font-size: 1.6rem;
+    font-size: 1.4rem;
   }
+
   .totalAmount {
-    font-size: 1.25rem;
+    font-size: 1.15rem;
   }
-  .forminput {
-    font-size: 1rem;
-    padding: 0.7rem 1rem;
+
+  .formInput {
+    font-size: 0.95rem;
+    padding: 0.7rem 0.9rem 0.7rem 2.2rem;
   }
+
   .formButton {
     font-size: 1rem;
     padding: 0.75rem;
+  }
+
+  .inputIcon {
+    font-size: 1rem;
+    left: 0.6rem;
   }
 }

@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./ForgotPassword.module.css";
+import { IoMailOutline } from "react-icons/io5";
 
 export default function ForgotPassword() {
   const [message, setMessage] = useState("");
@@ -27,11 +28,11 @@ export default function ForgotPassword() {
         noValidate
         className={styles.form}
       >
-        <div>
+        <div className={styles.inputGroup}>
+          <IoMailOutline className={styles.icon} />
           <input
             className={styles.input}
             type="email"
-            label="Email :"
             placeholder="Your Email"
             {...register("email", {
               required: "Email is required",

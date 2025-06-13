@@ -61,7 +61,7 @@ const AutoPlaySlider = () => {
       {
         breakpoint: 768, // for small screens (like mobile)
         settings: {
-          slidesToShow: 2,
+          slidesToShow: 1,
         },
       },
     ],
@@ -82,8 +82,11 @@ const AutoPlaySlider = () => {
         {meals.map((meal) => (
           <div key={meal.id} className="meal-card">
             <img
-              src={`http://localhost:5000/images/${meal.image}`}
-              alt={meal.name}
+              src={
+                meal.image.startsWith("http")
+                  ? meal.image
+                  : `http://localhost:5000/images/${meal.image}`
+              }
               className="meal-image"
             />
             <h3>{meal.name}</h3>

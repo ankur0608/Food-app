@@ -4,7 +4,11 @@ import styles from "./Navbar.module.css";
 import { CartContext } from "../Store/CartContext";
 import { useTheme } from "../Store/theme.jsx";
 import { FaShoppingBag } from "react-icons/fa";
-import { IoMoonOutline, IoSunnyOutline } from "react-icons/io5";
+import { IoMoonOutline, IoSunnyOutline, IoHomeOutline } from "react-icons/io5";
+import { FcAbout } from "react-icons/fc";
+import { IoMdContact } from "react-icons/io";
+import { GiHotMeal } from "react-icons/gi";
+import { FaUserPlus, FaSignInAlt, FaSignOutAlt } from "react-icons/fa";
 import LogoImage from "../../assets/main-logo.png";
 
 function Navlinks() {
@@ -39,7 +43,6 @@ function Navlinks() {
 
   useEffect(() => setMenuOpen(false), [location.pathname]);
 
-  // Helper for cart link
   const CartLink = ({ className }) => (
     <NavLink
       to="/cart"
@@ -54,7 +57,6 @@ function Navlinks() {
     </NavLink>
   );
 
-  // Helper for theme toggle
   const ThemeToggle = ({ className, as = "button" }) =>
     as === "button" ? (
       <button
@@ -84,18 +86,6 @@ function Navlinks() {
 
   return (
     <div className={styles.navbar}>
-      <div className={styles.logo}>
-        <Link to="/">
-          <img src={LogoImage} alt="Logo" />
-        </Link>
-      </div>
-
-      {/* Mobile-only cart and theme toggle */}
-      <div className={styles.mobileExtras}>
-        <CartLink />
-        <ThemeToggle />
-      </div>
-
       {/* Hamburger menu toggle */}
       <button
         className={styles.menuToggle}
@@ -105,6 +95,18 @@ function Navlinks() {
         ☰
       </button>
 
+      {/* Mobile-only cart and theme toggle */}
+      <div className={styles.mobileExtras}>
+        <CartLink />
+        <ThemeToggle />
+      </div>
+
+      <div className={styles.logo}>
+        <Link to="/">
+          <img src={LogoImage} alt="Logo" />
+        </Link>
+      </div>
+
       {/* Links container */}
       <div className={`${styles.links} ${menuOpen ? styles.open : ""}`}>
         <ul className={styles.navList}>
@@ -113,6 +115,9 @@ function Navlinks() {
               to="/home"
               className={({ isActive }) => (isActive ? styles.active : "")}
             >
+              <span className={styles.mobileIcon}>
+                <IoHomeOutline size={18} />
+              </span>
               Home
             </NavLink>
           </li>
@@ -121,6 +126,9 @@ function Navlinks() {
               to="/about"
               className={({ isActive }) => (isActive ? styles.active : "")}
             >
+              <span className={styles.mobileIcon}>
+                <FcAbout size={18} />
+              </span>
               About us
             </NavLink>
           </li>
@@ -130,6 +138,9 @@ function Navlinks() {
                 to="/signup"
                 className={({ isActive }) => (isActive ? styles.active : "")}
               >
+                <span className={styles.mobileIcon}>
+                  <FaUserPlus size={16} />
+                </span>
                 Signup
               </NavLink>
             </li>
@@ -140,6 +151,9 @@ function Navlinks() {
                 to="/login"
                 className={({ isActive }) => (isActive ? styles.active : "")}
               >
+                <span className={styles.mobileIcon}>
+                  <FaSignInAlt size={16} />
+                </span>
                 Login
               </NavLink>
             </li>
@@ -151,6 +165,9 @@ function Navlinks() {
                 className={`${styles.logoutButton} ${styles.Link}`}
                 type="button"
               >
+                <span className={styles.mobileIcon}>
+                  <FaSignOutAlt size={16} />
+                </span>
                 Logout
               </NavLink>
             </li>
@@ -160,6 +177,9 @@ function Navlinks() {
               to="/meals"
               className={({ isActive }) => (isActive ? styles.active : "")}
             >
+              <span className={styles.mobileIcon}>
+                <GiHotMeal size={18} />
+              </span>
               Meals
             </NavLink>
           </li>
@@ -168,10 +188,14 @@ function Navlinks() {
               to="/contact"
               className={({ isActive }) => (isActive ? styles.active : "")}
             >
+              <span className={styles.mobileIcon}>
+                <IoMdContact size={18} />
+              </span>
               Contact us
             </NavLink>
           </li>
         </ul>
+
         {/* Desktop-only cart and theme toggle */}
         <CartLink className={styles.desktopOnly} />
         <ThemeToggle className={styles.desktopOnly} />

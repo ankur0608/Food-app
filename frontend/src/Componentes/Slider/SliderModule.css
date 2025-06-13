@@ -121,11 +121,13 @@ h3 {
   .slider-container {
     padding: 10px;
   }
-
   .meal-card {
     max-width: 90%;
-    margin: 10px auto;
+    /* margin: 10px auto; */
     height: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center children horizontally */
   }
 
   .meal-image {

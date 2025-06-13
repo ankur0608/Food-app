@@ -76,3 +76,42 @@ form {
 .submitButton:hover {
   background-color: #2980b9;
 }
+.accountPrompt {
+  margin-top: 1rem;
+  text-align: center;
+  font-size: 0.95rem;
+  color: inherit;
+}
+
+.link {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 500;
+  margin-left: 0.3rem;
+}
+.text {
+  color: #007bff;
+}
+.link:hover,
+.link:focus {
+  color: #0056b3;
+  text-decoration: underline;
+}
+.inputGroup {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.icon {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  transform: translateY(-50%);
+  color: #888;
+  pointer-events: none;
+  font-size: 1.1rem;
+}
+
+.input {
+  padding: 10px 12px 10px 38px; /* left padding for icon space */
+}

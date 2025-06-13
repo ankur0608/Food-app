@@ -174,11 +174,25 @@
 .mobileExtras {
   display: none;
 }
-
+.mobileIcon {
+  display: none;
+  margin-right: 0.5rem;
+  vertical-align: middle;
+}
 /* Responsive Styles */
 @media (max-width: 768px) {
   .menuToggle {
     display: block;
+    margin-top: 10px;
+    font-size: 1.8rem;
+  }
+  .mobileIcon {
+    display: inline-block;
+  }
+
+  .navList li a {
+    display: flex;
+    align-items: center;
   }
 
   .links {
@@ -189,6 +203,13 @@
 
   .links.open {
     display: flex;
+  }
+  .logo img {
+    margin-top: 12px;
+    margin-left: 125px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    transition: transform 0.3s ease;
   }
 
   .navList {
@@ -203,7 +224,9 @@
     margin-left: 15px;
     margin-top: 10px;
   }
-
+  .navbar {
+    padding: 0;
+  }
   .navExtras {
     display: flex;
     flex-direction: row; /* Make them stay in a row */
@@ -219,13 +242,17 @@
   .links .themeLink {
     display: none;
   }
+  .active {
+    width: 25%;
+    border-bottom: 2px solid #f1c40f;
+  }
   .mobileExtras {
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 1rem;
-    margin-left: auto;
-    margin-right: 0.5rem;
+    /* gap: 1rem; */
+    /* margin-left: auto; */
+    /* margin-right: 0.5rem; */
   }
 
   /* Hide desktop-only extras when menu is open or on small screen */

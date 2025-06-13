@@ -4,5 +4,11 @@
     "username": "Ankur Patel",
     "email": "ankur@testemail.com",
     "password": "123456"
+  },
+  {
+    "id": "4e8aac3f-8d0f-4152-a9e6-4965018c9471",
+    "username": "Ankur Patel",
+    "email": "test@test.com",
+    "password": "123456"
   }
 ]

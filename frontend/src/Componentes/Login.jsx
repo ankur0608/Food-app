@@ -4,6 +4,8 @@ import styles from "./Signup.module.css";
 import Modal from "./Modal";
 import { Link, useNavigate } from "react-router-dom";
 import { useTheme } from "./Store/theme.jsx";
+import { IoMailOutline } from "react-icons/io5";
+import { TbLockPassword } from "react-icons/tb";
 export default function Login() {
   const modalRef = useRef();
   const [modalOpen, setModalOpen] = useState(false);
@@ -62,10 +64,11 @@ export default function Login() {
             noValidate
             className={styles.form}
           >
-            <div>
+            <div className={styles.inputGroup}>
               <label htmlFor="login-email" className={styles.label}>
                 Email:
               </label>
+              <IoMailOutline className={styles.icon} />
               <input
                 className={styles.input}
                 type="email"
@@ -74,7 +77,8 @@ export default function Login() {
                 {...register("email", {
                   required: "Email is required",
                   pattern: {
-                    message: "",
+                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                    message: "Invalid email address",
                   },
                 })}
               />
@@ -82,10 +86,12 @@ export default function Login() {
                 <small className={styles.small}>{errors.email.message}</small>
               )}
             </div>
-            <div>
+
+            <div className={styles.inputGroup}>
               <label htmlFor="login-password" className={styles.label}>
                 Password:
               </label>
+              <TbLockPassword className={styles.icon} />
               <input
                 className={styles.input}
                 type="password"
@@ -96,9 +102,12 @@ export default function Login() {
                 })}
               />
               {errors.password && (
-                <small className={styles.small}>{errors.password.message}</small>
+                <small className={styles.small}>
+                  {errors.password.message}
+                </small>
               )}
             </div>
+
             <Link to="/ForgotPassword" className={styles.Link}>
               Forgot Password
             </Link>
@@ -106,6 +115,12 @@ export default function Login() {
               <button type="submit" className={styles.button}>
                 Login
               </button>
+            </div>
+            <div className={styles.accountPrompt}>
+              <span>Don't have an account? </span>
+              <Link to="/signup" className={styles.Link}>
+                Sign up
+              </Link>
             </div>
           </form>
         </div>

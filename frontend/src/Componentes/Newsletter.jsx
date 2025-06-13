@@ -3,6 +3,8 @@ import { useForm } from "react-hook-form";
 import { useState, useRef } from "react";
 import Modal from "./Modal";
 import { useTheme } from "./Store/theme";
+import { IoMailOutline } from "react-icons/io5";
+
 export default function Newsletter() {
   const {
     register,
@@ -54,19 +56,23 @@ export default function Newsletter() {
         {errors.email && <p className={styles.error}>{errors.email.message}</p>}
 
         <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
-          <input
-            type="email"
-            placeholder="Your email"
-            {...register("email", {
-              required: "Email is required",
-              pattern: {
-                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                message: "Please enter a valid email address",
-              },
-            })}
-            className={styles.input}
-            aria-label="Email address"
-          />
+          <div className={styles.inputGroup}>
+            <IoMailOutline className={styles.icon} />
+            <input
+              type="email"
+              placeholder="Your email"
+              {...register("email", {
+                required: "Email is required",
+                pattern: {
+                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                  message: "Please enter a valid email address",
+                },
+              })}
+              className={styles.input}
+              aria-label="Email address"
+            />
+          </div>
+
           <button type="submit" className={styles.button}>
             Subscribe
           </button>
