@@ -24,16 +24,24 @@ app.post("/create-order", async (req, res) => {
   const { amount } = req.body;
 
   try {
+    if (!amount || typeof amount !== "number") {
+      return res.status(400).json({ error: "Amount must be a number" });
+    }
+
     const order = await razorpay.orders.create({
-      amount: amount * 100, // Razorpay accepts paisa (INR x 100)
+      amount: amount * 100, // still in smallest unit, i.e. cents
       currency: "USD",
       receipt: `receipt_${Date.now()}`,
     });
 
     res.status(200).json(order);
   } catch (err) {
-    console.error("❌ Razorpay error:", err);
-    res.status(500).json({ error: "Failed to create Razorpay order" });
+    console.error("❌ Razorpay error:", err?.error?.description || err);
+    res
+      .status(500)
+      .json({
+        error: err?.error?.description || "Failed to create Razorpay order",
+      });
   }
 });
 

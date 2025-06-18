@@ -8,6 +8,7 @@ import PrivacyPolicy from "./Componentes/PrivacyPolicy.jsx";
 import Cart from "./Componentes/Pages/Cart.jsx";
 import Checkout from "./Componentes/Pages/Checkout.jsx";
 import Navbar from "./Componentes/Navbar/Navbar.jsx";
+
 import {
   createBrowserRouter,
   RouterProvider,
@@ -17,6 +18,9 @@ import {
 
 const Meals = lazy(() => import("./Componentes/Pages/Meals.jsx"));
 const Home = lazy(() => import("./Componentes/Pages/Home.jsx"));
+const OrderSummary = lazy(() =>
+  import("./Componentes/Pages/Order_summary.jsx")
+);
 
 function App() {
   const router = createBrowserRouter([
@@ -26,7 +30,7 @@ function App() {
     },
     {
       path: "/",
-      element: <Navbar />, 
+      element: <Navbar />,
       children: [
         {
           path: "home",
@@ -52,6 +56,14 @@ function App() {
         { path: "privacypolicy", element: <PrivacyPolicy /> },
         { path: "cart", element: <Cart /> },
         { path: "checkout", element: <Checkout /> },
+        {
+          path: "order-summary",
+          element: (
+            <Suspense fallback={<div>Loading Summary...</div>}>
+              <OrderSummary />
+            </Suspense>
+          ),
+        },
         { path: "*", element: <div>404 - Page Not Found</div> },
       ],
     },

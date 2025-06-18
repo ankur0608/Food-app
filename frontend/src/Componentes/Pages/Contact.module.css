@@ -1,133 +1,166 @@
-/* Base container styling */
+/* Contact.module.css */
+
 .contact-container {
-  max-width: 520px;
-  margin: 48px auto;
-  padding: 36px 32px;
-  border-radius: 14px;
-  box-shadow: 0 6px 32px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e2e2e2;
-  background: var(--contact-bg, #fff);
-  transition: background-color 0.3s, color 0.3s, box-shadow 0.3s;
-}
-
-/* Light theme */
-.light {
-  --contact-bg: #fff;
-  color: #181818;
-}
-
-/* Dark theme */
-.dark {
-  --contact-bg: #23272f;
-  color: #f0f0f0;
-  border: 1px solid #444;
-}
-
-/* Heading */
-.contact-container h1 {
-  text-align: center;
-  font-size: 2rem;
-  font-weight: 700;
-  margin-bottom: 24px;
-  letter-spacing: -1px;
-}
-
-/* Contact form layout */
-.contact-form {
   display: flex;
   flex-direction: column;
-  gap: 18px;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-}
-
-/* Label styling */
-label {
-  font-size: 1rem;
-  font-weight: 600;
-  margin-bottom: 2px;
-  color: inherit;
-}
-
-/* input & Textarea styling */
-.input,
-.textarea {
-  padding: 14px 16px;
-  font-size: 1rem;
-  border: 1.5px solid #d3d3d3;
-  border-radius: 8px;
-  width: 100%;
-  background-color: inherit;
-  color: inherit;
+  align-items: center;
+  padding: 40px 20px;
+  min-height: 100vh;
   box-sizing: border-box;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  resize: vertical;
+  background-color: #ffffff;
+  font-family: "Arial", sans-serif;
 }
 
-.input:focus,
-.textarea:focus {
-  border-color: #0984e3;
-  box-shadow: 0 0 0 2px rgba(9, 132, 227, 0.13);
+/* Theme variations */
+.light {
+  background-color: #f0f2f5;
+  color: #333;
+}
+
+.dark {
+  background-color: #1e1e1e;
+  color: #e0e0e0;
+}
+
+.contact-container h1 {
+  margin-bottom: 30px;
+  font-size: 2.5em;
+  font-weight: bold;
+  text-align: center;
+  color: #e0e0e0;
+}
+
+.contact-form {
+  background-color: #ffffff;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 500px;
+  box-sizing: border-box;
+}
+
+/* Adjusting form-group for better spacing and alignment */
+.form-group {
+  margin-bottom: 25px; /* Increased space between form groups */
+  position: relative; /* Needed for absolute positioning of icon/error */
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 1em;
+  font-weight: 600;
+  color: #212529;
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.input {
+  width: 100%;
+  padding: 12px 12px 12px 40px; /* Add padding for the icon */
+  border: 1px solid var(--border-color, #ccc);
+  border-radius: 8px;
+  font-size: 1em;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  background-color: #fff;
+  color: var(--input-text-color, #333);
+}
+
+.input:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
   outline: none;
 }
 
-/* Button styling */
+.icon {
+  position: absolute;
+  left: 12px;
+  color: var(--icon-color, #888);
+  font-size: 1.2em;
+  /* Ensure icon is vertically centered */
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.error {
+  color: #dc3545;
+  font-size: 0.875em;
+  margin-top: 5px;
+  /* Adjust positioning if needed, but typically after input is fine */
+  /* This ensures the error message appears below the input field */
+  display: block; /* Ensures it takes up its own line */
+}
+
 .button {
-  padding: 14px 0;
-  font-size: 1.08rem;
-  background: linear-gradient(90deg, #0984e3 60%, #00c6ff 100%);
+  width: 100%;
+  padding: 15px;
+  background-color: #007bff;
   color: #fff;
   border: none;
   border-radius: 8px;
+  font-size: 1.1em;
   cursor: pointer;
-  font-weight: 700;
-  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
-  width: 100%;
-  box-shadow: 0 2px 8px rgba(9, 132, 227, 0.08);
-  text-align: center;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  margin-top: 20px;
 }
 
 .button:hover {
-  background: linear-gradient(90deg, #0a74c7 60%, #0984e3 100%);
-  transform: translateY(-2px) scale(1.03);
-  box-shadow: 0 4px 16px rgba(9, 132, 227, 0.13);
+  background-color: #0056b3;
+  transform: translateY(-2px);
 }
 
 .button:active {
-  transform: translateY(1px) scale(0.98);
+  transform: translateY(0);
 }
 
-/* Error text */
-.error {
-  color: #d32f2f;
-  font-size: 0.92rem;
-  margin-top: 4px;
-  font-weight: 500;
+/* Theme-specific variables */
+.light .contact-form {
+  --form-bg-color: #ffffff;
+  --label-color: #555;
+  --border-color: #ccc;
+  --input-bg-color: #fff;
+  --input-text-color: #333;
+  --icon-color: #888;
 }
 
-/* Responsive */
+.dark .contact-form {
+  --form-bg-color: #3a3f4b;
+  --label-color: #e0e0e0;
+  --border-color: #555;
+  --input-bg-color: #4a505c;
+  --input-text-color: #e0e0e0;
+  --icon-color: #bbb;
+}
+
+/* Responsive adjustments */
 @media (max-width: 600px) {
-  .contact-container {
-    padding: 18px 8px;
-    margin: 18px 4px;
+  .contact-form {
+    padding: 25px;
   }
 
   .contact-container h1 {
-    font-size: 1.3rem;
+    font-size: 2em;
   }
 
-  .input,
-  .textarea {
-    font-size: 0.98rem;
-    padding: 11px 10px;
+  .input {
+    padding: 10px 10px 10px 35px;
+    font-size: 0.9em;
+  }
+
+  .icon {
+    font-size: 1em;
+    left: 10px;
   }
 
   .button {
-    padding: 12px 0;
-    font-size: 0.98rem;
+    padding: 12px;
+    font-size: 1em;
   }
 }

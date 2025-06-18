@@ -117,7 +117,7 @@ export default function Login() {
               </button>
             </div>
             <div className={styles.accountPrompt}>
-              <span>Don't have an account? </span>
+              <span className={styles.text}>Don't have an account? </span>
               <Link to="/signup" className={styles.Link}>
                 Sign up
               </Link>

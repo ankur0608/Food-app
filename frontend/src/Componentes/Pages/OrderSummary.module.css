@@ -1,0 +1,126 @@
+.orderSummaryContainer {
+  max-width: 700px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+  font-family: "Segoe UI", sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.dark .orderSummaryContainer {
+  background-color: #1e293b;
+  color: #f1f5f9;
+  box-shadow: 0 8px 20px rgba(255, 255, 255, 0.05);
+}
+
+.heading {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: #1e293b;
+}
+
+.dark .heading {
+  color: #f1f5f9;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 1rem;
+  vertical-align: top;
+}
+
+.dark .table td {
+  border-bottom: 1px solid #334155;
+}
+
+.label {
+  font-weight: 600;
+  color: #334155;
+  width: 40%;
+}
+
+.dark .label {
+  color: #cbd5e1;
+}
+
+.value {
+  color: #475569;
+}
+
+.dark .value {
+  color: #e2e8f0;
+}
+
+.total {
+  font-weight: bold;
+  color: #16a34a;
+}
+
+.backButton {
+  display: inline-block;
+  /* margin-top: 0.2rem; */
+  padding: 0.75rem 1.5rem;
+  height: 26px;
+  width: 150px;
+  background-color: #0f172a;
+  color: #ffffff;
+  text-decoration: none;
+  border-radius: 8px;
+  text-align: center;
+  transition: background-color 0.2s ease;
+  font-weight: 500;
+}
+
+.backButton:hover {
+  background-color: #1e293b;
+}
+
+.downloadButton {
+  width: 200px;
+  height: 50px;
+  background-color: #0f172a;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 1rem;
+  transition: background-color 0.2s ease;
+}
+
+.downloadButton:hover {
+  background-color: #1e293b;
+}
+
+.buttonGroup {
+  display: flex;
+  justify-content: space-between; /* centers buttons horizontally */
+  gap: 1.5rem; /* space between buttons */
+  margin-top: 2rem;
+  flex-wrap: wrap; /* allows wrap on small screens */
+}
+
+
+@media (max-width: 600px) {
+  .buttonGroup {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .downloadButton,
+  .backButton {
+    width: 100%;
+    text-align: center;
+  }
+}

@@ -76,7 +76,7 @@ function Footer() {
             <FaTwitter />
           </a>
           <a
-            href="https://linkedin.com"
+            href="https://www.linkedin.com/in/ankur-patel-86b65a35a"
             target="_blank"
             rel="noreferrer"
             aria-label="LinkedIn"
@@ -93,7 +93,7 @@ function Footer() {
       <button
         className={styles.scrollButton}
         onClick={() => {
-          const root = document.getElementById('root');
+          const root = document.getElementById("root");
           if (root && root.scrollTop > 0) {
             root.scrollTo({ top: 0, behavior: "smooth" });
           } else {

@@ -39,7 +39,7 @@ const CheckoutForm = () => {
 
   const handleModalClose = () => {
     setModalOpen(false);
-    navigate("/");
+    navigate("/order-summary");
   };
 
   const onSubmit = async (formData) => {
@@ -49,13 +49,13 @@ const CheckoutForm = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ amount: total }), // backend will convert to paise
+        body: JSON.stringify({ amount: total }),
       });
 
       const order = await response.json();
 
       const options = {
-        key: "rzp_test_7jWpAfUxjwYR6P",
+        key: "rzp_test_7jWpAfUxjwYR6P", // Replace with your key
         amount: order.amount,
         currency: "USD",
         name: "Meal Checkout",
@@ -65,9 +65,24 @@ const CheckoutForm = () => {
         handler: function (response) {
           localStorage.removeItem("cartItems");
           clearCart();
-          modalRef.current.open();
-          setModalOpen(true);
-          console.log("✅ Razorpay Success:", response);
+
+          const orderDetails = {
+            razorpay_order_id: order.id,
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_signature: response.razorpay_signature,
+            amount: order.amount / 100,
+            currency: order.currency,
+            buyer: {
+              name: formData.name,
+              email: formData.email,
+              mobile: formData.mobile,
+              address: formData.address,
+            },
+            date: new Date().toLocaleString(),
+          };
+
+          localStorage.setItem("orderDetails", JSON.stringify(orderDetails));
+          navigate("/order-summary");
         },
         prefill: {
           name: formData.name,
