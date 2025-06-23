@@ -1,9 +1,8 @@
 /* Base container */
 .container {
   max-width: 1350px;
-  /* height: auto; */
   margin: 0 auto;
-  padding: 2rem 1rem;
+  padding: 2rem 1.5rem;
   transition: background-color 0.3s ease, color 0.3s ease;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   line-height: 1.6;
@@ -27,6 +26,7 @@
   text-align: center;
   margin-bottom: 2rem;
   color: #e63946;
+  word-wrap: break-word;
 }
 
 /* Subheadings */
@@ -39,12 +39,9 @@
 /* Section styling */
 .section {
   margin-bottom: 2.5rem;
-  /* border-left: 4px solid #e63946; */
-  padding-left: 1.5rem;
+  padding: 1rem 1.5rem;
   background-color: rgba(230, 57, 70, 0.05);
   border-radius: 6px;
-  padding-top: 1rem;
-  padding-bottom: 1rem;
 }
 
 /* Responsive list */
@@ -69,7 +66,7 @@
   line-height: 1;
 }
 
-/* Link styles */
+/* Links */
 a {
   color: #e63946;
   text-decoration: none;
@@ -80,7 +77,7 @@ a:hover {
   color: #d62828;
 }
 
-/* Make text strong stand out */
+/* Bold text */
 strong {
   font-weight: bold;
   color: #222;
@@ -89,9 +86,8 @@ strong {
 .dark strong {
   color: #fbd38d;
 }
-
-/* Responsive layout */
-@media (max-width: 600px) {
+/* Tablets and smaller */
+@media (max-width: 768px) {
   .heading {
     font-size: 2rem;
   }
@@ -100,7 +96,35 @@ strong {
     font-size: 1.5rem;
   }
 
+  .container {
+    padding: 1.5rem 1rem;
+    font-size: small;
+  }
+
   .section {
-    padding-left: 1rem;
+    padding: 1rem;
+  }
+}
+
+/* Mobile phones */
+@media (max-width: 480px) {
+  .heading {
+    font-size: 1.6rem;
+  }
+
+  .subheading {
+    font-size: 1.25rem;
+    text-align: center;
+  }
+
+  .section {
+    padding: 0.75rem;
+  }
+  .container {
+    font-size: small;
+  }
+
+  .listItem {
+    font-size: 0.95rem;
   }
 }

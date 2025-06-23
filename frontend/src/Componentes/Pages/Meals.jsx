@@ -3,105 +3,104 @@ import styles from "./Meals.module.css";
 import { CartContext } from "../Store/CartContext.jsx";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../Store/theme";
-import { FaSearch } from "react-icons/fa";
+import { FaSearch, FaTimes } from "react-icons/fa";
+import Loading from "../../Componentes/Loading.jsx";
 
 export default function Product() {
   const [meals, setMeals] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
-  const mealsPerPage = Math.ceil(meals.length / 3);
+  const [loading, setLoading] = useState(true);
+  const mealsPerPage = 6;
 
-  const CartCtx = useContext(CartContext);
-  const navigate = useNavigate();
+  const { addItem } = useContext(CartContext);
   const { theme } = useTheme();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchMeals = async () => {
       try {
-        const response = await fetch("http://localhost:5000/meals");
-        if (!response.ok) throw new Error("Failed to fetch meals.");
-        const data = await response.json();
+        const res = await fetch("http://localhost:5000/meals");
+        if (!res.ok) throw new Error("Failed to fetch meals.");
+        const data = await res.json();
         setMeals(data);
-      } catch (error) {
-        console.error("Error fetching meals:", error.message);
+      } catch (err) {
+        console.error("Error:", err.message);
+      } finally {
+        setLoading(false);
       }
     };
     fetchMeals();
   }, []);
 
-  // Get unique categories
-  const categories = [
-    "All",
-    ...Array.from(new Set(meals.map((meal) => meal.category))),
-  ];
+  useEffect(() => setCurrentPage(1), [selectedCategory, searchQuery]);
 
-  function handleAddToCart(meal) {
-    const token = localStorage.getItem("token");
-    if (token) {
-      CartCtx.addItem(meal);
-    } else {
-      navigate("/signup");
-    }
-  }
+  if (loading) return <Loading />;
 
-  // Filter meals by category and search
-  const filteredMeals = meals.filter((meal) => {
-    const matchesCategory =
-      selectedCategory === "All" || meal.category === selectedCategory;
-    const matchesSearch = meal.name
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
+  const categories = ["All", ...new Set(meals.map((meal) => meal.category))];
+
+  const handleAddToCart = (meal) => {
+    localStorage.getItem("token") ? addItem(meal) : navigate("/signup");
+  };
+
+  const filteredMeals = meals.filter(({ category, name }) => {
+    const matchCategory =
+      selectedCategory === "All" || category === selectedCategory;
+    const matchSearch = name.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchCategory && matchSearch;
   });
 
-  // Pagination logic
   const totalPages = Math.ceil(filteredMeals.length / mealsPerPage);
-  const startpoint = (currentPage - 1) * mealsPerPage;
-  const endpoint = startpoint + mealsPerPage;
-
-  // Reset to page 1 when filter/search changes
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [selectedCategory, searchQuery]);
+  const currentMeals = filteredMeals.slice(
+    (currentPage - 1) * mealsPerPage,
+    currentPage * mealsPerPage
+  );
 
   return (
     <div className={`${styles["product-container"]} ${styles[theme]}`}>
-      <div>
-        <h1>Meals</h1>
-        {/* Category Filter */}
-        <div style={{ marginBottom: "1rem", textAlign: "center" }}>
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              type="button"
-              onClick={() => setSelectedCategory(cat)}
-              className={`${styles.btn_category} ${
-                selectedCategory === cat ? styles.active : ""
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
-        {/* Search input */}
-        <div className={styles.searchWrapper}>
-          <FaSearch className={styles.searchIcon} />
-          <input
-            type="text"
-            placeholder="Search meals..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className={styles.searchinput}
-          />
-        </div>
+      <h1>Meals</h1>
+
+      {/* Category Filter */}
+      <div className={styles.categoryFilter}>
+        {categories.map((cat) => (
+          <button
+            key={cat}
+            onClick={() => setSelectedCategory(cat)}
+            className={`${styles.btn_category} ${
+              selectedCategory === cat ? styles.active : ""
+            }`}
+          >
+            {cat}
+          </button>
+        ))}
       </div>
 
+      {/* Search Box */}
+      <div className={styles.searchWrapper}>
+        <FaSearch className={styles.searchIcon} />
+        <input
+          type="text"
+          placeholder="Search meals..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className={styles.searchinput}
+        />
+        {searchQuery && (
+          <FaTimes
+            className={styles.clearIcon}
+            onClick={() => setSearchQuery("")}
+            title="Clear search"
+          />
+        )}
+      </div>
+
+      {/* Meals List */}
       {filteredMeals.length === 0 ? (
         <p className={styles["no-meals"]}>No meals found.</p>
       ) : (
         <ul className={styles["meals-list"]}>
-          {filteredMeals.slice(startpoint, endpoint).map((meal) => (
+          {currentMeals.map((meal) => (
             <li className={styles["meal-card"]} key={meal.id}>
               <img
                 src={
@@ -110,10 +109,7 @@ export default function Product() {
                     : `http://localhost:5000/images/${meal.image}`
                 }
                 alt={meal.name}
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.src = "/assets/default-meal.jpg";
-                }}
+                onError={(e) => (e.target.src = "/assets/default-meal.jpg")}
               />
               <h3>{meal.name}</h3>
               <p className={styles["meal-price"]}>{meal.description}</p>
@@ -123,7 +119,8 @@ export default function Product() {
           ))}
         </ul>
       )}
-      {/* Pagination Controls */}
+
+      {/* Pagination */}
       {totalPages > 1 && (
         <div className={styles.pagination}>
           <button
@@ -133,15 +130,15 @@ export default function Product() {
           >
             Prev
           </button>
-          {[...Array(totalPages).keys()].map((n) => (
+          {Array.from({ length: totalPages }, (_, i) => (
             <button
-              key={n + 1}
-              onClick={() => setCurrentPage(n + 1)}
+              key={i + 1}
+              onClick={() => setCurrentPage(i + 1)}
               className={`${styles["page-btn"]} ${
-                currentPage === n + 1 ? styles.active : ""
+                currentPage === i + 1 ? styles.active : ""
               }`}
             >
-              {n + 1}
+              {i + 1}
             </button>
           ))}
           <button

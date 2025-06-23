@@ -19,25 +19,33 @@ function Signup() {
   const { theme } = useTheme();
 
   async function onSubmit(data) {
-    try {
-      localStorage.setItem("signupData", JSON.stringify(data));
-      const response = await fetch("http://localhost:5000/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      const result = await response.json();
-      if (!response.ok) {
-        alert(result.error || "Signup failed");
-        return;
-      }
-      localStorage.setItem("token", result.token);
-      localStorage.setItem("justSignedUp", "true");
-      navigate("/login");
-    } catch (error) {
-      alert("Something went wrong. Please try again.");
+  try {
+    console.log("📦 Sending signup data:", data);
+
+    const response = await fetch("http://localhost:5000/signup", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    console.log("🌐 Response status:", response.status);
+    const result = await response.json();
+    console.log("✅ Server response:", result);
+
+    if (!response.ok) {
+      alert(result.error || "Signup failed");
+      return;
     }
+
+    localStorage.setItem("token", result.token);
+    navigate("/login");
+  } catch (error) {
+    console.error("❌ Network or server error:", error);
+    alert("Something went wrong. Please try again.");
   }
+}
 
   return (
     <>

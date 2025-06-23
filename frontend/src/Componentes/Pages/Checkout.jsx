@@ -44,25 +44,50 @@ const CheckoutForm = () => {
 
   const onSubmit = async (formData) => {
     try {
-      const response = await fetch("http://localhost:5000/create-order", {
+      // Step 1: Create Razorpay order
+      const res = await fetch("http://localhost:5000/create-order", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ amount: total }),
+        body: JSON.stringify({ amount: total * 100, currency: "USD" }),
       });
 
-      const order = await response.json();
+      const order = await res.json();
 
+      // Step 2: Open Razorpay Checkout
       const options = {
-        key: "rzp_test_7jWpAfUxjwYR6P", // Replace with your key
+        key: "rzp_test_7jWpAfUxjwYR6P", // Replace with your real Razorpay key
         amount: order.amount,
         currency: "USD",
         name: "Meal Checkout",
         description: "Thank you for your purchase!",
         image: "/assets/logo.png",
         order_id: order.id,
-        handler: function (response) {
+        handler: async function (response) {
+          const saveRes = await fetch("http://localhost:5000/save-payment", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              razorpay_order_id: order.id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              amount: order.amount / 100,
+              currency: order.currency,
+              name: formData.name,
+              email: formData.email,
+              mobile: formData.mobile,
+              address: formData.address,
+              items: JSON.parse(localStorage.getItem("cartItems"))?.items || [], // ✅ include cart
+            }),
+          });
+
+          if (!saveRes.ok) {
+            console.error("❌ Failed to save payment");
+            return alert("Payment completed but failed to save!");
+          }
           localStorage.removeItem("cartItems");
           clearCart();
 
@@ -97,8 +122,8 @@ const CheckoutForm = () => {
       const rzp = new window.Razorpay(options);
       rzp.open();
     } catch (error) {
-      console.error("❌ Payment failed:", error);
-      alert("Something went wrong while processing your payment.");
+      console.error("❌ Payment setup failed:", error);
+      alert("Something went wrong while setting up your payment.");
     }
   };
 

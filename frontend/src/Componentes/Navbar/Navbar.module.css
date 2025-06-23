@@ -1,7 +1,7 @@
-/* Navbar container */
+/* Navbar Container */
 .navbar {
   background-color: #222;
-  padding: 18px 20px;
+  padding: 12px 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -10,16 +10,14 @@
   top: 0;
   z-index: 1000;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08); /* subtle shadow */
-  backdrop-filter: blur(8px); /* optional: modern blur effect */
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(8px);
 }
 
 /* Logo */
 .logo img {
   height: 42px;
   border-radius: 50%;
-  width: auto;
-  cursor: pointer;
   transition: transform 0.3s ease;
 }
 
@@ -27,39 +25,24 @@
   transform: scale(1.05);
 }
 
-/* Hamburger menu button (shown only on mobile) */
+/* Hamburger Toggle (mobile only) */
 .menuToggle {
   display: none;
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   background: none;
   border: none;
   color: white;
   cursor: pointer;
-  margin-left: 1rem;
 }
 
-/* Main links container */
+/* Main Links Wrapper */
 .links {
   display: flex;
   align-items: center;
   gap: 25px;
 }
 
-/* Expanded menu on mobile */
-.links.open {
-  flex-direction: column;
-  width: 100%;
-  background-color: #222;
-  padding: 10px 0;
-  margin-top: 8px;
-  border-top: 1px solid #444;
-  position: absolute;
-  top: 60px;
-  left: 0;
-  z-index: 999;
-}
-
-/* Navigation list */
+/* Navigation List */
 .navList {
   list-style: none;
   display: flex;
@@ -68,13 +51,6 @@
   padding: 0;
 }
 
-.links.open .navList {
-  flex-direction: column;
-  gap: 15px;
-  width: 100%;
-}
-
-/* Nav items */
 .navList li {
   display: inline-block;
 }
@@ -87,9 +63,8 @@
   text-decoration: none;
   padding: 6px 8px;
   border-radius: 4px;
-  transition: background-color 0.25s ease, color 0.25s ease;
+  transition: color 0.25s ease;
   cursor: pointer;
-  user-select: none;
 }
 
 .navList li a:hover,
@@ -103,17 +78,16 @@
   border-bottom: 2px solid #f1c40f;
 }
 
-/* Logout Button */
+/* Logout */
 .logoutButton {
   background: none;
   border: none;
   color: inherit;
-  cursor: pointer;
+  font-size: 18px;
   font-weight: 600;
   padding: 6px 8px;
   border-radius: 4px;
-  text-decoration: none;
-  font-size: 18px; /* Match link font size */
+  cursor: pointer;
 }
 
 .logoutButton:hover {
@@ -128,10 +102,9 @@
   align-items: center;
   padding: 6px 8px;
   border-radius: 4px;
-  transition: background-color 0.25s ease;
+  transition: color 0.25s ease;
 }
 
-/* Cart badge */
 .badge {
   position: absolute;
   top: -6px;
@@ -142,10 +115,9 @@
   padding: 2px 7px;
   font-size: 13px;
   font-weight: 700;
-  user-select: none;
 }
 
-/* Theme toggle */
+/* Theme Toggle */
 .themeLink {
   background: none;
   border: none;
@@ -153,110 +125,101 @@
   cursor: pointer;
   font-size: 22px;
   padding: 6px 8px;
-  border-radius: 4px;
-  transition: background-color 0.25s ease;
   display: flex;
   align-items: center;
-  user-select: none;
+  transition: color 0.25s ease;
 }
 
 .themeLink:hover {
   color: #f1c40f;
 }
 
-/* Extras like cart and theme button */
-.navExtras {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-/* Mobile extras container (cart + theme toggle in a row) */
+/* Mobile Extras (cart + theme toggle) */
 .mobileExtras {
   display: none;
 }
+
+/* Mobile Icons beside nav text */
 .mobileIcon {
   display: none;
   margin-right: 0.5rem;
   vertical-align: middle;
 }
-/* Responsive Styles */
+
+/* Responsive Layout */
 @media (max-width: 768px) {
-  .menuToggle {
-    display: block;
-    margin-top: 10px;
-    font-size: 1.8rem;
-  }
-  .mobileIcon {
-    display: inline-block;
+  .navbar {
+    padding: 0px 15px;
   }
 
-  .navList li a {
+  .logo img {
+    margin: 5px auto;
+    width: 30px;
+    height: 30px;
+  }
+
+  .menuToggle {
+    display: block;
+  }
+
+  .mobileExtras {
     display: flex;
-    align-items: center;
+    margin-right: 90px;
+    margin-bottom: 10px;
   }
 
   .links {
     display: none;
     flex-direction: column;
     width: 100%;
+    background-color: #222;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    padding: 15px 0;
+    border-top: 1px solid #444;
   }
 
   .links.open {
     display: flex;
   }
-  .logo img {
-    margin-top: 12px;
-    margin-left: 125px;
-    margin-right: 5px;
-    margin-bottom: 5px;
-    transition: transform 0.3s ease;
-  }
 
   .navList {
     flex-direction: column;
+    align-items: flex-start;
     gap: 15px;
+    padding-left: 20px;
     width: 100%;
+  }
+
+  .navList li a {
+    display: flex;
+    align-items: center;
+    width: 100%;
+  }
+
+  .mobileIcon {
+    display: inline-block;
   }
 
   .cart,
   .themeLink {
-    align-self: flex-start;
     margin-left: 15px;
     margin-top: 10px;
   }
-  .navbar {
-    padding: 0;
-  }
-  .navExtras {
-    display: flex;
-    flex-direction: row; /* Make them stay in a row */
-    align-items: center;
-    gap: 1rem;
-    margin-top: 10px;
-    margin-left: 15px;
-    position: relative;
-  }
 
-  /* Hide extras inside collapsed links (avoids duplication) */
-  .links .cart,
-  .links .themeLink {
-    display: none;
-  }
-  .active {
-    width: 25%;
-    border-bottom: 2px solid #f1c40f;
-  }
-  .mobileExtras {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    /* gap: 1rem; */
-    /* margin-left: auto; */
-    /* margin-right: 0.5rem; */
-  }
-
-  /* Hide desktop-only extras when menu is open or on small screen */
   .desktopOnly {
     display: none !important;
+  }
+
+  .active {
+    width: auto;
+    border-bottom: 2px solid #f1c40f;
+  }
+  .navList li a {
+    font-size: 13px;
+  }
+  .logoutButton {
+    font-size: 13px;
   }
 }

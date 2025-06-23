@@ -17,29 +17,37 @@ export default function Login() {
   const navigate = useNavigate();
   const { theme } = useTheme();
   async function onSubmit(data) {
-    const response = await fetch("http://localhost:5000/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-    const result = await response.json();
+    // console.log("📦 Sending login data:", JSON.stringify(data, null, 2));
     try {
+      const response = await fetch("http://localhost:5000/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+      console.log("🌐 Response status:", response.status);
+
       if (!response.ok) {
+        console.warn("⚠️ Server error response:", result);
         alert(result.error || "Login failed");
         return;
       }
 
-      console.log("Login success:", result);
+      console.log("✅ Login success:", result);
+
       localStorage.setItem("token", result.token);
+      localStorage.setItem("user", JSON.stringify(result.user)); // optional
       localStorage.removeItem("justSignedUp");
 
       modalRef.current.open();
       setModalOpen(true);
     } catch (error) {
-      console.error("Signup failed:", error);
+      console.error("🔥 Network or server error:", error);
       alert("Something went wrong. Please try again.");
     }
   }
+
   const handleModalClose = () => {
     setModalOpen(false);
     navigate("/Home");

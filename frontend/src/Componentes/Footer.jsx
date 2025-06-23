@@ -12,77 +12,113 @@ import {
 import { Link } from "react-router-dom";
 
 function Footer() {
+  const handleScrollTop = () => {
+    const root = document.getElementById("root");
+    const target = root?.scrollTop > 0 ? root : window;
+    target.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const contactInfo = [
+    {
+      icon: <FaMapMarkerAlt />,
+      text: "ul. Opolska 100, 31-323 Kraków, Poland",
+    },
+    {
+      icon: <FaPhoneAlt />,
+      text: <a href="tel:+91783871783">+91 783 871 783</a>,
+    },
+    {
+      icon: <FaEnvelope />,
+      text: (
+        <a href="mailto:contact@pragmaticcoders.com">
+          contact@pragmaticcoders.com
+        </a>
+      ),
+    },
+  ];
+
+  const quickLinks = [
+    { to: "/home", label: "Home" },
+    { to: "/about", label: "About" },
+    { to: "/meals", label: "Meals" },
+    { to: "/contact", label: "Contact Us" },
+  ];
+
+  const usefulLinks = [
+    { to: "/PrivacyPolicy", label: "Privacy Policy" },
+    { to: "/terms-of-use", label: "Terms of Use" },
+    { to: "/sitemap", label: "Sitemap" },
+  ];
+
+  const socialLinks = [
+    {
+      href: "https://facebook.com",
+      icon: <FaFacebook />,
+      label: "Facebook",
+    },
+    {
+      href: "https://instagram.com",
+      icon: <FaInstagram />,
+      label: "Instagram",
+    },
+    {
+      href: "https://twitter.com",
+      icon: <FaTwitter />,
+      label: "Twitter",
+    },
+    {
+      href: "https://www.linkedin.com/in/ankur-patel-86b65a35a",
+      icon: <FaLinkedin />,
+      label: "LinkedIn",
+    },
+  ];
+
   return (
     <footer className={styles.footer}>
       <div className={styles.grid}>
         <address className={styles.column}>
           <h2>Pragmatic Coders</h2>
           <p>Empowering your ideas through software.</p>
-          <p>
-            <FaMapMarkerAlt /> ul. Opolska 100, 31-323 Kraków, Poland
-          </p>
-          <p>
-            <FaPhoneAlt /> <a href="tel:+91783871783">+91 783 871 783</a>
-          </p>
-          <div className={styles.contactEmail}>
-            <FaEnvelope className={styles.icon} />
-            <a href="mailto:contact@pragmaticcoders.com">
-              contact@pragmaticcoders.com
-            </a>
-          </div>
+          {contactInfo.map(({ icon, text }, i) => (
+            <p key={i}>
+              {icon} <span className={styles.contactText}>{text}</span>
+            </p>
+          ))}
         </address>
 
         <nav className={styles.column} aria-label="Quick Links">
           <h3>Quick Links</h3>
-          <Link to="/home">Home</Link>
-          <Link to="/about">About</Link>
-          <Link to="/meals">Meals</Link>
-          <Link to="/contact">Contact Us</Link>
+          {quickLinks.map(({ to, label }) => (
+            <Link key={to} to={to}>
+              {label}
+            </Link>
+          ))}
         </nav>
 
         <nav className={styles.column} aria-label="Useful Links">
           <h3>Useful Links</h3>
-          <Link to="/PrivacyPolicy">Privacy Policy</Link>
-          <Link to="/terms-of-use">Terms of Use</Link>
-          <Link to="/sitemap">Sitemap</Link>
+          {usefulLinks.map(({ to, label }) => (
+            <Link key={to} to={to}>
+              {label}
+            </Link>
+          ))}
         </nav>
       </div>
 
       <section className={styles.socialSection} aria-label="Social Media">
         <h3>Follow Us</h3>
         <div className={styles.social}>
-          <a
-            href="https://facebook.com"
-            target="_blank"
-            rel="noreferrer"
-            aria-label="Facebook"
-          >
-            <FaFacebook />
-          </a>
-          <a
-            href="https://instagram.com"
-            target="_blank"
-            rel="noreferrer"
-            aria-label="Instagram"
-          >
-            <FaInstagram />
-          </a>
-          <a
-            href="https://twitter.com"
-            target="_blank"
-            rel="noreferrer"
-            aria-label="Twitter"
-          >
-            <FaTwitter />
-          </a>
-          <a
-            href="https://www.linkedin.com/in/ankur-patel-86b65a35a"
-            target="_blank"
-            rel="noreferrer"
-            aria-label="LinkedIn"
-          >
-            <FaLinkedin />
-          </a>
+          {socialLinks.map(({ href, icon, label }) => (
+            <a
+              key={label}
+              href={href}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={label}
+            >
+              {icon}
+            </a>
+          ))}
         </div>
       </section>
 
@@ -92,14 +128,7 @@ function Footer() {
 
       <button
         className={styles.scrollButton}
-        onClick={() => {
-          const root = document.getElementById("root");
-          if (root && root.scrollTop > 0) {
-            root.scrollTo({ top: 0, behavior: "smooth" });
-          } else {
-            window.scrollTo({ top: 0, behavior: "smooth" });
-          }
-        }}
+        onClick={handleScrollTop}
         aria-label="Back to Top"
       >
         <FaArrowUp /> Back to Top

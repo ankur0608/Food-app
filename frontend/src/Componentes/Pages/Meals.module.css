@@ -38,6 +38,20 @@
   color: #888;
   pointer-events: none;
 }
+.clearIcon {
+  position: absolute;
+  top: 50%;
+  right: 14px;
+  transform: translateY(-50%);
+  font-size: 18px;
+  color: #888;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.clearIcon:hover {
+  color: #ff6600;
+}
 
 .light {
   background-color: #fff;
@@ -179,6 +193,12 @@
   background: #eee;
   color: #ccc;
   cursor: not-allowed;
+}
+
+.categoryFilter{
+  align-items: center;
+  text-align: center;
+  margin-bottom: 25px;
 }
 .btn_category {
   margin: 0 0.4rem;
