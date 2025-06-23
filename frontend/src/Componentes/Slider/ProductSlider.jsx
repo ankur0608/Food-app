@@ -17,7 +17,7 @@ const AutoPlaySlider = () => {
   useEffect(() => {
     const fetchMeals = async () => {
       try {
-        const response = await fetch("http://localhost:5000/meals");
+        const response = await fetch("https://food-app-d8r3.onrender.commeals");
         if (!response.ok) throw new Error("Failed to fetch meals.");
         const data = await response.json();
         setMeals(data);
@@ -85,7 +85,7 @@ const AutoPlaySlider = () => {
               src={
                 meal.image.startsWith("http")
                   ? meal.image
-                  : `http://localhost:5000/images/${meal.image}`
+                  : `https://food-app-d8r3.onrender.comimages/${meal.image}`
               }
               className="meal-image"
             />

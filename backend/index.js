@@ -16,6 +16,9 @@ const supabase = createClient(
 
 const app = express();
 const PORT = 5000;
+app.get("/home", (req, res) => {
+  res.send("✅ Food App Backend is running!");
+});
 
 app.use(
   cors({
