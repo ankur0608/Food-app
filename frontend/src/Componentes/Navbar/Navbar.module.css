@@ -149,7 +149,7 @@
 /* Responsive Layout */
 @media (max-width: 768px) {
   .navbar {
-    padding: 0px 15px;
+    padding: 5px 15px;
   }
 
   .logo img {
@@ -164,7 +164,7 @@
 
   .mobileExtras {
     display: flex;
-    margin-right: 90px;
+    margin-right: 111px;
     margin-bottom: 10px;
   }
 

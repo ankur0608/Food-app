@@ -136,6 +136,7 @@
   margin-bottom: 0.7rem;
 }
 .meal-card span {
+  margin-bottom: 10px;
   font-size: 1rem;
   font-weight: 700;
   color: #f5f5f5;
@@ -195,7 +196,7 @@
   cursor: not-allowed;
 }
 
-.categoryFilter{
+.categoryFilter {
   align-items: center;
   text-align: center;
   margin-bottom: 25px;
@@ -272,6 +273,7 @@
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 1.2rem;
   }
+
   .meal-card {
     min-height: 360px;
     padding: 1rem 0.5rem;
