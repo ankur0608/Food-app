@@ -15,7 +15,8 @@ const supabase = createClient(
 );
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
+
 app.get("/home", (req, res) => {
   res.send("✅ Food App Backend is running!");
 });
@@ -24,7 +25,8 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173", // local dev
-      "https://food-app-five-mu.vercel.app", // your live frontend on Vercel
+      "https://food-app-five-mu.vercel.app",
+      "https://food-app-d8r3.onrender.com",
     ],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,

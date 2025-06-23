@@ -45,7 +45,7 @@ const CheckoutForm = () => {
   const onSubmit = async (formData) => {
     try {
       // Step 1: Create Razorpay order
-      const res = await fetch("https://food-app-d8r3.onrender.comcreate-order", {
+      const res = await fetch("https://food-app-d8r3.onrender.com/create-order", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -65,7 +65,7 @@ const CheckoutForm = () => {
         image: "/assets/logo.png",
         order_id: order.id,
         handler: async function (response) {
-          const saveRes = await fetch("https://food-app-d8r3.onrender.comsave-payment", {
+          const saveRes = await fetch("https://food-app-d8r3.onrender.com/save-payment", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",

@@ -19,7 +19,7 @@ export default function Login() {
   async function onSubmit(data) {
     // console.log("📦 Sending login data:", JSON.stringify(data, null, 2));
     try {
-      const response = await fetch("https://food-app-d8r3.onrender.comlogin", {
+      const response = await fetch("https://food-app-d8r3.onrender.com/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),

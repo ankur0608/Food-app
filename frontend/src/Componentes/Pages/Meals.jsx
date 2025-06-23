@@ -21,7 +21,7 @@ export default function Product() {
   useEffect(() => {
     const fetchMeals = async () => {
       try {
-        const res = await fetch("https://food-app-d8r3.onrender.commeals");
+        const res = await fetch("https://food-app-d8r3.onrender.com/meals");
         if (!res.ok) throw new Error("Failed to fetch meals.");
         const data = await res.json();
         setMeals(data);
@@ -106,7 +106,7 @@ export default function Product() {
                 src={
                   meal.image.startsWith("http")
                     ? meal.image
-                    : `https://food-app-d8r3.onrender.comimages/${meal.image}`
+                    : `https://food-app-d8r3.onrender.com/images/${meal.image}`
                 }
                 alt={meal.name}
                 onError={(e) => (e.target.src = "/assets/default-meal.jpg")}

@@ -22,7 +22,7 @@ function Signup() {
   try {
     console.log("📦 Sending signup data:", data);
 
-    const response = await fetch("https://food-app-d8r3.onrender.comsignup", {
+    const response = await fetch("https://food-app-d8r3.onrender.com/signup", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
