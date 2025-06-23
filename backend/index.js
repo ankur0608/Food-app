@@ -19,7 +19,10 @@ const PORT = 5000;
 
 app.use(
   cors({
-    origin: "http://localhost:5173", // frontend origin (Vite dev)
+    origin: [
+      "http://localhost:5173", // local dev
+      "https://food-app-five-mu.vercel.app", // your live frontend on Vercel
+    ],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
