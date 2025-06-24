@@ -292,7 +292,10 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.post("/contact", (req, res) => {
+app.post("/contact", async (req, res) => {
+  console.log("🔥🔥🔥 POST /contact hit");
+  console.log("📨 Received contact data:", req.body);
+
   const { firstName, lastName, email, phone, date, time, guests } = req.body;
 
   if (
@@ -307,47 +310,32 @@ app.post("/contact", (req, res) => {
     return res.status(400).json({ error: "All fields are required" });
   }
 
-  const newReservation = {
-    firstName,
-    lastName,
-    email,
-    phone,
-    date,
-    time,
-    guests,
-    submittedAt: new Date().toISOString(),
-  };
+  try {
+    const { data, error } = await supabase.from("contacts").insert([
+      {
+        firstName,
+        lastName,
+        email,
+        phone,
+        date,
+        time,
+        guests: Number(guests),
+      },
+    ]);
 
-  const reservationsFile = path.join(__dirname, "data", "reservations.json");
-
-  fs.readFile(reservationsFile, "utf8", (readErr, data) => {
-    let reservations = [];
-
-    if (!readErr) {
-      try {
-        reservations = JSON.parse(data);
-        if (!Array.isArray(reservations)) reservations = [];
-      } catch {
-        reservations = [];
-      }
+    if (error) {
+      console.error("❌ Supabase insert error:", error);
+      return res.status(500).json({ error: "Failed to save contact" });
     }
 
-    reservations.push(newReservation);
-
-    fs.writeFile(
-      reservationsFile,
-      JSON.stringify(reservations, null, 2),
-      (writeErr) => {
-        if (writeErr) {
-          return res
-            .status(500)
-            .json({ error: "Failed to save reservation data" });
-        }
-
-        return res.json({ message: "Reservation submitted successfully" });
-      }
-    );
-  });
+    console.log("✅ Contact saved to Supabase:", data);
+    return res
+      .status(201)
+      .json({ message: "Reservation submitted successfully", data });
+  } catch (err) {
+    console.error("🔥 Server error:", err);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
 });
 
 // app.listen(PORT, () => {

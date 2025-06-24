@@ -19,6 +19,8 @@ function Contact() {
   const { theme } = useTheme();
 
   const onSubmit = async (data) => {
+    console.log("📦 Sending reservation data:", data); // DEBUG
+
     try {
       const response = await fetch(
         "https://food-app-d8r3.onrender.com/contact",
@@ -30,6 +32,7 @@ function Contact() {
       );
 
       const result = await response.json();
+      console.log("📥 Server response:", result);
 
       if (!response.ok) {
         alert(result.error || "Failed to submit");
@@ -39,7 +42,7 @@ function Contact() {
       alert("Reservation submitted successfully!");
       reset();
     } catch (error) {
-      console.error("Error submitting reservation:", error);
+      console.error("🚨 Error submitting reservation:", error);
       alert("Something went wrong. Please try again.");
     }
   };
