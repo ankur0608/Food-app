@@ -314,8 +314,8 @@ app.post("/contact", async (req, res) => {
   try {
     const { data, error } = await supabase.from("contacts").insert([
       {
-        firstName,
-        lastName,
+        first_name: firstName, // ✅ match column name
+        last_name: lastName, // ✅ match column name
         email,
         phone,
         date,
