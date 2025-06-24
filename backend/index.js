@@ -27,6 +27,7 @@ app.use(
       "http://localhost:5173", // local dev
       "https://food-app-five-mu.vercel.app",
       "https://food-app-d8r3.onrender.com",
+      "https://food-app-git-main-ankur-patels-projects-15e166ca.vercel.app",
     ],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
