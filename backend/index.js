@@ -171,10 +171,10 @@ app.get("/available-meals", async (req, res) => {
 // POST /signup
 app.post("/signup", async (req, res) => {
   // console.log("🔔 Signup request body:", req.body);
-  const { username, email, password } = req.body;
+  const { username, email, password, mobile } = req.body;
 
   // Validate input
-  if (!username || !email || !password) {
+  if (!username || !email || !password || !mobile) {
     return res.status(400).json({ error: "All fields are required" });
   }
 
@@ -201,7 +201,8 @@ app.post("/signup", async (req, res) => {
     // 3. Insert new user
     const { data: insertedData, error: insertError } = await supabase
       .from("users")
-      .insert([{ username, email, password: hashedPassword }])
+      .insert([{ username, email, password: hashedPassword, mobile }])
+
       .select(); // 👈 Required to get the inserted row
 
     if (insertError) {
@@ -292,44 +293,58 @@ app.post("/login", async (req, res) => {
 });
 
 app.post("/contact", (req, res) => {
-  const { firstName, lastName, email, mobile } = req.body;
+  const { firstName, lastName, email, phone, date, time, guests } = req.body;
 
-  if (!firstName || !lastName || !email || !mobile) {
+  if (
+    !firstName ||
+    !lastName ||
+    !email ||
+    !phone ||
+    !date ||
+    !time ||
+    !guests
+  ) {
     return res.status(400).json({ error: "All fields are required" });
   }
 
-  const newContact = {
+  const newReservation = {
     firstName,
     lastName,
     email,
-    mobile,
+    phone,
+    date,
+    time,
+    guests,
     submittedAt: new Date().toISOString(),
   };
-  const contactsFile = path.join(__dirname, "data", "contacts.json");
 
-  fs.readFile(contactsFile, "utf8", (readErr, data) => {
-    let contacts = [];
+  const reservationsFile = path.join(__dirname, "data", "reservations.json");
+
+  fs.readFile(reservationsFile, "utf8", (readErr, data) => {
+    let reservations = [];
 
     if (!readErr) {
       try {
-        contacts = JSON.parse(data);
-        if (!Array.isArray(contacts)) contacts = [];
+        reservations = JSON.parse(data);
+        if (!Array.isArray(reservations)) reservations = [];
       } catch {
-        contacts = [];
+        reservations = [];
       }
     }
 
-    contacts.push(newContact);
+    reservations.push(newReservation);
 
     fs.writeFile(
-      contactsFile,
-      JSON.stringify(contacts, null, 2),
+      reservationsFile,
+      JSON.stringify(reservations, null, 2),
       (writeErr) => {
         if (writeErr) {
-          return res.status(500).json({ error: "Failed to save contact data" });
+          return res
+            .status(500)
+            .json({ error: "Failed to save reservation data" });
         }
 
-        return res.json({ message: "Contact form submitted successfully" });
+        return res.json({ message: "Reservation submitted successfully" });
       }
     );
   });
