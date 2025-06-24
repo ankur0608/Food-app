@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import homeimage from "../../assets/home-image.jpeg";
 import Slider from "../Slider/ProductSlider.jsx";
 import { useTheme } from "../Store/theme.jsx";
+import { FaLeaf, FaCarrot, FaAppleAlt, FaDrumstickBite } from "react-icons/fa";
 
 function Home() {
   const { theme } = useTheme();
@@ -42,7 +43,49 @@ function Home() {
         <div className={styles.rightImage}>
           <img src={homeimage} alt="Cultural Fair" className={styles.image} />
         </div>
+
+        <section className={styles.featuresSection}>
+          <h2 className={styles.title}>Why Choose Us?</h2>
+          <div className={styles.grid}>
+            <div className={styles.card}>
+              <FaLeaf className={styles.icon} />
+              <h3>Premium Quality</h3>
+              <p>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Neque
+                congue arcu.
+              </p>
+            </div>
+
+            <div className={styles.card}>
+              <FaCarrot className={styles.icon} />
+              <h3>Seasonal Vegetables</h3>
+              <p>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Neque
+                congue arcu.
+              </p>
+            </div>
+
+            <div className={styles.card}>
+              <FaAppleAlt className={styles.icon} />
+              <h3>Fresh Fruit</h3>
+              <p>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Neque
+                congue arcu.
+              </p>
+            </div>
+
+            <div className={styles.card}>
+              <FaDrumstickBite className={styles.icon} />
+              <h3>Non-Vegetarian Delights</h3>
+              <p>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Neque
+                congue arcu.
+              </p>
+            </div>
+          </div>
+        </section>
       </section>
+
       <section className={styles.sliderSection}>
         <Slider />
       </section>

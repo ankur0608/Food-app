@@ -1,0 +1,163 @@
+/* Base container */
+.container {
+  max-width: 97%;
+  margin: 60px auto 10px auto;
+  padding: 40px 20px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Light Theme */
+.light {
+  background-color: #ffffff;
+  color: #222222;
+}
+
+/* Dark Theme */
+.dark {
+  background-color: #1e1e1e;
+  color: #f1f1f1;
+}
+
+.dark.container {
+  background-color: #1e1e1e;
+  color: #fff;
+}
+
+/* Headings */
+.title {
+  text-align: center;
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: inherit;
+}
+
+.subtitle {
+  text-align: center;
+  font-size: 1.2rem;
+  margin-bottom: 2.5rem;
+  color: #777;
+}
+
+.dark .subtitle {
+  color: #aaa;
+}
+
+/* Form Layout */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: space-between;
+}
+
+/* Form Group */
+.group {
+  flex: 1 1 30%;
+  display: flex;
+  flex-direction: column;
+}
+
+.group label {
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: inherit;
+}
+
+/* Input */
+.input {
+  padding: 12px 14px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #f9f9f9;
+  transition: border-color 0.2s ease;
+  color: #333;
+  margin-bottom: 30px;
+}
+
+.input:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+.dark .input::placeholder {
+  color: #aaa;
+}
+
+/* Button */
+.button {
+  padding: 14px 0;
+  width: 30%;
+  margin: auto;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  font-size: 1.1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.button:hover {
+  background-color: #0056b3;
+}
+
+/* Error Text */
+.error {
+  font-size: 0.9rem;
+  color: red;
+  margin-top: 4px;
+}
+
+/* Responsive Styles */
+
+/* Tablet and below */
+@media (max-width: 768px) {
+  .row {
+    flex-direction: column;
+  }
+
+  .group {
+    width: 100%;
+  }
+
+  .button {
+    width: 60%;
+  }
+}
+
+/* Mobile devices */
+@media (max-width: 480px) {
+  .container {
+    padding: 30px 15px;
+    margin: 40px 10px;
+  }
+
+  .title {
+    font-size: 2rem;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+  }
+
+  .input {
+    font-size: 0.95rem;
+    padding: 10px 12px;
+  }
+
+  .button {
+    width: 100%;
+    font-size: 1rem;
+    padding: 12px 0;
+  }
+}

@@ -1,5 +1,3 @@
-/* Contact.module.css */
-
 .contact-container {
   display: flex;
   flex-direction: column;
@@ -27,7 +25,6 @@
   font-size: 2.5em;
   font-weight: bold;
   text-align: center;
-  /* color: #e0e0e0; */
 }
 
 .contact-form {
@@ -40,10 +37,21 @@
   box-sizing: border-box;
 }
 
-/* Adjusting form-group for better spacing and alignment */
+/* Grouped input row for side-by-side fields */
+.form-row {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.form-row .form-group {
+  flex: 1;
+  min-width: 200px;
+}
+
 .form-group {
-  margin-bottom: 25px; /* Increased space between form groups */
-  position: relative; /* Needed for absolute positioning of icon/error */
+  margin-bottom: 25px;
+  position: relative;
 }
 
 .form-group label {
@@ -63,14 +71,14 @@
 
 .input {
   width: 100%;
-  padding: 12px 12px 12px 40px; /* Add padding for the icon */
+  padding: 12px 12px 12px 40px;
   border: 1px solid var(--border-color, #ccc);
   border-radius: 8px;
   font-size: 1em;
   box-sizing: border-box;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
   background-color: #fff;
-  color: var(--input-text-color, #333);
+  color: #0f0f0f;
 }
 
 .input:focus {
@@ -84,7 +92,6 @@
   left: 12px;
   color: var(--icon-color, #888);
   font-size: 1.2em;
-  /* Ensure icon is vertically centered */
   top: 50%;
   transform: translateY(-50%);
 }
@@ -93,9 +100,7 @@
   color: #dc3545;
   font-size: 0.875em;
   margin-top: 5px;
-  /* Adjust positioning if needed, but typically after input is fine */
-  /* This ensures the error message appears below the input field */
-  display: block; /* Ensures it takes up its own line */
+  display: block;
 }
 
 .button {
@@ -162,5 +167,9 @@
   .button {
     padding: 12px;
     font-size: 1em;
+  }
+
+  .form-row {
+    flex-direction: column;
   }
 }

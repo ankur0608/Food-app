@@ -1,129 +1,206 @@
 import styles from "./AboutUs.module.css";
 import { useTheme } from "../Store/theme";
+import storyImage from "../../assets/story.png";
+import ExecutiveChef from "../../assets/Chef.png";
+import Slice from "../../assets/Slice.png";
+import Pickled from "../../assets/Pickled.png";
+import Bake from "../../assets/Bake.png";
+
+const steps = [
+  {
+    number: "01",
+    title: "Slice",
+    image: Slice,
+    description:
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Purus lorem id penatibus imperdiet. Turpis egestas ultricies purus auctor tincidunt lacus nunc. Convallis pellentesque quis fringilla sagittis. Egestas in risus sit nunc nunc, arcu donec nam etiam.",
+  },
+  {
+    number: "02",
+    title: "Pickled",
+    image: Pickled,
+    description:
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Purus lorem id penatibus imperdiet.",
+  },
+  {
+    number: "03",
+    title: "Bake",
+    image: Bake,
+    description:
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Purus lorem id penatibus imperdiet.",
+  },
+];
 
 function AboutUs() {
   const { theme } = useTheme();
 
   return (
-    <div className={`${styles.container} ${styles[theme]}`}>
-      <h1 className={styles.heading}>About Us</h1>
+    <div className={`${styles.wrapper} ${styles[theme]}`}>
+      <Header title="About Us" />
 
-      <section className={styles.section}>
-        <h2 className={styles.subheading}>Who We Are</h2>
+      <HeroSection
+        title="Our Story"
+        description="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Purus lorem in peadimus imperdiet. Turpis egestas ultricies purus auctor tincidunt lacus nunc."
+        image={storyImage}
+      />
+
+      <TeamMember
+        name="Carson Hugn"
+        title="Restaurant Manager"
+        description="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Et in sed in pellentesque ornare nunc nisl."
+        reverse
+      />
+
+      <TeamMember
+        name="Riya Shah"
+        title="Executive Chef"
+        description="With a passion for culinary arts and over 15 years of experience, Riya leads our kitchen with creativity and precision. She brings local flavors and global techniques together to craft memorable dining experiences."
+        image={ExecutiveChef}
+      />
+
+      <Section title="Who We Are" customClass={styles.enhancedSection}>
         <p>
           Welcome to <strong>MelaConnect</strong> — a passionate team bringing
           the joy and culture of traditional melas (fairs) to a modern audience.
-          We celebrate the diversity, color, and community spirit found in every
-          local fair across India and beyond.
         </p>
         <p>
           Since our founding in <strong>2023</strong>, MelaConnect has grown
-          from a small idea into a nationwide platform connecting visitors,
-          vendors, and organizers with melas both big and small. Our goal is to
-          make every fair more accessible, enjoyable, and impactful.
+          into a nationwide platform connecting visitors, vendors, and
+          organizers with melas across India.
         </p>
-      </section>
-
-      <section className={styles.section}>
-        <h2 className={styles.subheading}>Our Mission</h2>
+      </Section>
+{/* 
+      <Section title="What We Do" customClass={styles.enhancedSection}>
         <p>
-          At <strong>MelaConnect</strong>, our mission is to{" "}
-          <strong>
-            revive, support, and digitize traditional fair culture
-          </strong>{" "}
-          for the modern world. From village haats to festive city melas, we
-          help preserve heritage while creating new opportunities for artisans,
-          performers, and local businesses.
+          We organize, promote, and support melas — from festive fairs and
+          seasonal markets to art showcases and food carnivals. Our platform
+          helps users explore, attend, or register for these events.
         </p>
-      </section>
+      </Section>
 
-      <section className={styles.section}>
-        <h2 className={styles.subheading}>Our Vision</h2>
+      <Section title="Our Vision" customClass={styles.enhancedSection}>
         <p>
-          We envision a world where every community has a platform to celebrate
-          its culture, where artisans thrive, and where traditions meet
-          technology. Our goal is to become the go-to destination for
-          discovering, attending, and participating in melas across regions and
-          seasons.
+          We envision a world where communities celebrate their culture, where
+          artisans thrive, and where traditions meet technology.
         </p>
-      </section>
+      </Section>
 
-      <section className={styles.section}>
-        <h2 className={styles.subheading}>What We Do</h2>
-        <p>
-          We organize, promote, and support a wide variety of melas — from
-          festive fairs and seasonal markets to art showcases and food
-          carnivals. Our platform enables users to find melas near them, buy
-          tickets, register as vendors, and explore rich local experiences.
-        </p>
-      </section>
-
-      <section className={styles.section}>
-        <h2 className={styles.subheading}>Our Values</h2>
-        <ul className={styles.list}>
-          <li className={styles.listItem}>
-            <strong>Culture & Heritage</strong>: We honor and promote
-            traditional arts, crafts, and community festivals.
+      <Section title="Our Values" customClass={styles.enhancedSection}>
+        <ul className={styles.valuesList}>
+          <li>
+            <strong>Culture & Heritage:</strong> We honor traditional festivals.
           </li>
-          <li className={styles.listItem}>
-            <strong>Inclusion</strong>: We create spaces where all communities
-            feel welcomed and celebrated.
+          <li>
+            <strong>Inclusion:</strong> Everyone is welcome at our events.
           </li>
-          <li className={styles.listItem}>
-            <strong>Empowerment</strong>: We support local vendors, artisans,
-            and performers through exposure and opportunities.
+          <li>
+            <strong>Empowerment:</strong> We uplift local vendors and artisans.
           </li>
-          <li className={styles.listItem}>
-            <strong>Innovation</strong>: We use modern tools to simplify event
-            discovery, participation, and enjoyment.
+          <li>
+            <strong>Innovation:</strong> We simplify event discovery with tech.
           </li>
         </ul>
-      </section>
+      </Section> */}
 
-      <section className={styles.section}>
-        <h2 className={styles.subheading}>Meet Our Team</h2>
+      {/* <Section title="Meet Our Team">
         <ul className={styles.list}>
-          <li className={styles.listItem}>
-            <strong>Ankur Patel</strong> — <em>Founder & Director</em>:
-            Passionate about preserving India’s cultural heritage through
-            technology and outreach.
-          </li>
-          <li className={styles.listItem}>
-            <strong>Priyank Patel</strong> — <em>Operations Head</em>: Manages
-            partnerships with local authorities and ensures smooth fair
-            execution.
-          </li>
-          <li className={styles.listItem}>
-            <strong>Dharmesh Kashyap</strong> — <em>Creative Lead</em>: Designs
-            vibrant visual experiences and promotional materials for events.
+          <li>
+            <strong>Ankur Patel</strong> — <em>Founder & Director</em>: Drives
+            MelaConnect's cultural vision.
           </li>
         </ul>
-      </section>
+      </Section> */}
 
-      <section className={styles.section}>
-        <h2 className={styles.subheading}>Why Choose Us?</h2>
+      <Section title="Why Choose Us?">
         <p>
           With <strong>MelaConnect</strong>, you're not just attending an event
-          — you're joining a celebration of tradition, creativity, and
-          community. Our dedication to quality experiences, cultural
-          preservation, and inclusive fun makes us the preferred choice for both
-          mela-goers and organizers.
+          — you're part of a cultural movement. We bring inclusivity,
+          authenticity, and fun to every mela.
         </p>
-      </section>
+      </Section>
 
-      <section className={styles.section}>
-        <h2 className={styles.subheading}>Contact Us</h2>
-        <p>
-          We'd love to hear from you — whether you’re a visitor, vendor, or
-          organizer. Reach out to us anytime!
-        </p>
-        <p>
-          <strong>Email:</strong> contact@melaconnect.in <br />
-          <strong>Phone:</strong> +91 98765 43210 <br />
-          <strong>Address:</strong> 401 Culture Hub, Ahmedabad, Gujarat, India
-        </p>
+      {/* MODIFIED PROCESS SECTION BELOW */}
+      <section className={styles.processSection}>
+        <h2 className={styles.heading}>Sophisticated Process</h2>
+        <div className={styles.steps}>
+          {steps.map(
+            (
+              step,
+              index // Added index here
+            ) => (
+              <div
+                key={step.number}
+                className={`${styles.stepItem} ${
+                  index % 2 !== 0 ? styles.reverseStep : "" // Apply reverse class for odd indices (0-based)
+                }`}
+              >
+                <div className={styles.stepImageWrapper}>
+                  <img
+                    src={step.image}
+                    alt={step.title}
+                    className={styles.stepImage}
+                  />
+                </div>
+                <div className={styles.stepContent}>
+                  <span className={styles.stepNumber}>{step.number}</span>
+                  <h3 className={styles.stepTitle}>{step.title}</h3>
+                  <p className={styles.stepDescription}>{step.description}</p>
+                </div>
+              </div>
+            )
+          )}
+        </div>
       </section>
     </div>
+  );
+}
+
+function Header({ title }) {
+  return (
+    <header className={styles.header}>
+      <h1 className={styles.heading}>{title}</h1>
+    </header>
+  );
+}
+
+function HeroSection({ title, description, image }) {
+  return (
+    <section className={styles.heroSection}>
+      <div className={styles.text}>
+        <h2>{title}</h2>
+        <p>{description}</p>
+      </div>
+      <div className={styles.imageWrapper}>
+        <img src={image} alt={title} className={styles.image} />
+      </div>
+    </section>
+  );
+}
+
+function TeamMember({ name, title, description, image, reverse = false }) {
+  return (
+    <section
+      className={`${styles.heroSection} ${reverse ? styles.reverse : ""}`}
+    >
+      {image && (
+        <div className={styles.imageWrapper}>
+          <img src={image} alt={title} className={styles.image} />
+        </div>
+      )}
+      <div className={styles.text}>
+        <h3>{title}</h3>
+        <p className={styles.managerName}>{name}</p>
+        <p>{description}</p>
+      </div>
+    </section>
+  );
+}
+
+function Section({ title, children, customClass }) {
+  return (
+    <section className={`${styles.section} ${customClass || ""}`}>
+      <h2 className={styles.subheading}>{title}</h2>
+      {children}
+    </section>
   );
 }
 

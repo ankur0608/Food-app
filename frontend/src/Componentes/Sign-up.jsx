@@ -5,6 +5,7 @@ import { useTheme } from "./Store/theme.jsx";
 import { FaRegUser } from "react-icons/fa";
 import { IoMailOutline } from "react-icons/io5";
 import { TbLockPassword } from "react-icons/tb";
+import { BsPhone } from "react-icons/bs";
 
 function Signup() {
   const {
@@ -19,151 +20,147 @@ function Signup() {
   const { theme } = useTheme();
 
   async function onSubmit(data) {
-  try {
-    console.log("📦 Sending signup data:", data);
+    try {
+      console.log("📦 Sending signup data:", data);
 
-    const response = await fetch("https://food-app-d8r3.onrender.com/signup", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
+      const response = await fetch(
+        "https://food-app-d8r3.onrender.com/signup",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        }
+      );
 
-    console.log("🌐 Response status:", response.status);
-    const result = await response.json();
-    console.log("✅ Server response:", result);
+      const result = await response.json();
+      console.log("✅ Server response:", result);
 
-    if (!response.ok) {
-      alert(result.error || "Signup failed");
-      return;
+      if (!response.ok) {
+        alert(result.error || "Signup failed");
+        return;
+      }
+
+      localStorage.setItem("token", result.token);
+      navigate("/login");
+    } catch (error) {
+      console.error("❌ Network or server error:", error);
+      alert("Something went wrong. Please try again.");
     }
-
-    localStorage.setItem("token", result.token);
-    navigate("/login");
-  } catch (error) {
-    console.error("❌ Network or server error:", error);
-    alert("Something went wrong. Please try again.");
   }
-}
 
   return (
-    <>
-      <div className={`${styles.container} ${styles[theme]}`}>
-        <h1 className={styles.heading}>Signup</h1>
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          noValidate
-          className={styles.form}
-        >
-          {/* Username */}
-          <div className={styles.inputGroup}>
-            <label htmlFor="signup-username" className={styles.label}>
-              Username:
-            </label>
-            <FaRegUser className={`fas fa-user ${styles.icon}`} />
-            <input
-              className={styles.input}
-              type="text"
-              id="signup-username"
-              placeholder="Username"
-              {...register("username", { required: "Username is required" })}
-            />
-            {errors.username && (
-              <small className={styles.small}>{errors.username.message}</small>
-            )}
-          </div>
+    <div className={`${styles.container} ${styles[theme]}`}>
+      <h1 className={styles.heading}>Signup</h1>
 
-          {/* Email */}
-          <div className={styles.inputGroup}>
-            <label htmlFor="signup-email" className={styles.label}>
-              Email:
-            </label>
-            <IoMailOutline className={`fas fa-user ${styles.icon}`} />
-            <input
-              className={styles.input}
-              type="email"
-              id="signup-email"
-              placeholder="Your Email"
-              {...register("email", {
-                required: "Email is required",
-                pattern: {
-                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                  message: "Invalid email address",
-                },
-              })}
-            />
-            {errors.email && (
-              <small className={styles.small}>{errors.email.message}</small>
-            )}
-          </div>
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        noValidate
+        className={styles.form}
+      >
+        {/* Username */}
+        <div className={styles.inputGroup}>
+          <label htmlFor="username" className={styles.label}>
+            Username:
+          </label>
+          <FaRegUser className={styles.icon} />
+          <input
+            type="text"
+            id="username"
+            placeholder="Enter your name"
+            className={styles.input}
+            {...register("username", { required: "Username is required" })}
+          />
+          {errors.username && (
+            <small className={styles.small}>{errors.username.message}</small>
+          )}
+        </div>
 
-          {/* Password */}
-          <div className={styles.inputGroup}>
-            <label htmlFor="signup-password" className={styles.label}>
-              Password:
-            </label>
-            <TbLockPassword className={`fas fa-user ${styles.icon}`} />
-            <input
-              className={styles.input}
-              type="password"
-              id="signup-password"
-              placeholder="Password"
-              {...register("password", {
-                required: "Password is required",
-                minLength: {
-                  value: 6,
-                  message: "Minimum 6 characters required",
-                },
-                maxLength: {
-                  value: 10,
-                  message: "Maximum 10 characters allowed",
-                },
-              })}
-            />
-            {errors.password && (
-              <small className={styles.small}>{errors.password.message}</small>
-            )}
-          </div>
+        {/* Email */}
+        <div className={styles.inputGroup}>
+          <label htmlFor="email" className={styles.label}>
+            Email:
+          </label>
+          <IoMailOutline className={styles.icon} />
+          <input
+            type="email"
+            id="email"
+            placeholder="Enter your email"
+            className={styles.input}
+            {...register("email", {
+              required: "Email is required",
+              pattern: {
+                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                message: "Invalid email format",
+              },
+            })}
+          />
+          {errors.email && (
+            <small className={styles.small}>{errors.email.message}</small>
+          )}
+        </div>
 
-          {/* Confirm Password */}
-          <div className={styles.inputGroup}>
-            <label htmlFor="signup-confirmPassword" className={styles.label}>
-              Confirm Password:
-            </label>
-            <TbLockPassword className={`fas fa-user ${styles.icon}`} />
-            <input
-              className={styles.input}
-              type="password"
-              id="signup-confirmPassword"
-              placeholder="Confirm Password"
-              {...register("confirmPassword", {
-                required: "Confirm Password is required",
-                validate: (value) =>
-                  value === password || "Passwords do not match",
-              })}
-            />
-            {errors.confirmPassword && (
-              <small className={styles.small}>
-                {errors.confirmPassword.message}
-              </small>
-            )}
-          </div>
+        {/* Mobile Number */}
+        <div className={styles.inputGroup}>
+          <label htmlFor="mobile" className={styles.label}>
+            Mobile Number:
+          </label>
+          <BsPhone className={styles.icon} />
+          <input
+            type="tel"
+            id="mobile"
+            placeholder="Enter 10-digit number"
+            className={styles.input}
+            {...register("mobile", {
+              required: "Mobile number is required",
+              pattern: {
+                value: /^[0-9]{10}$/,
+                message: "Mobile number must be 10 digits",
+              },
+            })}
+          />
+          {errors.mobile && (
+            <small className={styles.small}>{errors.mobile.message}</small>
+          )}
+        </div>
 
-          <Link to="/login" className={styles.Link}>
-            Already have an account?
-          </Link>
+        {/* Password */}
+        <div className={styles.inputGroup}>
+          <label htmlFor="password" className={styles.label}>
+            Password:
+          </label>
+          <TbLockPassword className={styles.icon} />
+          <input
+            type="password"
+            id="password"
+            placeholder="Enter password"
+            className={styles.input}
+            {...register("password", {
+              required: "Password is required",
+              minLength: {
+                value: 6,
+                message: "Minimum 6 characters required",
+              },
+              maxLength: {
+                value: 10,
+                message: "Maximum 10 characters allowed",
+              },
+            })}
+          />
+          {errors.password && (
+            <small className={styles.small}>{errors.password.message}</small>
+          )}
+        </div>
 
-          <button
-            type="submit"
-            className={styles.button}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? "Submitting..." : "Submit"}
-          </button>
-        </form>
-      </div>
-    </>
+        <Link to="/login" className={styles.Link}>
+          Already have an account?
+        </Link>
+
+        {/* Submit Button */}
+        <button type="submit" className={styles.button} disabled={isSubmitting}>
+          {isSubmitting ? "Submitting..." : "Signup"}
+        </button>
+      </form>
+    </div>
   );
 }
 

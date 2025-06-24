@@ -1,130 +1,315 @@
-/* Base container */
-.container {
-  max-width: 1350px;
-  margin: 0 auto;
-  padding: 2rem 1.5rem;
-  transition: background-color 0.3s ease, color 0.3s ease;
+/* General styles for the wrapper */
+.wrapper {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
   line-height: 1.6;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
 }
 
-/* Light theme */
-.light {
-  background-color: #ffffff;
-  color: #1e1e1e;
-}
-
-/* Dark theme */
-.dark {
-  background-color: #1e1e1e;
-  color: #f5f5f5;
-}
-
-/* Headings */
-.heading {
-  font-size: 2.5rem;
+/* Header */
+.header {
   text-align: center;
-  margin-bottom: 2rem;
-  color: #e63946;
-  word-wrap: break-word;
+  padding: 60px 20px;
+  background-color: #f0f0f0;
+  margin-bottom: 10px;
+  border-radius: 8px;
 }
 
-/* Subheadings */
-.subheading {
-  font-size: 1.75rem;
-  margin-bottom: 1rem;
-  color: #457b9d;
+.header .heading {
+  font-size: 3.5em;
+  color: #007bff;
+  margin: 0;
+  letter-spacing: -1px;
 }
 
-/* Section styling */
+/* Hero Section */
+.heroSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 60px;
+  padding: 80px 40px;
+  margin-bottom: 10px;
+  background-color: #f8f8f8;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+@media (min-width: 992px) {
+  .heroSection {
+    flex-direction: row;
+    text-align: left;
+  }
+  .heroSection.reverse {
+    flex-direction: row-reverse;
+  }
+}
+
+.heroSection .text {
+  flex: 1;
+  padding: 0 30px;
+  max-width: 600px;
+}
+
+.heroSection .text h2,
+.heroSection .text h3 {
+  font-size: 3em;
+  color: #333;
+  margin-bottom: 20px;
+  line-height: 1.2;
+}
+
+.heroSection .text p {
+  font-size: 1.15em;
+  color: #555;
+  line-height: 1.8;
+}
+
+.managerName {
+  font-weight: 600;
+  color: #007bff;
+  font-size: 1.3em;
+  margin-bottom: 15px;
+  display: block;
+}
+
+.heroSection .imageWrapper {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.heroSection .image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease-in-out;
+}
+
+.heroSection .image:hover {
+  transform: translateY(-5px);
+}
+
+/* Section Styling */
 .section {
-  margin-bottom: 2.5rem;
-  padding: 1rem 1.5rem;
-  background-color: rgba(230, 57, 70, 0.05);
-  border-radius: 6px;
+  background-color: #f8f8f8;
+  padding: 50px 30px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
 }
 
-/* Responsive list */
+.section .subheading {
+  font-size: 2em;
+  color: #007bff;
+  margin-bottom: 25px;
+  text-align: center;
+  position: relative;
+  padding-bottom: 10px;
+}
+
+.section .subheading::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background-color: #007bff;
+  border-radius: 2px;
+}
+
+.section p {
+  font-size: 1.05em;
+  color: #555;
+  margin-bottom: 15px;
+}
+
+.section strong {
+  color: #007bff;
+}
+
 .list {
-  list-style-type: none;
-  padding-left: 0;
-  margin-top: 1rem;
+  list-style: none;
+  padding: 0;
+  margin-top: 20px;
 }
 
-.listItem {
-  margin-bottom: 0.75rem;
-  padding-left: 1.25rem;
+.list li {
+  background-color: #f9f9f9;
+  margin-bottom: 10px;
+  padding: 15px 20px;
+  border-left: 5px solid #007bff;
+  border-radius: 4px;
+  transition: transform 0.2s ease-in-out;
+}
+
+.list li:hover {
+  transform: translateX(5px);
+}
+
+.list li strong {
+  color: #333;
+}
+
+/* Process Section */
+.processSection {
+  background-color: #f8f8f8;
+  padding: 80px 20px;
+  text-align: center;
+  border-radius: 8px;
+}
+
+.processSection .heading {
+  font-size: 3em;
+  color: #333;
+  margin-bottom: 60px;
+  position: relative;
+  display: inline-block;
+}
+
+.processSection .heading::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: -15px;
+  width: 80px;
+  height: 4px;
+  background-color: #ffbe2b;
+  border-radius: 2px;
+}
+
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: 80px;
+}
+
+.stepItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+  .stepItem {
+    flex-direction: row;
+    text-align: left;
+  }
+
+  .stepItem.reverseStep {
+    flex-direction: row-reverse;
+    text-align: right;
+  }
+}
+
+.stepImageWrapper {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.stepImage {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.stepContent {
+  flex: 1;
+  padding: 20px;
   position: relative;
 }
 
-.listItem::before {
-  content: "•";
-  position: absolute;
-  left: 0;
-  color: #e63946;
-  font-size: 1.2rem;
-  line-height: 1;
-}
-
-/* Links */
-a {
-  color: #e63946;
-  text-decoration: none;
-  transition: color 0.3s ease;
-}
-
-a:hover {
-  color: #d62828;
-}
-
-/* Bold text */
-strong {
+.stepNumber {
+  font-size: 6em;
   font-weight: bold;
-  color: #222;
+  color: #e0e0e0;
+  position: absolute;
+  top: -30px;
+  left: 0;
+  z-index: 1;
+  line-height: 1;
+  user-select: none;
 }
 
-.dark strong {
-  color: #fbd38d;
-}
-/* Tablets and smaller */
-@media (max-width: 768px) {
-  .heading {
-    font-size: 2rem;
-  }
-
-  .subheading {
-    font-size: 1.5rem;
-  }
-
-  .container {
-    padding: 1.5rem 1rem;
-    font-size: small;
-  }
-
-  .section {
-    padding: 1rem;
-  }
+.stepItem.reverseStep .stepNumber {
+  left: auto;
+  right: 0;
 }
 
-/* Mobile phones */
+.stepTitle {
+  font-size: 2.5em;
+  color: #333;
+  margin-bottom: 10px;
+  position: relative;
+  z-index: 2;
+}
+
+.stepDescription {
+  font-size: 1.1em;
+  color: #555;
+  line-height: 1.7;
+  position: relative;
+  z-index: 2;
+}
+
+/* Responsive Tweaks */
+@media (max-width: 767px) {
+  .header .heading {
+    font-size: 2.2em;
+  }
+  .heroSection .text h2,
+  .heroSection .text h3 {
+    font-size: 2em;
+  }
+  .heroSection .text p,
+  .section p,
+  .stepDescription {
+    font-size: 1em;
+  }
+  .section .subheading {
+    font-size: 1.5em;
+  }
+  .stepNumber {
+    font-size: 4em;
+    top: -20px;
+  }
+  .stepTitle {
+    font-size: 2em;
+  }
+  .processSection .heading {
+    font-size: 2em;
+  }
+}
+
 @media (max-width: 480px) {
-  .heading {
-    font-size: 1.6rem;
+  .wrapper {
+    padding: 10px;
   }
-
-  .subheading {
-    font-size: 1.25rem;
-    text-align: center;
+  .heroSection {
+    padding: 40px 20px;
   }
-
   .section {
-    padding: 0.75rem;
+    padding: 30px 15px;
   }
-  .container {
-    font-size: small;
+  .processSection {
+    padding: 50px 15px;
   }
-
-  .listItem {
-    font-size: 0.95rem;
+  .stepItem {
+    gap: 40px;
   }
 }

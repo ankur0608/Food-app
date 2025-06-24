@@ -4,6 +4,9 @@ import { useTheme } from "../Store/theme.jsx";
 import { FaRegUser } from "react-icons/fa";
 import { IoMailOutline } from "react-icons/io5";
 import { TbDeviceMobile } from "react-icons/tb";
+import { LuCalendarDays } from "react-icons/lu"; // for Date
+import { LuClock9 } from "react-icons/lu"; // for Time
+import { PiUsersThreeLight } from "react-icons/pi"; // for Guests
 
 function Contact() {
   const {
@@ -15,106 +18,158 @@ function Contact() {
 
   const { theme } = useTheme();
 
-  function onSubmit(data) {
-    console.log("FormData:", data);
+  const onSubmit = (data) => {
+    console.log("Reservation Data:", data);
     reset();
-  }
+  };
 
   return (
-    <div className={`${styles["contact-container"]} ${styles[theme]}`}>
-      <h1>Contact Us</h1>
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className={styles["contact-form"]}
-      >
-        {/* First Name */}
-        <div className={styles["form-group"]}>
-          <label htmlFor="firstName">First Name</label>
-          <div className={styles["input-wrapper"]}>
-            <FaRegUser className={styles.icon} />
-            <input
-              id="firstName"
-              type="text"
-              placeholder="Enter your First Name"
-              {...register("firstName", { required: "First name is required" })}
-              className={styles.input}
-            />
-          </div>
-          {errors.firstName && (
-            <p className={styles.error}>{errors.firstName.message}</p>
-          )}
-        </div>
+    <>
+      <div className={`${styles["contact-container"]} ${styles[theme]}`}>
+        <h1>Make a Reservation</h1>
+        {/* <p>Get in touch with the restaurant</p> */}
 
-        {/* Last Name */}
-        <div className={styles["form-group"]}>
-          <label htmlFor="lastName">Last Name</label>
-          <div className={styles["input-wrapper"]}>
-            <FaRegUser className={styles.icon} />
-            <input
-              id="lastName"
-              type="text"
-              placeholder="Enter your Last Name"
-              {...register("lastName", { required: "Last name is required" })}
-              className={styles.input}
-            />
-          </div>
-          {errors.lastName && (
-            <p className={styles.error}>{errors.lastName.message}</p>
-          )}
-        </div>
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className={styles["contact-form"]}
+        >
+          {/* First + Last Name */}
+          <div className={styles["form-row"]}>
+            <div className={styles["form-group"]}>
+              <label>First Name</label>
+              <div className={styles["input-wrapper"]}>
+                <FaRegUser className={styles.icon} />
+                <input
+                  type="text"
+                  placeholder="First Name"
+                  {...register("firstName", {
+                    required: "First name is required",
+                  })}
+                  className={styles.input}
+                />
+              </div>
+              {errors.firstName && (
+                <p className={styles.error}>{errors.firstName.message}</p>
+              )}
+            </div>
 
-        {/* Email */}
-        <div className={styles["form-group"]}>
-          <label htmlFor="email">Email</label>
-          <div className={styles["input-wrapper"]}>
-            <IoMailOutline className={styles.icon} />
-            <input
-              id="email"
-              type="email"
-              placeholder="Enter your Email"
-              {...register("email", {
-                required: "Email is required",
-                pattern: {
-                  value: /^\S+@\S+\.\S+$/,
-                  message: "Please enter a valid email",
-                },
-              })}
-              className={styles.input}
-            />
+            <div className={styles["form-group"]}>
+              <label>Last Name</label>
+              <div className={styles["input-wrapper"]}>
+                <FaRegUser className={styles.icon} />
+                <input
+                  type="text"
+                  placeholder="Last Name"
+                  {...register("lastName", {
+                    required: "Last name is required",
+                  })}
+                  className={styles.input}
+                />
+              </div>
+              {errors.lastName && (
+                <p className={styles.error}>{errors.lastName.message}</p>
+              )}
+            </div>
           </div>
-          {errors.email && (
-            <p className={styles.error}>{errors.email.message}</p>
-          )}
-        </div>
 
-        {/* Mobile Number */}
-        <div className={styles["form-group"]}>
-          <label htmlFor="mobile">Mobile Number</label>
-          <div className={styles["input-wrapper"]}>
-            <TbDeviceMobile className={styles.icon} />
-            <input
-              id="mobile"
-              type="number"
-              placeholder="Enter your Mobile Number"
-              {...register("mobile", {
-                required: "Mobile number is required",
-              })}
-              className={styles.input}
-            />
+          {/* Email */}
+          <div className={styles["form-group"]}>
+            <label>Email</label>
+            <div className={styles["input-wrapper"]}>
+              <IoMailOutline className={styles.icon} />
+              <input
+                type="email"
+                placeholder="Email"
+                {...register("email", {
+                  required: "Email is required",
+                  pattern: {
+                    value: /^\S+@\S+\.\S+$/,
+                    message: "Enter a valid email",
+                  },
+                })}
+                className={styles.input}
+              />
+            </div>
+            {errors.email && (
+              <p className={styles.error}>{errors.email.message}</p>
+            )}
           </div>
-          {errors.mobile && (
-            <p className={styles.error}>{errors.mobile.message}</p>
-          )}
-        </div>
 
-        {/* Submit Button */}
-        <div>
+          {/* Phone */}
+          <div className={styles["form-group"]}>
+            <label>Phone</label>
+            <div className={styles["input-wrapper"]}>
+              <TbDeviceMobile className={styles.icon} />
+              <input
+                type="tel"
+                placeholder="Phone"
+                {...register("phone", { required: "Phone number is required" })}
+                className={styles.input}
+              />
+            </div>
+            {errors.phone && (
+              <p className={styles.error}>{errors.phone.message}</p>
+            )}
+          </div>
+
+          {/* Date + Time */}
+          <div className={styles["form-row"]}>
+            <div className={styles["form-group"]}>
+              <label>Date</label>
+              <div className={styles["input-wrapper"]}>
+                <LuCalendarDays className={styles.icon} />
+                <input
+                  type="date"
+                  {...register("date", { required: "Date is required" })}
+                  className={styles.input}
+                />
+              </div>
+              {errors.date && (
+                <p className={styles.error}>{errors.date.message}</p>
+              )}
+            </div>
+
+            <div className={styles["form-group"]}>
+              <label>Time</label>
+              <div className={styles["input-wrapper"]}>
+                <LuClock9 className={styles.icon} />
+                <input
+                  type="time"
+                  {...register("time", { required: "Time is required" })}
+                  className={styles.input}
+                />
+              </div>
+              {errors.time && (
+                <p className={styles.error}>{errors.time.message}</p>
+              )}
+            </div>
+          </div>
+
+          {/* Guests */}
+          <div className={styles["form-group"]}>
+            <label>Guests</label>
+            <div className={styles["input-wrapper"]}>
+              <PiUsersThreeLight className={styles.icon} />
+              <input
+                type="number"
+                min="1"
+                max="20"
+                placeholder="Number of Guests"
+                {...register("guests", { required: "Guest count is required" })}
+                className={styles.input}
+              />
+            </div>
+            {errors.guests && (
+              <p className={styles.error}>{errors.guests.message}</p>
+            )}
+          </div>
+
           <button type="submit" className={styles.button}>
-            Submit
+            Book Now
           </button>
-        </div>
-      </form>
-    </div>
+        </form>
+      </div>
+    </>
   );
 }
 
