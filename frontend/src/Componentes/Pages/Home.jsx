@@ -4,7 +4,7 @@ import homeimage from "../../assets/home-image.jpeg";
 import Slider from "../Slider/ProductSlider.jsx";
 import { useTheme } from "../Store/theme.jsx";
 import { FaLeaf, FaCarrot, FaAppleAlt, FaDrumstickBite } from "react-icons/fa";
-
+import OpeningHours from "../OpeningHours.jsx";
 function Home() {
   const { theme } = useTheme();
 
@@ -85,10 +85,10 @@ function Home() {
           </div>
         </section>
       </section>
-
       <section className={styles.sliderSection}>
         <Slider />
       </section>
+      <OpeningHours />
     </>
   );
 }

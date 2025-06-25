@@ -1,0 +1,157 @@
+.contactSection {
+  display: flex;
+  flex-direction: column;
+  /* gap: 2rem; */
+  padding: 2rem 1.5rem;
+  /* background-color: var(--container-bg, #fff); */
+  color: var(--text-color, #333);
+}
+.mainheader {
+  text-align: center;
+  padding-top: 25px;
+  font-size: larger;
+  background-color: #f0f2f5;
+}
+
+.infoBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.image {
+  width: 100%;
+  max-width: 500px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+.image2 {
+  margin-top: 390px;
+  width: 100%;
+  height: 680px;
+  /* max-width: 500px; */
+  border-radius: 12px;
+  object-fit: cover;
+}
+.contactText,
+.addressText {
+  margin-top: 1rem;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+a {
+  color: #9caa00;
+  text-decoration: none;
+}
+
+.mapButton {
+  margin-top: 0.5rem;
+  /* width: 100%; */
+  padding: 15px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1em;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  margin-top: 20px;
+}
+
+.mapButton:hover {
+  background-color: #0056b3;
+  transform: translateY(-2px);
+}
+.light {
+  background-color: #f0f2f5;
+  color: #333;
+}
+
+.dark {
+  background-color: #1e1e1e;
+  color: #e0e0e0;
+}
+
+@media (min-width: 768px) {
+  .contactSection {
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: flex-start;
+  }
+
+  .infoBlock {
+    flex: 1;
+    text-align: left;
+    align-items: flex-start;
+  }
+} /* Tablet and below (768px and down) */
+@media (max-width: 768px) {
+  .contactSection {
+    flex-direction: column;
+    padding: 2rem 1rem;
+    gap: 2rem;
+  }
+
+  .infoBlock {
+    text-align: center;
+    align-items: center;
+  }
+
+  .image2 {
+    margin-top: 40px;
+    height: auto;
+    max-height: 400px;
+  }
+
+  .mapButton {
+    width: 100%;
+    font-size: 1rem;
+  }
+}
+
+/* Mobile (480px and down) */
+@media (max-width: 480px) {
+  .mainheader {
+    font-size: 1.2rem;
+    padding: 15px 10px;
+  }
+
+  .contactText {
+    font-size: 0.8rem;
+    line-height: 1.5;
+    margin-top: -6rem;
+    margin-left: 12rem;
+    text-align: center;
+  }
+  .addressText {
+    font-size: 0.8rem;
+    margin-top: -10rem;
+    margin-right: 14rem;
+    /* margin-left: 10rem; */
+    /* line-height: 1.; */
+    /* text-align: center; */
+  }
+
+  .image {
+    width: 50%;
+    margin-right: 200px;
+    height: auto;
+    max-width: 100%;
+    border-radius: 10px;
+  }
+  .image2 {
+    width: 50%;
+    margin-left: 190px;
+    height: auto;
+    max-width: 100%;
+    border-radius: 10px;
+  }
+
+  .mapButton {
+    font-size: 1rem;
+    padding: 10px;
+    width: 90%;
+  }
+}

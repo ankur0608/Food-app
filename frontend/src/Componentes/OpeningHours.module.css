@@ -1,0 +1,114 @@
+.openingHoursSection {
+  /* background-color: var(--container-bg, #f9f9f9); */
+  padding: 50px 30px;
+
+  border-radius: 12px;
+  text-align: center;
+  color: var(--text-color, #333);
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+}
+
+.heading {
+  font-size: 2.5em;
+  margin-bottom: 10px;
+  color: #007bff;
+}
+
+.days {
+  font-size: 1.2em;
+  margin-bottom: 30px;
+  color: #666;
+}
+
+.hours {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  align-items: center;
+}
+
+.timeBlock {
+  background-color: #fff;
+  padding: 20px 30px;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease;
+}
+
+.timeBlock:hover {
+  transform: translateY(-5px);
+}
+
+.timeBlock h3 {
+  font-size: 1.5em;
+  margin-bottom: 8px;
+  /* color: #333; */
+}
+
+.timeBlock p {
+  font-size: 1.1em;
+  color: #777;
+}
+
+/* Dark mode support */
+.dark .openingHoursSection {
+  background-color: #1e1e1e;
+  color: #e0e0e0;
+}
+
+.dark .timeBlock {
+  background-color: #2a2a2a;
+  color: #ddd;
+}
+
+.dark .days {
+  color: #aaa;
+}
+
+.dark .timeBlock p {
+  color: #bbb;
+}
+/* Responsive for tablets and below */
+@media (max-width: 992px) {
+  .hours {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .timeBlock {
+    flex: 1 1 45%;
+    max-width: 100%;
+    margin-bottom: 20px;
+  }
+}
+
+/* Responsive for mobile devices */
+@media (max-width: 600px) {
+  .heading {
+    font-size: 2em;
+  }
+
+  .days {
+    font-size: 1em;
+  }
+
+  .hours {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .timeBlock {
+    width: 80%;
+    padding: 16px 20px;
+  }
+
+  .timeBlock h3 {
+    font-size: 1.3em;
+  }
+
+  .timeBlock p {
+    font-size: 1em;
+  }
+}

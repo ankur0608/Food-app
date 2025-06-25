@@ -33,7 +33,7 @@
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   width: 100%;
-  max-width: 500px;
+  max-width: 100%;
   box-sizing: border-box;
 }
 
@@ -142,6 +142,20 @@
   --input-bg-color: #4a505c;
   --input-text-color: #e0e0e0;
   --icon-color: #bbb;
+}
+
+@media (min-width: 768px) {
+  .contactSection {
+    /* flex-direction: row; */
+    justify-content: space-around;
+    align-items: flex-start;
+  }
+
+  .infoBlock {
+    flex: 1;
+    text-align: left;
+    align-items: flex-start;
+  }
 }
 
 /* Responsive adjustments */

@@ -1,7 +1,7 @@
 /* Base container */
 .container {
   max-width: 97%;
-  margin: 60px auto 10px auto;
+  margin: 10px auto;
   padding: 40px 20px;
   border-radius: 12px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
@@ -9,13 +9,12 @@
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Light Theme */
+/* Theme styles */
 .light {
   background-color: #ffffff;
   color: #222222;
 }
 
-/* Dark Theme */
 .dark {
   background-color: #1e1e1e;
   color: #f1f1f1;
@@ -45,7 +44,7 @@
   color: #aaa;
 }
 
-/* Form Layout */
+/* Form layout */
 .form {
   display: flex;
   flex-direction: column;
@@ -59,7 +58,7 @@
   justify-content: space-between;
 }
 
-/* Form Group */
+/* Form group */
 .group {
   flex: 1 1 30%;
   display: flex;
@@ -72,9 +71,31 @@
   color: inherit;
 }
 
+/* Input wrapper for icons */
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.icon {
+  position: absolute;
+  left: 8px;
+  top: 14px;
+  font-size: 1.3rem;
+  color: #777;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.dark .icon {
+  color: #bbb;
+}
+
 /* Input */
 .input {
-  padding: 12px 14px;
+  width: 100%;
+  padding: 12px 14px 12px 40px; /* left padding for icon */
   font-size: 1rem;
   border: 1px solid #ccc;
   border-radius: 6px;
@@ -82,11 +103,18 @@
   transition: border-color 0.2s ease;
   color: #333;
   margin-bottom: 30px;
+  box-sizing: border-box;
 }
 
 .input:focus {
   border-color: #007bff;
   outline: none;
+}
+
+.dark .input {
+  background-color: #2a2a2a;
+  color: #f1f1f1;
+  border-color: #555;
 }
 
 .dark .input::placeholder {
@@ -111,16 +139,14 @@
   background-color: #0056b3;
 }
 
-/* Error Text */
+/* Error message */
 .error {
   font-size: 0.9rem;
   color: red;
   margin-top: 4px;
 }
 
-/* Responsive Styles */
-
-/* Tablet and below */
+/* Responsive styles */
 @media (max-width: 768px) {
   .row {
     flex-direction: column;
@@ -135,7 +161,6 @@
   }
 }
 
-/* Mobile devices */
 @media (max-width: 480px) {
   .container {
     padding: 30px 15px;
@@ -152,7 +177,7 @@
 
   .input {
     font-size: 0.95rem;
-    padding: 10px 12px;
+    padding: 10px 12px 10px 38px;
   }
 
   .button {

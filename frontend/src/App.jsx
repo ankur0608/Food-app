@@ -16,7 +16,7 @@ const OrderSummary = lazy(() =>
   import("./Componentes/Pages/Order_summary.jsx")
 );
 const About = lazy(() => import("./Componentes/Pages/About.jsx"));
-const Contact = lazy(() => import("./Componentes/Pages/Contact.jsx"));
+const Contact = lazy(() => import("./Componentes/Pages/Contact/Contact.jsx"));
 const Signup = lazy(() => import("./Componentes/Sign-up.jsx"));
 const Login = lazy(() => import("./Componentes/Login.jsx"));
 const ForgotPassword = lazy(() => import("./Componentes/ForgotPassword.jsx"));

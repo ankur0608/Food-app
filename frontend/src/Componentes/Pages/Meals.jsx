@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useTheme } from "../Store/theme";
 import { FaSearch, FaTimes } from "react-icons/fa";
 import Loading from "../../Componentes/Loading.jsx";
+import OpeningHours from "../OpeningHours.jsx";
 
 export default function Product() {
   const [meals, setMeals] = useState([]);
@@ -150,6 +151,7 @@ export default function Product() {
           </button>
         </div>
       )}
+      <OpeningHours />
     </div>
   );
 }

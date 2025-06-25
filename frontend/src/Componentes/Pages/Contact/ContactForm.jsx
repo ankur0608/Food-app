@@ -1,21 +1,19 @@
-import { useForm } from "react-hook-form";
 import styles from "./Contact.module.css";
-import { useTheme } from "../Store/theme.jsx";
+import { useForm } from "react-hook-form";
 import { FaRegUser } from "react-icons/fa";
 import { IoMailOutline } from "react-icons/io5";
 import { TbDeviceMobile } from "react-icons/tb";
 import { LuCalendarDays } from "react-icons/lu"; // for Date
 import { LuClock9 } from "react-icons/lu"; // for Time
 import { PiUsersThreeLight } from "react-icons/pi"; // for Guests
-
-function Contact() {
+import { useTheme } from "../../Store/theme.jsx";
+export default function ContactForm() {
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors },
   } = useForm();
-
   const { theme } = useTheme();
 
   const onSubmit = async (data) => {
@@ -196,5 +194,3 @@ function Contact() {
     </>
   );
 }
-
-export default Contact;

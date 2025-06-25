@@ -200,6 +200,77 @@
   max-width: 1000px;
   margin: 0 auto;
 }
+/* Enable dark mode */
+.dark .wrapper {
+  background-color: #121212;
+  color: #e0e0e0;
+}
+
+.dark .header {
+  background-color: #1f1f1f;
+}
+
+.dark .header .heading {
+  color: #4da6ff;
+}
+
+.dark .heroSection,
+.dark .section,
+.dark .processSection {
+  background-color: #1e1e1e;
+  color: #e0e0e0;
+}
+
+.dark .heroSection .text h2,
+.dark .heroSection .text h3,
+.dark .stepTitle,
+.dark .processSection .heading {
+  color: #ffffff;
+}
+
+.dark .heroSection .text p,
+.dark .section p,
+.dark .stepDescription {
+  color: #cccccc;
+}
+
+.dark .list li {
+  background-color: #2a2a2a;
+  border-left: 5px solid #4da6ff;
+  color: #f0f0f0;
+}
+
+.dark .list li:hover {
+  background-color: #333;
+}
+
+.dark .section .subheading::after,
+.dark .processSection .heading::after {
+  background-color: #ffd700;
+}
+
+.dark .stepNumber {
+  color: #444;
+}
+
+.dark .stepContent {
+  background-color: #262626;
+}
+
+.dark .stepImage {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.dark .heroSection .image,
+.dark .stepImage {
+  border: 2px solid #444;
+}
+
+/* Optional hover/transition tweaks */
+.dark .heroSection .image:hover,
+.dark .list li:hover {
+  transform: translateY(-3px);
+}
 
 @media (min-width: 768px) {
   .stepItem {

@@ -12,6 +12,7 @@ function Layout() {
     "/signup",
     "/contact",
     "/ForgotPassword",
+    "/cart",
   ];
   const hideFooter = ["/login", "/signup", "contact", "/ForgotPassword"];
 

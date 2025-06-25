@@ -5,6 +5,7 @@ import ExecutiveChef from "../../assets/Chef.png";
 import Slice from "../../assets/Slice.png";
 import Pickled from "../../assets/Pickled.png";
 import Bake from "../../assets/Bake.png";
+import OpeningHours from "../OpeningHours";
 
 const steps = [
   {
@@ -68,47 +69,6 @@ function AboutUs() {
           organizers with melas across India.
         </p>
       </Section>
-{/* 
-      <Section title="What We Do" customClass={styles.enhancedSection}>
-        <p>
-          We organize, promote, and support melas — from festive fairs and
-          seasonal markets to art showcases and food carnivals. Our platform
-          helps users explore, attend, or register for these events.
-        </p>
-      </Section>
-
-      <Section title="Our Vision" customClass={styles.enhancedSection}>
-        <p>
-          We envision a world where communities celebrate their culture, where
-          artisans thrive, and where traditions meet technology.
-        </p>
-      </Section>
-
-      <Section title="Our Values" customClass={styles.enhancedSection}>
-        <ul className={styles.valuesList}>
-          <li>
-            <strong>Culture & Heritage:</strong> We honor traditional festivals.
-          </li>
-          <li>
-            <strong>Inclusion:</strong> Everyone is welcome at our events.
-          </li>
-          <li>
-            <strong>Empowerment:</strong> We uplift local vendors and artisans.
-          </li>
-          <li>
-            <strong>Innovation:</strong> We simplify event discovery with tech.
-          </li>
-        </ul>
-      </Section> */}
-
-      {/* <Section title="Meet Our Team">
-        <ul className={styles.list}>
-          <li>
-            <strong>Ankur Patel</strong> — <em>Founder & Director</em>: Drives
-            MelaConnect's cultural vision.
-          </li>
-        </ul>
-      </Section> */}
 
       <Section title="Why Choose Us?">
         <p>
@@ -122,34 +82,30 @@ function AboutUs() {
       <section className={styles.processSection}>
         <h2 className={styles.heading}>Sophisticated Process</h2>
         <div className={styles.steps}>
-          {steps.map(
-            (
-              step,
-              index // Added index here
-            ) => (
-              <div
-                key={step.number}
-                className={`${styles.stepItem} ${
-                  index % 2 !== 0 ? styles.reverseStep : "" // Apply reverse class for odd indices (0-based)
-                }`}
-              >
-                <div className={styles.stepImageWrapper}>
-                  <img
-                    src={step.image}
-                    alt={step.title}
-                    className={styles.stepImage}
-                  />
-                </div>
-                <div className={styles.stepContent}>
-                  <span className={styles.stepNumber}>{step.number}</span>
-                  <h3 className={styles.stepTitle}>{step.title}</h3>
-                  <p className={styles.stepDescription}>{step.description}</p>
-                </div>
+          {steps.map((step, index) => (
+            <div
+              key={step.number}
+              className={`${styles.stepItem} ${
+                index % 2 !== 0 ? styles.reverseStep : ""
+              }`}
+            >
+              <div className={styles.stepImageWrapper}>
+                <img
+                  src={step.image}
+                  alt={step.title}
+                  className={styles.stepImage}
+                />
               </div>
-            )
-          )}
+              <div className={styles.stepContent}>
+                <span className={styles.stepNumber}>{step.number}</span>
+                <h3 className={styles.stepTitle}>{step.title}</h3>
+                <p className={styles.stepDescription}>{step.description}</p>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
+      <OpeningHours />
     </div>
   );
 }
@@ -164,34 +120,38 @@ function Header({ title }) {
 
 function HeroSection({ title, description, image }) {
   return (
-    <section className={styles.heroSection}>
-      <div className={styles.text}>
-        <h2>{title}</h2>
-        <p>{description}</p>
-      </div>
-      <div className={styles.imageWrapper}>
-        <img src={image} alt={title} className={styles.image} />
-      </div>
-    </section>
+    <>
+      <section className={styles.heroSection}>
+        <div className={styles.text}>
+          <h2>{title}</h2>
+          <p>{description}</p>
+        </div>
+        <div className={styles.imageWrapper}>
+          <img src={image} alt={title} className={styles.image} />
+        </div>
+      </section>
+    </>
   );
 }
 
 function TeamMember({ name, title, description, image, reverse = false }) {
   return (
-    <section
-      className={`${styles.heroSection} ${reverse ? styles.reverse : ""}`}
-    >
-      {image && (
-        <div className={styles.imageWrapper}>
-          <img src={image} alt={title} className={styles.image} />
+    <>
+      <section
+        className={`${styles.heroSection} ${reverse ? styles.reverse : ""}`}
+      >
+        {image && (
+          <div className={styles.imageWrapper}>
+            <img src={image} alt={title} className={styles.image} />
+          </div>
+        )}
+        <div className={styles.text}>
+          <h3>{title}</h3>
+          <p className={styles.managerName}>{name}</p>
+          <p>{description}</p>
         </div>
-      )}
-      <div className={styles.text}>
-        <h3>{title}</h3>
-        <p className={styles.managerName}>{name}</p>
-        <p>{description}</p>
-      </div>
-    </section>
+      </section>
+    </>
   );
 }
 
