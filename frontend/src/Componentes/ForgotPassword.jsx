@@ -1,10 +1,11 @@
 import { useForm } from "react-hook-form";
-// import input from "./input";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./ForgotPassword.module.css";
 import { IoMailOutline } from "react-icons/io5";
 import { useTheme } from "./Store/theme";
+import { supabase } from "../../supabaseClient";
+
 export default function ForgotPassword() {
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
@@ -14,10 +15,23 @@ export default function ForgotPassword() {
     formState: { errors, isSubmitting },
   } = useForm();
   const { theme } = useTheme();
-  function onSubmit(data) {
-    console.log("Email for password reset:", data.email);
-    setMessage("A password reset link has been sent to your email.");
-    navigate("/login");
+  async function onSubmit(data) {
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(data.email, {
+        redirectTo: "https://food-app-d8r3.onrender.com/reset-password",
+      });
+
+      if (error) {
+        setMessage("Failed to send reset link: " + error.message);
+      } else {
+        setMessage("A password reset link has been sent to your email.");
+        // Optional: delay before redirecting
+        setTimeout(() => navigate("/login"), 4000);
+      }
+    } catch (err) {
+      console.error("Unexpected error:", err);
+      setMessage("Something went wrong. Please try again later.");
+    }
   }
 
   return (

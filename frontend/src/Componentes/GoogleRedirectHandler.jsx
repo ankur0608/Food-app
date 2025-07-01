@@ -2,21 +2,24 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../../supabaseClient";
 
-const API = import.meta.env.VITE_API_BASE_URL;
+const API =
+  import.meta.env.VITE_API_BASE_URL || "https://food-app-d8r3.onrender.com";
 
 export default function GoogleRedirectHandler() {
   const navigate = useNavigate();
 
   useEffect(() => {
     const handleGoogleRedirect = async () => {
+      console.log("🔁 Checking Supabase session...");
+
       const {
         data: { session },
         error,
       } = await supabase.auth.getSession();
 
       if (error || !session) {
-        console.error("Google session error:", error);
-        alert("Google login failed");
+        console.error("❌ Google session error:", error);
+        alert("Google login failed.");
         return;
       }
 
@@ -24,30 +27,37 @@ export default function GoogleRedirectHandler() {
       const email = user.email;
       const name = user.user_metadata.full_name || "Google User";
 
+      console.log("✅ Google user:", { email, name });
+      console.log("🔗 Using API base URL:", API);
+
       try {
         const response = await fetch(`${API}/google-auth`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+          },
           body: JSON.stringify({ email, name }),
         });
 
         const result = await response.json();
 
         if (!response.ok) {
-          console.error("Google auth failed:", result);
+          console.error("❌ Google auth failed:", result);
           alert(result.error || "Google signup/login failed");
           return;
         }
 
-        // ✅ Save token and user in localStorage
+        // ✅ Save token and user to localStorage
         localStorage.setItem("token", result.token);
         localStorage.setItem("user", JSON.stringify(result.user));
 
-        // ✅ Navigate to home/dashboard
+        console.log("🎉 Google login successful:", result.user);
+
+        // ✅ Navigate to home
         navigate("/Home");
       } catch (err) {
-        console.error("Google final auth failed:", err);
-        alert("Something went wrong.");
+        console.error("❌ Google final auth failed:", err);
+        alert("Something went wrong. Please try again.");
       }
     };
 

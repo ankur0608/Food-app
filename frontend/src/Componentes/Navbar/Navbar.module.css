@@ -149,7 +149,7 @@
 /* Responsive Layout */
 @media (max-width: 768px) {
   .navbar {
-    padding: 5px 15px;
+    padding: 8px 15px;
   }
 
   .logo img {
@@ -164,7 +164,7 @@
 
   .mobileExtras {
     display: flex;
-    margin-right: 200px;
+    margin-right: 160px;
     margin-bottom: 10px;
   }
 
@@ -223,83 +223,56 @@
     font-size: 13px;
   }
 }
-@media (max-width: 768px) {
+@media (max-width: 467px) {
   .navbar {
-    padding: 8px 12px;
-    flex-direction: row;
-    justify-content: space-between;
+    padding: 6px 10px;
   }
 
   .logo img {
-    width: 34px;
-    height: 34px;
-    margin: 0;
+    height: 28px;
+    width: 28px;
   }
 
   .menuToggle {
-    display: block;
-    font-size: 1.6rem;
+    font-size: 1.5rem;
   }
 
   .mobileExtras {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    margin: 0;
+    margin-right: 100px;
+    margin-bottom: 5px;
+    gap: 10px;
   }
 
   .links {
-    display: none;
-    flex-direction: column;
-    background-color: #222;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    width: 100%;
     padding: 10px 0;
-    border-top: 1px solid #333;
-  }
-
-  .links.open {
-    display: flex;
   }
 
   .navList {
-    flex-direction: column;
-    align-items: flex-start;
     gap: 12px;
-    padding-left: 16px;
-    width: 100%;
+    padding-left: 15px;
   }
 
   .navList li a {
-    font-size: 14px;
-    padding: 8px 12px;
-    display: flex;
-    align-items: center;
+    font-size: 12px;
+    padding: 4px 6px;
   }
 
-  .mobileIcon {
-    display: inline-block;
-    margin-right: 8px;
+  .logoutButton {
+    font-size: 12px;
+    padding: 4px 6px;
   }
 
   .cart,
   .themeLink {
-    margin: 6px 0 0 8px;
+    font-size: 18px;
+    margin-left: 10px;
+    margin-top: 6px;
   }
 
-  .desktopOnly {
-    display: none !important;
-  }
-
-  .logoutButton {
-    font-size: 14px;
-    padding: 8px 12px;
-  }
-
-  .active {
-    font-weight: bold;
-    border-bottom: 2px solid #f1c40f;
+  .badge {
+    font-size: 10px;
+    padding: 1px 5px;
+    top: -5px;
+    right: -8px;
   }
 }

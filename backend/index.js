@@ -13,6 +13,8 @@ const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_ANON_KEY
 );
+console.log("✅ Loaded SUPABASE_URL:", process.env.SUPABASE_URL);
+console.log("✅ Loaded RAZORPAY_KEY_ID:", process.env.RAZORPAY_KEY_ID);
 
 const app = express();
 
