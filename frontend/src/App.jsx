@@ -44,7 +44,7 @@ const router = createBrowserRouter([
       { path: "checkout", element: <Checkout /> },
       { path: "order-summary", element: <OrderSummary /> },
       { path: "google-redirect", element: <GoogleRedirectHandler /> },
-      { path: "ResetPassword", element: <ResetPassword /> },
+      { path: "reset-password", element: <ResetPassword /> },
 
       { path: "*", element: <div>404 - Page Not Found</div> },
     ],
