@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../supabaseClient";
 import styles from "./ResetPassword.module.css";
-import { useTheme } from "../Store/theme";
+import { useTheme } from "../Componentes/Store/theme.jsx";
+
 import { useNavigate } from "react-router-dom";
 
 export default function ResetPassword() {
