@@ -2,61 +2,57 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../../supabaseClient";
 
-function GoogleRedirectHandler() {
+const API = import.meta.env.VITE_API_BASE_URL;
+
+export default function GoogleRedirectHandler() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const finishGoogleLogin = async () => {
-      // ⚠️ Wait for Supabase to store session
-      const { data: sessionData, error: sessionErr } =
-        await supabase.auth.getSession();
-      if (sessionErr || !sessionData.session) {
-        alert("Google login failed.");
-        return navigate("/signup");
+    const handleGoogleRedirect = async () => {
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession();
+
+      if (error || !session) {
+        console.error("Google session error:", error);
+        alert("Google login failed");
+        return;
       }
 
-      const { data: userData, error: userErr } = await supabase.auth.getUser();
-      if (userErr || !userData?.user) {
-        alert("User info fetch failed.");
-        return navigate("/signup");
-      }
-
-      // Proceed with backend call
-      const { email, user_metadata } = userData.user;
-      const username = user_metadata?.full_name || "GoogleUser";
+      const { user } = session;
+      const email = user.email;
+      const name = user.user_metadata.full_name || "Google User";
 
       try {
-        const res = await fetch(
-          "https://food-app-d8r3.onrender.com/google-auth",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, username }),
-          }
-        );
+        const response = await fetch(`${API}/google-auth`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, name }),
+        });
 
-        const result = await res.json();
-        if (!res.ok) {
-          alert(result.error || "Google login failed.");
-          return navigate("/signup");
+        const result = await response.json();
+
+        if (!response.ok) {
+          console.error("Google auth failed:", result);
+          alert(result.error || "Google signup/login failed");
+          return;
         }
 
+        // ✅ Save token and user in localStorage
         localStorage.setItem("token", result.token);
-        window.location.href = "/home";
+        localStorage.setItem("user", JSON.stringify(result.user));
+
+        // ✅ Navigate to home/dashboard
+        navigate("/Home");
       } catch (err) {
         console.error("Google final auth failed:", err);
-        navigate("/signup");
+        alert("Something went wrong.");
       }
     };
 
-    finishGoogleLogin();
-  }, []);
+    handleGoogleRedirect();
+  }, [navigate]);
 
-  return (
-    <p style={{ textAlign: "center", marginTop: "2rem" }}>
-      Logging you in via Google...
-    </p>
-  );
+  return <div>Signing you in with Google...</div>;
 }
-
-export default GoogleRedirectHandler;

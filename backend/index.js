@@ -299,47 +299,51 @@ app.post("/login", async (req, res) => {
   }
 });
 // POST /google-auth
+// ✅ GOOGLE-AUTH route
 app.post("/google-auth", async (req, res) => {
-  const { email, username } = req.body;
+  const { email, name } = req.body;
 
-  if (!email || !username) {
-    return res.status(400).json({ error: "Email and username are required" });
+  if (!email) {
+    return res.status(400).json({ error: "Missing email from Google" });
   }
 
   try {
-    // 1. Check if user already exists
-    const { data: existingUsers, error: fetchError } = await supabase
+    // check if user already exists
+    let { data: user } = await supabase
       .from("users")
       .select("*")
-      .eq("email", email);
+      .eq("email", email)
+      .single();
 
-    if (fetchError) throw fetchError;
-
-    let userId;
-
-    // 2. If not exists, insert new user with password=null
-    if (existingUsers.length === 0) {
-      const { data: insertedData, error: insertError } = await supabase
+    // if user not found, insert new one
+    if (!user) {
+      const insertResult = await supabase
         .from("users")
-        .insert([{ email, username, password: null }])
-        .select();
+        .insert([{ email, username: name, password: null }])
+        .select("*")
+        .single();
 
-      if (insertError) throw insertError;
+      if (insertResult.error) {
+        console.error("DB insert error:", insertResult.error);
+        return res.status(500).json({ error: "Failed to create user" });
+      }
 
-      userId = insertedData[0].id;
-    } else {
-      userId = existingUsers[0].id;
+      user = insertResult.data;
     }
 
-    // 3. Create JWT token
-    const token = jwt.sign({ id: userId, email }, process.env.JWT_SECRET, {
-      expiresIn: "1d",
-    });
+    // generate JWT token
+    const token = jwt.sign(
+      { id: user.id, email: user.email },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "7d",
+      }
+    );
 
-    return res.status(200).json({ message: "Google login successful", token });
-  } catch (err) {
-    console.error("🔥 Google Auth error:", err);
-    return res.status(500).json({ error: "Internal server error" });
+    res.status(200).json({ token, user });
+  } catch (error) {
+    console.error("Google auth failed:", error);
+    res.status(500).json({ error: "Google auth failed" });
   }
 });
 
