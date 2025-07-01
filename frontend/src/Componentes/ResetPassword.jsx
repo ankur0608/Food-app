@@ -1,69 +1,53 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../supabaseClient";
-import styles from "./ResetPassword.module.css";
-import { useTheme } from "../Componentes/Store/theme.jsx";
-
-import { useNavigate } from "react-router-dom";
 
 export default function ResetPassword() {
+  const [accessToken, setAccessToken] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [message, setMessage] = useState("");
-  const [isReady, setIsReady] = useState(false);
-  const { theme } = useTheme();
-  const navigate = useNavigate();
 
   useEffect(() => {
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        if (event === "PASSWORD_RECOVERY") {
-          setIsReady(true);
-        }
-      }
-    );
-
-    return () => {
-      authListener?.subscription?.unsubscribe();
-    };
+    const hash = window.location.hash;
+    const tokenMatch = hash.match(/access_token=([^&]+)/);
+    if (tokenMatch) {
+      setAccessToken(tokenMatch[1]);
+    }
   }, []);
 
-  const handleReset = async () => {
-    if (!newPassword || newPassword.length < 6) {
-      setMessage("Password must be at least 6 characters long.");
-      return;
-    }
+  const handlePasswordReset = async (e) => {
+    e.preventDefault();
 
-    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    const { data, error } = await supabase.auth.updateUser(
+      { password: newPassword },
+      { accessToken }
+    );
 
     if (error) {
-      setMessage("❌ " + error.message);
+      setMessage("❌ Failed to reset password: " + error.message);
     } else {
-      setMessage("✅ Password updated! Redirecting to login...");
-      setTimeout(() => navigate("/login"), 3000);
+      setMessage("✅ Password updated successfully! Redirecting to login...");
+      setTimeout(() => {
+        window.location.href = "/login";
+      }, 3000);
     }
   };
 
   return (
-    <div className={`${styles.container} ${styles[theme]}`}>
-      <h1 className={styles.heading}>Reset Password</h1>
-
-      {isReady ? (
-        <>
-          <input
-            type="password"
-            placeholder="Enter new password"
-            className={styles.input}
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-          />
-          <button className={styles.button} onClick={handleReset}>
-            Update Password
-          </button>
-        </>
-      ) : (
-        <p className={styles.info}>Waiting for secure reset session...</p>
-      )}
-
-      {message && <div className={styles.successMessage}>{message}</div>}
+    <div style={{ padding: "2rem" }}>
+      <h2>🔐 Reset Your Password</h2>
+      <form onSubmit={handlePasswordReset}>
+        <input
+          type="password"
+          placeholder="New Password"
+          value={newPassword}
+          onChange={(e) => setNewPassword(e.target.value)}
+          required
+        />
+        <button type="submit" disabled={!accessToken || !newPassword}>
+          Reset Password
+        </button>
+      </form>
+      {message && <p>{message}</p>}
     </div>
   );
 }
