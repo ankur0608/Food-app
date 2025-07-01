@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 import { useRef, useState } from "react";
-import styles from "./Signup.module.css";
+import styles from "./login.module.css";
 import Modal from "./Modal";
 import { Link, useNavigate } from "react-router-dom";
 import { useTheme } from "./Store/theme.jsx";
@@ -62,9 +62,11 @@ export default function Login() {
         <h1>Login successful!</h1>
         <h2>Welcome</h2>
       </Modal>
-      <div className={theme}>
+      <div>
         <div
-          className={`${styles.container} ${modalOpen ? styles.blurred : ""}`}
+          className={`${styles.container} ${modalOpen ? styles.blurred : ""} ${
+            styles[theme]
+          }`}
         >
           <h1 className={styles.heading}>Login</h1>
           <form

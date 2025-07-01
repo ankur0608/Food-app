@@ -6,6 +6,7 @@ import Modal from "../Modal";
 import { CartContext } from "../Store/CartContext.jsx";
 import { FaPhone, FaRegUser, FaRegAddressBook } from "react-icons/fa6";
 import { IoMailOutline } from "react-icons/io5";
+import axios from "axios";
 
 const CheckoutForm = () => {
   const modalRef = useRef();
@@ -45,19 +46,15 @@ const CheckoutForm = () => {
   const onSubmit = async (formData) => {
     try {
       // Step 1: Create Razorpay order
-      const res = await fetch("https://food-app-d8r3.onrender.com/create-order", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ amount: total * 100, currency: "USD" }),
-      });
-
-      const order = await res.json();
+      const res = await axios.post(
+        "https://food-app-d8r3.onrender.com/create-order",
+        { amount: total * 100, currency: "USD" }
+      );
+      const order = res.data;
 
       // Step 2: Open Razorpay Checkout
       const options = {
-        key: "rzp_test_7jWpAfUxjwYR6P", // Replace with your real Razorpay key
+        key: "rzp_test_7jWpAfUxjwYR6P",
         amount: order.amount,
         currency: "USD",
         name: "Meal Checkout",
@@ -65,24 +62,28 @@ const CheckoutForm = () => {
         image: "/assets/logo.png",
         order_id: order.id,
         handler: async function (response) {
-          const saveRes = await fetch("https://food-app-d8r3.onrender.com/save-payment", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              razorpay_order_id: order.id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
-              amount: order.amount / 100,
-              currency: order.currency,
-              name: formData.name,
-              email: formData.email,
-              mobile: formData.mobile,
-              address: formData.address,
-              items: JSON.parse(localStorage.getItem("cartItems"))?.items || [], // ✅ include cart
-            }),
-          });
+          const saveRes = await fetch(
+            "https://food-app-d8r3.onrender.com/save-payment",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                razorpay_order_id: order.id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                amount: order.amount / 100,
+                currency: order.currency,
+                name: formData.name,
+                email: formData.email,
+                mobile: formData.mobile,
+                address: formData.address,
+                items:
+                  JSON.parse(localStorage.getItem("cartItems"))?.items || [], // ✅ include cart
+              }),
+            }
+          );
 
           if (!saveRes.ok) {
             console.error("❌ Failed to save payment");

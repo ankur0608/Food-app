@@ -40,7 +40,7 @@
 /* Grouped input row for side-by-side fields */
 .form-row {
   display: flex;
-  gap: 20px;
+  /* gap: 20px; */
   flex-wrap: wrap;
 }
 

@@ -15,6 +15,10 @@ const supabase = createClient(
 );
 
 const app = express();
+
+// ✅ FIRST: Enable JSON parsing middleware
+app.use(express.json());
+
 const PORT = process.env.PORT || 5000;
 
 app.get("/home", (req, res) => {
@@ -28,6 +32,7 @@ app.use(
       "https://food-app-five-mu.vercel.app",
       "https://food-app-d8r3.onrender.com",
       "https://food-app-git-main-ankur-patels-projects-15e166ca.vercel.app",
+      "http://localhost:5000",
     ],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
@@ -35,7 +40,7 @@ app.use(
 );
 
 // ✅ Must come before routes to parse JSON body
-app.use(express.json());
+
 // Razorpay POST /order endpoint
 
 // 🧾 Razorpay instance
@@ -172,10 +177,12 @@ app.get("/available-meals", async (req, res) => {
 // POST /signup
 app.post("/signup", async (req, res) => {
   // console.log("🔔 Signup request body:", req.body);
-  const { username, email, password, mobile } = req.body;
 
-  // Validate input
-  if (!username || !email || !password || !mobile) {
+  const { username, email, password } = req.body;
+  console.log("👉 Parsed fields:", { username, email, password });
+
+  if (!username || !email || !password) {
+    console.log("❌ One or more fields missing");
     return res.status(400).json({ error: "All fields are required" });
   }
 
@@ -202,8 +209,7 @@ app.post("/signup", async (req, res) => {
     // 3. Insert new user
     const { data: insertedData, error: insertError } = await supabase
       .from("users")
-      .insert([{ username, email, password: hashedPassword, mobile }])
-
+      .insert([{ username, email, password: hashedPassword }])
       .select(); // 👈 Required to get the inserted row
 
     if (insertError) {
@@ -292,6 +298,50 @@ app.post("/login", async (req, res) => {
     return res.status(500).json({ error: "Internal server error" });
   }
 });
+// POST /google-auth
+app.post("/google-auth", async (req, res) => {
+  const { email, username } = req.body;
+
+  if (!email || !username) {
+    return res.status(400).json({ error: "Email and username are required" });
+  }
+
+  try {
+    // 1. Check if user already exists
+    const { data: existingUsers, error: fetchError } = await supabase
+      .from("users")
+      .select("*")
+      .eq("email", email);
+
+    if (fetchError) throw fetchError;
+
+    let userId;
+
+    // 2. If not exists, insert new user with password=null
+    if (existingUsers.length === 0) {
+      const { data: insertedData, error: insertError } = await supabase
+        .from("users")
+        .insert([{ email, username, password: null }])
+        .select();
+
+      if (insertError) throw insertError;
+
+      userId = insertedData[0].id;
+    } else {
+      userId = existingUsers[0].id;
+    }
+
+    // 3. Create JWT token
+    const token = jwt.sign({ id: userId, email }, process.env.JWT_SECRET, {
+      expiresIn: "1d",
+    });
+
+    return res.status(200).json({ message: "Google login successful", token });
+  } catch (err) {
+    console.error("🔥 Google Auth error:", err);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 app.post("/contact", async (req, res) => {
   console.log("🔥🔥🔥 POST /contact hit");
@@ -338,7 +388,3 @@ app.post("/contact", async (req, res) => {
     return res.status(500).json({ error: "Internal Server Error" });
   }
 });
-
-// app.listen(PORT, () => {
-//   console.log(`Server running at http://localhost:${PORT}`);
-// });

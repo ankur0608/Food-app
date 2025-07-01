@@ -10,6 +10,7 @@ import { IoMdContact } from "react-icons/io";
 import { GiHotMeal } from "react-icons/gi";
 import { FaUserPlus, FaSignInAlt, FaSignOutAlt } from "react-icons/fa";
 import LogoImage from "../../assets/main-logo.png";
+import { supabase } from "../../../supabaseClient.js";
 
 function Navlinks() {
   const location = useLocation();
@@ -23,19 +24,35 @@ function Navlinks() {
     (total, item) => total + item.quantity,
     0
   );
-
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    const justSignedUp = localStorage.getItem("justSignedUp");
-    setNavState(
-      token ? (justSignedUp === "true" ? "login" : "logout") : "signup"
-    );
+    const checkAuthStatus = async () => {
+      const token = localStorage.getItem("token");
+      if (token) {
+        setNavState("logout");
+        return;
+      }
+
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        setNavState("logout");
+      } else {
+        setNavState("signup");
+      }
+    };
+
+    checkAuthStatus();
   }, [location.pathname]);
 
-  function handleLogout() {
+  async function handleLogout() {
     if (!window.confirm("Are you sure you want to logout?")) return;
+
+    // For normal login
     localStorage.removeItem("token");
     localStorage.removeItem("justSignedUp");
+
+    // For Supabase Google login
+    await supabase.auth.signOut();
+
     setNavState("signup");
     navigate("/signup");
     setMenuOpen(false);

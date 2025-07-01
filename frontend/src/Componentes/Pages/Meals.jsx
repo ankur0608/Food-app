@@ -6,6 +6,7 @@ import { useTheme } from "../Store/theme";
 import { FaSearch, FaTimes } from "react-icons/fa";
 import Loading from "../../Componentes/Loading.jsx";
 import OpeningHours from "../OpeningHours.jsx";
+import axios from "axios";
 
 export default function Product() {
   const [meals, setMeals] = useState([]);
@@ -22,10 +23,10 @@ export default function Product() {
   useEffect(() => {
     const fetchMeals = async () => {
       try {
-        const res = await fetch("https://food-app-d8r3.onrender.com/meals");
-        if (!res.ok) throw new Error("Failed to fetch meals.");
-        const data = await res.json();
-        setMeals(data);
+        const res = await axios.get("https://food-app-d8r3.onrender.com/meals");
+        // if (!res.ok) throw new Error("Failed to fetch meals.");
+        // const data = await res.json();
+        setMeals(res.data);
       } catch (err) {
         console.error("Error:", err.message);
       } finally {
@@ -36,8 +37,6 @@ export default function Product() {
   }, []);
 
   useEffect(() => setCurrentPage(1), [selectedCategory, searchQuery]);
-
-  if (loading) return <Loading />;
 
   const categories = ["All", ...new Set(meals.map((meal) => meal.category))];
 
@@ -97,7 +96,9 @@ export default function Product() {
       </div>
 
       {/* Meals List */}
-      {filteredMeals.length === 0 ? (
+      {loading ? (
+        <Loading />
+      ) : filteredMeals.length === 0 ? (
         <p className={styles["no-meals"]}>No meals found.</p>
       ) : (
         <ul className={styles["meals-list"]}>

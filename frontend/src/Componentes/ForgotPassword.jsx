@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./ForgotPassword.module.css";
 import { IoMailOutline } from "react-icons/io5";
-
+import { useTheme } from "./Store/theme";
 export default function ForgotPassword() {
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
@@ -13,7 +13,7 @@ export default function ForgotPassword() {
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm();
-
+  const { theme } = useTheme();
   function onSubmit(data) {
     console.log("Email for password reset:", data.email);
     setMessage("A password reset link has been sent to your email.");
@@ -21,7 +21,7 @@ export default function ForgotPassword() {
   }
 
   return (
-    <div className={styles.container}>
+    <div className={`${styles.container} ${styles[theme]}`}>
       <h1 className={styles.heading}>Forgot Password</h1>
       <form
         onSubmit={handleSubmit(onSubmit)}

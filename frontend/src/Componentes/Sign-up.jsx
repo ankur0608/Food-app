@@ -5,7 +5,8 @@ import { useTheme } from "./Store/theme.jsx";
 import { FaRegUser } from "react-icons/fa";
 import { IoMailOutline } from "react-icons/io5";
 import { TbLockPassword } from "react-icons/tb";
-import { BsPhone } from "react-icons/bs";
+import { supabase } from "../../supabaseClient.js";
+import googleLogo from "../assets/google.png";
 
 function Signup() {
   const {
@@ -19,9 +20,10 @@ function Signup() {
   const navigate = useNavigate();
   const { theme } = useTheme();
 
+  // Your form submission for traditional signup
   async function onSubmit(data) {
     try {
-      console.log("📦 Sending signup data:", data);
+      // console.log("📦 Sending signup data:", data);
 
       const response = await fetch(
         "https://food-app-d8r3.onrender.com/signup",
@@ -33,7 +35,7 @@ function Signup() {
       );
 
       const result = await response.json();
-      console.log("✅ Server response:", result);
+      // console.log("✅ Server response:", result);
 
       if (!response.ok) {
         alert(result.error || "Signup failed");
@@ -47,6 +49,21 @@ function Signup() {
       alert("Something went wrong. Please try again.");
     }
   }
+
+  // Google login handler
+  const handleGoogleSignup = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/google-redirect`, // ✅ MUST match Supabase dashboard
+      },
+    });
+
+    if (error) {
+      console.error("Google login error:", error.message);
+      alert("Google sign-in failed");
+    }
+  };
 
   return (
     <div className={`${styles.container} ${styles[theme]}`}>
@@ -99,8 +116,8 @@ function Signup() {
           )}
         </div>
 
-        {/* Mobile Number */}
-        <div className={styles.inputGroup}>
+        {/* Mobile */}
+        {/* <div className={styles.inputGroup}>
           <label htmlFor="mobile" className={styles.label}>
             Mobile Number:
           </label>
@@ -121,7 +138,7 @@ function Signup() {
           {errors.mobile && (
             <small className={styles.small}>{errors.mobile.message}</small>
           )}
-        </div>
+        </div> */}
 
         {/* Password */}
         <div className={styles.inputGroup}>
@@ -155,11 +172,17 @@ function Signup() {
           Already have an account?
         </Link>
 
-        {/* Submit Button */}
         <button type="submit" className={styles.button} disabled={isSubmitting}>
           {isSubmitting ? "Submitting..." : "Signup"}
         </button>
       </form>
+
+      <div className={styles.divider}>OR</div>
+
+      <button onClick={handleGoogleSignup} className={styles.googleButton}>
+        <img src={googleLogo} alt="Google logo" className={styles.googleIcon} />
+        Continue with Google
+      </button>
     </div>
   );
 }

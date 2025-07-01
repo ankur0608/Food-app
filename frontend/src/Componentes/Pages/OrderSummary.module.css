@@ -69,10 +69,7 @@
 
 .backButton {
   display: inline-block;
-  /* margin-top: 0.2rem; */
   padding: 0.75rem 1.5rem;
-  height: 26px;
-  width: 150px;
   background-color: #0f172a;
   color: #ffffff;
   text-decoration: none;
@@ -80,6 +77,8 @@
   text-align: center;
   transition: background-color 0.2s ease;
   font-weight: 500;
+  font-size: 1rem;
+  min-width: 140px;
 }
 
 .backButton:hover {
@@ -87,8 +86,8 @@
 }
 
 .downloadButton {
-  width: 200px;
-  height: 50px;
+  min-width: 160px;
+  padding: 0.75rem 1.5rem;
   background-color: #0f172a;
   color: #ffffff;
   border: none;
@@ -105,22 +104,70 @@
 
 .buttonGroup {
   display: flex;
-  justify-content: space-between; /* centers buttons horizontally */
-  gap: 1.5rem; /* space between buttons */
+  justify-content: space-between;
+  gap: 1rem;
   margin-top: 2rem;
-  flex-wrap: wrap; /* allows wrap on small screens */
+  flex-wrap: wrap;
 }
 
+/* ✅ Improved mobile responsiveness */
+@media (max-width: 768px) {
+  .orderSummaryContainer {
+    max-width: 350px;
+    padding: 1rem;
+  }
+
+  .heading {
+    font-size: 1.5rem;
+  }
+
+  .table td {
+    font-size: 0.95rem;
+    padding: 0.5rem;
+  }
+  .backButton {
+    width: 92%;
+  }
+}
 
 @media (max-width: 600px) {
+  .orderSummaryContainer {
+    max-width: 310px;
+    padding: 1rem;
+  }
   .buttonGroup {
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;
   }
 
   .downloadButton,
   .backButton {
-    width: 100%;
+    /* width: 100%; */
     text-align: center;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+  }
+
+  .label {
+    width: 100%;
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+
+  .table td {
+    display: block;
+    width: 100%;
+    border-bottom: none;
+    padding: 0.5rem 0;
+  }
+
+  .table tr {
+    margin-bottom: 1rem;
+    display: block;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .dark .table tr {
+    border-bottom: 1px solid #334155;
   }
 }
