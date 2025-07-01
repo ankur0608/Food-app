@@ -18,7 +18,7 @@ export default function ForgotPassword() {
   async function onSubmit(data) {
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(data.email, {
-        redirectTo: "https://food-app-d8r3.onrender.com/reset-password",
+        redirectTo: "https://your-vercel-app-name.vercel.app/reset-password",
       });
 
       if (error) {
