@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 import { useRef, useState } from "react";
-import styles from "./login.module.css";
+import styles from "./Login.module.css";
 import Modal from "./Modal";
 import { Link, useNavigate } from "react-router-dom";
 import { useTheme } from "./Store/theme.jsx";
