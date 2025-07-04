@@ -76,14 +76,22 @@ const AutoPlaySlider = () => {
 
   if (loading) {
     return (
-      <div className={`slider-container ${theme === "dark" ? "dark-theme" : "light-theme"}`}>
+      <div
+        className={`slider-container ${
+          theme === "dark" ? "dark-theme" : "light-theme"
+        }`}
+      >
         <Loding />
       </div>
     );
   }
 
   return (
-    <div className={`slider-container ${theme === "dark" ? "dark-theme" : "light-theme"}`}>
+    <div
+      className={`slider-container ${
+        theme === "dark" ? "dark-theme" : "light-theme"
+      }`}
+    >
       <div className="view-all">
         <h2 className="slider-title">Meals</h2>
         <Link to="/meals">View All</Link>
@@ -91,28 +99,35 @@ const AutoPlaySlider = () => {
 
       {error && <p className="status-message error">{error}</p>}
 
-      {meals.length > 0 && (
-        <Slider {...sliderSettings}>
-          {meals.map((meal) => (
-            <div key={meal.id} className="meal-card">
-              <img
-                src={
-                  meal.image.startsWith("http")
-                    ? meal.image
-                    : `https://food-app-d8r3.onrender.com/images/${meal.image}`
-                }
-                alt={meal.name}
-                className="meal-image"
-              />
-              <h3>{meal.name}</h3>
-              <p className="meal-description">{meal.description}</p>
-              <p className="meal-price">${meal.price}</p>
-              <button className="add-btn" onClick={() => handleAddToCart(meal)}>
-                Add To Cart
-              </button>
-            </div>
-          ))}
-        </Slider>
+      {Loding ? (
+        <Loding />
+      ) : (
+        meals.length > 0 && (
+          <Slider {...sliderSettings}>
+            {meals.map((meal) => (
+              <div key={meal.id} className="meal-card">
+                <img
+                  src={
+                    meal.image.startsWith("http")
+                      ? meal.image
+                      : `https://food-app-d8r3.onrender.com/images/${meal.image}`
+                  }
+                  alt={meal.name}
+                  className="meal-image"
+                />
+                <h3>{meal.name}</h3>
+                <p className="meal-description">{meal.description}</p>
+                <p className="meal-price">${meal.price}</p>
+                <button
+                  className="add-btn"
+                  onClick={() => handleAddToCart(meal)}
+                >
+                  Add To Cart
+                </button>
+              </div>
+            ))}
+          </Slider>
+        )
       )}
     </div>
   );

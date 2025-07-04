@@ -1,3 +1,4 @@
+/* Contact Container */
 .contact-container {
   display: flex;
   flex-direction: column;
@@ -7,6 +8,7 @@
   box-sizing: border-box;
   background-color: #ffffff;
   font-family: "Arial", sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Theme variations */
@@ -28,19 +30,20 @@
 }
 
 .contact-form {
-  background-color: #ffffff;
+  background-color: var(--form-bg-color, #ffffff);
   padding: 40px;
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   width: 100%;
-  max-width: 100%;
+  max-width: 600px;
   box-sizing: border-box;
+  transition: background-color 0.3s ease;
 }
 
-/* Grouped input row for side-by-side fields */
+/* Input Row */
 .form-row {
   display: flex;
-  /* gap: 20px; */
+  gap: 20px;
   flex-wrap: wrap;
 }
 
@@ -59,7 +62,7 @@
   margin-bottom: 8px;
   font-size: 1em;
   font-weight: 600;
-  color: #212529;
+  color: var(--label-color, #212529);
 }
 
 .input-wrapper {
@@ -77,8 +80,8 @@
   font-size: 1em;
   box-sizing: border-box;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
-  background-color: #fff;
-  color: #0f0f0f;
+  background-color: var(--input-bg-color, #fff);
+  color: var(--input-text-color, #0f0f0f);
 }
 
 .input:focus {
@@ -125,7 +128,7 @@
   transform: translateY(0);
 }
 
-/* Theme-specific variables */
+/* Theme variables */
 .light .contact-form {
   --form-bg-color: #ffffff;
   --label-color: #555;
@@ -144,9 +147,9 @@
   --icon-color: #bbb;
 }
 
+/* Responsive adjustments */
 @media (min-width: 768px) {
   .contactSection {
-    /* flex-direction: row; */
     justify-content: space-around;
     align-items: flex-start;
   }
@@ -158,32 +161,53 @@
   }
 }
 
-/* Responsive adjustments */
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .contact-form {
-    padding: 25px;
+    padding: 30px;
   }
 
   .contact-container h1 {
-    font-size: 2em;
+    font-size: 2.1em;
   }
 
   .input {
     padding: 10px 10px 10px 35px;
-    font-size: 0.9em;
+    font-size: 0.95em;
   }
 
   .icon {
-    font-size: 1em;
+    font-size: 1.1em;
     left: 10px;
   }
 
   .button {
-    padding: 12px;
+    padding: 13px;
     font-size: 1em;
   }
 
   .form-row {
     flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .contact-form {
+    padding: 20px;
+  }
+
+  .contact-container h1 {
+    font-size: 1.8em;
+  }
+
+  .input {
+    font-size: 0.9em;
+  }
+
+  .button {
+    font-size: 0.95em;
+  }
+
+  .icon {
+    font-size: 1em;
   }
 }

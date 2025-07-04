@@ -210,6 +210,9 @@
 
   .icon {
     font-size: 1rem;
-    top: 52%;
+    top: 65%;
+  }
+  .input {
+    padding: 8px 8px 8px 36px;
   }
 }
