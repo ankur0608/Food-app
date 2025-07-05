@@ -5,8 +5,8 @@ import { useTheme } from "./Store/theme.jsx";
 import { FaRegUser } from "react-icons/fa";
 import { IoMailOutline } from "react-icons/io5";
 import { TbLockPassword } from "react-icons/tb";
-import { supabase } from "../../supabaseClient.js";
 import googleLogo from "../assets/google.png";
+import { supabase } from "../../supabaseClient.js";
 
 function Signup() {
   const {
@@ -46,7 +46,7 @@ function Signup() {
     }
   }
 
-  const handleGoogleSignup = async () => {
+  const handleGoogleLogin = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
@@ -55,8 +55,7 @@ function Signup() {
     });
 
     if (error) {
-      console.error("Google login error:", error.message);
-      alert("Google sign-in failed");
+      alert("Google login failed");
     }
   };
 
@@ -154,7 +153,7 @@ function Signup() {
 
       <div className={styles.divider}>OR</div>
 
-      <button onClick={handleGoogleSignup} className={styles.googleButton}>
+      <button onClick={handleGoogleLogin} className={styles.googleButton}>
         <img src={googleLogo} alt="Google logo" className={styles.googleIcon} />
         Continue with Google
       </button>

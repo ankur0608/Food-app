@@ -34,6 +34,7 @@ export default function Login() {
       localStorage.setItem("token", result.token);
       localStorage.setItem("user", JSON.stringify(result.user));
       localStorage.removeItem("justSignedUp");
+      navigate("/");
     } catch (error) {
       console.error("🔥 Network or server error:", error);
       alert("Something went wrong. Please try again.");

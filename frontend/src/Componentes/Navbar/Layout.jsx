@@ -1,23 +1,20 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import Navlinks from "./NavLinks.jsx";
 import Newsletter from "../Newsletter.jsx";
 import Footer from "../Footer.jsx";
 import Reservation from "../Reservation.jsx";
-import { useLocation } from "react-router-dom";
 import ScrollToTop from "../ScrollToTop.jsx";
+import OpeningHours from "../OpeningHours.jsx";
+
 function Layout() {
   const location = useLocation();
-  const hideReservationOn = [
-    "/login",
-    "/signup",
-    "/contact",
-    "/ForgotPassword",
-    "/cart",
-  ];
-  const hideFooter = ["/login", "/signup", "contact", "/ForgotPassword"];
 
-  const shouldShowReservation = !hideReservationOn.includes(location.pathname);
-  const shouldShowFooter = !hideFooter.includes(location.pathname);
+  // Pages where these features should be hidden
+  const hideOn = ["/about", "/contact", "/meals"];
+
+  // Only show if not on About Us, Contact Us, or Meals
+  const shouldShowExtras = !hideOn.includes(location.pathname);
+
   return (
     <>
       <nav>
@@ -27,8 +24,9 @@ function Layout() {
 
       <Outlet />
 
-      {shouldShowReservation && <Reservation />}
-      {shouldShowFooter && <Newsletter />}
+      {shouldShowExtras && <OpeningHours />}
+      {shouldShowExtras && <Reservation />}
+      {shouldShowExtras && <Newsletter />}
       <Footer />
     </>
   );

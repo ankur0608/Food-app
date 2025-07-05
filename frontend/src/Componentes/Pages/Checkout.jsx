@@ -2,15 +2,12 @@ import { useForm } from "react-hook-form";
 import { useEffect, useRef, useState, useContext } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import styles from "./Checkout.module.css";
-import Modal from "../Modal";
 import { CartContext } from "../Store/CartContext.jsx";
 import { FaPhone, FaRegUser, FaRegAddressBook } from "react-icons/fa6";
 import { IoMailOutline } from "react-icons/io5";
 import axios from "axios";
 
 const CheckoutForm = () => {
-  const modalRef = useRef();
-  const [modalOpen, setModalOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { clearCart } = useContext(CartContext);
@@ -38,10 +35,6 @@ const CheckoutForm = () => {
     document.body.appendChild(script);
   }, []);
 
-  const handleModalClose = () => {
-    setModalOpen(false);
-    navigate("/order-summary");
-  };
 
   const onSubmit = async (formData) => {
     try {
@@ -130,17 +123,6 @@ const CheckoutForm = () => {
 
   return (
     <>
-      <Modal
-        ref={modalRef}
-        buttonCaption="Okay"
-        onModalclose={handleModalClose}
-      >
-        <h1 style={{ color: "green", fontWeight: "bold" }}>
-          Order Successful!
-        </h1>
-        <h2>Thank you for your order!</h2>
-      </Modal>
-
       <form
         onSubmit={handleSubmit(onSubmit)}
         className={styles.checkoutForm}
