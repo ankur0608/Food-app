@@ -1,16 +1,12 @@
 import { useForm } from "react-hook-form";
 import { useRef, useState } from "react";
 import styles from "./Login.module.css";
-import Modal from "./Modal";
 import { Link, useNavigate } from "react-router-dom";
 import { useTheme } from "./Store/theme.jsx";
 import { IoMailOutline } from "react-icons/io5";
 import { TbLockPassword } from "react-icons/tb";
 
 export default function Login() {
-  const modalRef = useRef();
-  const [modalOpen, setModalOpen] = useState(false);
-
   const {
     register,
     handleSubmit,
@@ -38,31 +34,14 @@ export default function Login() {
       localStorage.setItem("token", result.token);
       localStorage.setItem("user", JSON.stringify(result.user));
       localStorage.removeItem("justSignedUp");
-
-      modalRef.current.open();
-      setModalOpen(true);
     } catch (error) {
       console.error("🔥 Network or server error:", error);
       alert("Something went wrong. Please try again.");
     }
   }
 
-  const handleModalClose = () => {
-    setModalOpen(false);
-    navigate("/home");
-  };
-
   return (
     <>
-      <Modal
-        ref={modalRef}
-        buttonCaption="Okay"
-        onModalclose={handleModalClose}
-      >
-        <h1>Login successful!</h1>
-        <h2>Welcome back</h2>
-      </Modal>
-
       <div
         className={`${styles.container} ${modalOpen ? styles.blurred : ""} ${
           styles[theme]

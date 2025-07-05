@@ -54,7 +54,7 @@ export default function GoogleRedirectHandler() {
         console.log("🎉 Google login successful:", result.user);
 
         // ✅ Navigate to home
-        navigate("/Home");
+        window.location.href = "/"; // or your main/home route
       } catch (err) {
         console.error("❌ Google final auth failed:", err);
         alert("Something went wrong. Please try again.");
