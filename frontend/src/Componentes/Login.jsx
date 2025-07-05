@@ -6,18 +6,21 @@ import { Link, useNavigate } from "react-router-dom";
 import { useTheme } from "./Store/theme.jsx";
 import { IoMailOutline } from "react-icons/io5";
 import { TbLockPassword } from "react-icons/tb";
+
 export default function Login() {
   const modalRef = useRef();
   const [modalOpen, setModalOpen] = useState(false);
+
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm();
+
   const navigate = useNavigate();
   const { theme } = useTheme();
+
   async function onSubmit(data) {
-    // console.log("📦 Sending login data:", JSON.stringify(data, null, 2));
     try {
       const response = await fetch("https://food-app-d8r3.onrender.com/login", {
         method: "POST",
@@ -26,18 +29,14 @@ export default function Login() {
       });
 
       const result = await response.json();
-      console.log("🌐 Response status:", response.status);
 
       if (!response.ok) {
-        console.warn("⚠️ Server error response:", result);
         alert(result.error || "Login failed");
         return;
       }
 
-      console.log("✅ Login success:", result);
-
       localStorage.setItem("token", result.token);
-      localStorage.setItem("user", JSON.stringify(result.user)); // optional
+      localStorage.setItem("user", JSON.stringify(result.user));
       localStorage.removeItem("justSignedUp");
 
       modalRef.current.open();
@@ -50,8 +49,9 @@ export default function Login() {
 
   const handleModalClose = () => {
     setModalOpen(false);
-    navigate("/Home");
+    navigate("/home");
   };
+
   return (
     <>
       <Modal
@@ -60,80 +60,84 @@ export default function Login() {
         onModalclose={handleModalClose}
       >
         <h1>Login successful!</h1>
-        <h2>Welcome</h2>
+        <h2>Welcome back</h2>
       </Modal>
-      <div>
-        <div
-          className={`${styles.container} ${modalOpen ? styles.blurred : ""} ${
-            styles[theme]
-          }`}
+
+      <div
+        className={`${styles.container} ${modalOpen ? styles.blurred : ""} ${
+          styles[theme]
+        }`}
+      >
+        <h1 className={styles.heading}>Login</h1>
+
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          noValidate
+          className={styles.form}
         >
-          <h1 className={styles.heading}>Login</h1>
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            noValidate
-            className={styles.form}
-          >
-            <div className={styles.inputGroup}>
-              <label htmlFor="login-email" className={styles.label}>
-                Email:
-              </label>
+          {/* Email */}
+          <div className={styles.inputGroup}>
+            <label htmlFor="email" className={styles.label}>
               <IoMailOutline className={styles.icon} />
-              <input
-                className={styles.input}
-                type="email"
-                id="login-email"
-                placeholder="Your Email"
-                {...register("email", {
-                  required: "Email is required",
-                  pattern: {
-                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                    message: "Invalid email address",
-                  },
-                })}
-              />
-              {errors.email && (
-                <small className={styles.small}>{errors.email.message}</small>
-              )}
-            </div>
+              Email
+            </label>
+            <input
+              type="email"
+              id="email"
+              placeholder="Enter your email"
+              className={styles.input}
+              {...register("email", {
+                required: "Email is required",
+                pattern: {
+                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                  message: "Invalid email format",
+                },
+              })}
+            />
+          </div>
+          {errors.email && (
+            <small className={styles.small}>{errors.email.message}</small>
+          )}
 
-            <div className={styles.inputGroup}>
-              <label htmlFor="login-password" className={styles.label}>
-                Password:
-              </label>
+          {/* Password */}
+          <div className={styles.inputGroup}>
+            <label htmlFor="password" className={styles.label}>
               <TbLockPassword className={styles.icon} />
-              <input
-                className={styles.input}
-                type="password"
-                id="login-password"
-                placeholder="Password"
-                {...register("password", {
-                  required: "Password is required",
-                })}
-              />
-              {errors.password && (
-                <small className={styles.small}>
-                  {errors.password.message}
-                </small>
-              )}
-            </div>
+              Password
+            </label>
+            <input
+              type="password"
+              id="password"
+              placeholder="Enter your password"
+              className={styles.input}
+              {...register("password", {
+                required: "Password is required",
+              })}
+            />
+          </div>
+          {errors.password && (
+            <small className={styles.small}>{errors.password.message}</small>
+          )}
 
-            <Link to="/ForgotPassword" className={styles.Link}>
-              Forgot Password
+          <Link to="/ForgotPassword" className={styles.Link}>
+            Forgot Password?
+          </Link>
+
+          <button
+            type="submit"
+            className={styles.button}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Logging in..." : "Login"}
+          </button>
+
+          <div className={styles.accountPrompt}>
+            <span className={styles.text}>Don't have an account? </span>
+            <Link to="/signup" className={styles.Link}>
+              Signup
             </Link>
-            <div>
-              <button type="submit" className={styles.button}>
-                Login
-              </button>
-            </div>
-            <div className={styles.accountPrompt}>
-              <span className={styles.text}>Don't have an account? </span>
-              <Link to="/signup" className={styles.Link}>
-                Sign up
-              </Link>
-            </div>
-          </form>
-        </div>
+          </div>
+        </form>
       </div>
     </>
   );

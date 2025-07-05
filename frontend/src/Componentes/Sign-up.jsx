@@ -20,11 +20,8 @@ function Signup() {
   const navigate = useNavigate();
   const { theme } = useTheme();
 
-  // Your form submission for traditional signup
   async function onSubmit(data) {
     try {
-      // console.log("📦 Sending signup data:", data);
-
       const response = await fetch(
         "https://food-app-d8r3.onrender.com/signup",
         {
@@ -35,7 +32,6 @@ function Signup() {
       );
 
       const result = await response.json();
-      // console.log("✅ Server response:", result);
 
       if (!response.ok) {
         alert(result.error || "Signup failed");
@@ -50,12 +46,11 @@ function Signup() {
     }
   }
 
-  // Google login handler
   const handleGoogleSignup = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/google-redirect`, // ✅ MUST match Supabase dashboard
+        redirectTo: `${window.location.origin}/google-redirect`,
       },
     });
 
@@ -74,99 +69,79 @@ function Signup() {
         noValidate
         className={styles.form}
       >
-        {/* Username */}
+        {/* Name */}
         <div className={styles.inputGroup}>
-          <label htmlFor="username" className={styles.label}>
-            Username:
+          <label htmlFor="name" className={styles.label}>
+            <FaRegUser className={styles.icon} />
+            Name
           </label>
-          <FaRegUser className={styles.icon} />
           <input
             type="text"
-            id="username"
+            id="name"
             placeholder="Enter your name"
             className={styles.input}
-            {...register("username", { required: "Username is required" })}
+            {...register("name", {
+              required: "Name is required",
+              pattern: {
+                value: /^[A-Za-z\s]+$/,
+                message: "Name must contain only letters",
+              },
+            })}
           />
-          {errors.username && (
-            <small className={styles.small}>{errors.username.message}</small>
-          )}
         </div>
+        {errors.name && (
+          <small className={styles.small}>{errors.name.message}</small>
+        )}
 
         {/* Email */}
         <div className={styles.inputGroup}>
           <label htmlFor="email" className={styles.label}>
-            Email:
+            <IoMailOutline className={styles.icon} />
+            Email
           </label>
-          <IoMailOutline className={styles.icon} />
           <input
             type="email"
             id="email"
-            placeholder="Enter your email"
+            placeholder="Enter your Gmail address"
             className={styles.input}
             {...register("email", {
               required: "Email is required",
               pattern: {
-                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                message: "Invalid email format",
+                value: /^[a-zA-Z0-9._%+-]+@gmail\.com$/,
+                message: "Only Gmail addresses allowed",
               },
             })}
           />
-          {errors.email && (
-            <small className={styles.small}>{errors.email.message}</small>
-          )}
         </div>
-
-        {/* Mobile */}
-        {/* <div className={styles.inputGroup}>
-          <label htmlFor="mobile" className={styles.label}>
-            Mobile Number:
-          </label>
-          <BsPhone className={styles.icon} />
-          <input
-            type="tel"
-            id="mobile"
-            placeholder="Enter 10-digit number"
-            className={styles.input}
-            {...register("mobile", {
-              required: "Mobile number is required",
-              pattern: {
-                value: /^[0-9]{10}$/,
-                message: "Mobile number must be 10 digits",
-              },
-            })}
-          />
-          {errors.mobile && (
-            <small className={styles.small}>{errors.mobile.message}</small>
-          )}
-        </div> */}
+        {errors.email && (
+          <small className={styles.small}>{errors.email.message}</small>
+        )}
 
         {/* Password */}
         <div className={styles.inputGroup}>
           <label htmlFor="password" className={styles.label}>
-            Password:
+            <TbLockPassword className={styles.icon} />
+            Password
           </label>
-          <TbLockPassword className={styles.icon} />
           <input
             type="password"
             id="password"
-            placeholder="Enter password"
+            placeholder="Enter a strong password"
             className={styles.input}
             {...register("password", {
               required: "Password is required",
-              minLength: {
-                value: 6,
-                message: "Minimum 6 characters required",
-              },
-              maxLength: {
-                value: 10,
-                message: "Maximum 10 characters allowed",
+              pattern: {
+                value:
+                  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])(?!.*\s).{8,15}$/,
+                message:
+                  "Password must be 8-15 chars, with uppercase, lowercase, number, special char & no spaces",
               },
             })}
           />
-          {errors.password && (
-            <small className={styles.small}>{errors.password.message}</small>
-          )}
         </div>
+        {errors.password && (
+          <small className={styles.small}>{errors.password.message}</small>
+        )}
 
         <Link to="/login" className={styles.Link}>
           Already have an account?

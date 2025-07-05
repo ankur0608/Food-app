@@ -154,27 +154,34 @@ const writeJsonFile = (filename, data) => {
   });
 };
 
-// Route: GET /meals → meals.json
-app.get("/meals", async (req, res) => {
-  try {
-    const meals = await readJsonFile("meals.json");
-    res.json(meals);
-  } catch (err) {
-    console.error("Failed to read meals.json:", err);
-    res.status(500).json({ message: "Failed to read meals.json" });
-  }
-});
+// // Route: GET /meals → from Supabase "foods" table
+// app.get("/meals", async (req, res) => {
+//   try {
+//     const { data: meals, error } = await supabase.from("foods").select("*");
 
-// Route: GET /available-meals → available-meals.json
-app.get("/available-meals", async (req, res) => {
-  try {
-    const meals = await readJsonFile("available-meals.json");
-    res.json(meals);
-  } catch (err) {
-    console.error("Failed to read available-meals.json:", err);
-    res.status(500).json({ message: "Failed to read available-meals.json" });
-  }
-});
+//     if (error) {
+//       console.error("❌ Supabase fetch error:", error);
+//       return res.status(500).json({ message: "Failed to fetch meals from DB" });
+//     }
+
+//     res.json(meals);
+//   } catch (err) {
+//     console.error("🔥 Server error:", err);
+//     res.status(500).json({ message: "Server error" });
+//   }
+// });
+
+// // Route: GET /available-meals → available-meals.json
+// app.get("/available-meals", async (req, res) => {
+//   try {
+//     const meals = await readJsonFile("available-meals.json");
+//     res.json(meals);
+//   } catch (err) {
+//     console.error("Failed to read available-meals.json:", err);
+//     res.status(500).json({ message: "Failed to read available-meals.json" });
+//   }
+// });
+
 
 // POST /signup
 app.post("/signup", async (req, res) => {

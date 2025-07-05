@@ -4,7 +4,7 @@ import Newsletter from "../Newsletter.jsx";
 import Footer from "../Footer.jsx";
 import Reservation from "../Reservation.jsx";
 import { useLocation } from "react-router-dom";
-
+import ScrollToTop from "../ScrollToTop.jsx";
 function Layout() {
   const location = useLocation();
   const hideReservationOn = [
@@ -22,6 +22,7 @@ function Layout() {
     <>
       <nav>
         <Navlinks />
+        <ScrollToTop />
       </nav>
 
       <Outlet />
