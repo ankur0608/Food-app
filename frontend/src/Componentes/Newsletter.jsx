@@ -1,7 +1,6 @@
 import styles from "./Newsletter.module.css";
 import { useForm } from "react-hook-form";
 import { useState, useRef } from "react";
-import Modal from "./Modal";
 import { useTheme } from "./Store/theme";
 import { IoMailOutline } from "react-icons/io5";
 
@@ -14,18 +13,10 @@ export default function Newsletter() {
   } = useForm();
   const { theme } = useTheme();
 
-  const [isModalOpen, setModalOpen] = useState(false);
-  const modalRef = useRef();
-
   function onSubmit(data) {
     console.log("Subscribed with:", data.email);
-    modalRef.current.open();
-    setModalOpen(true); // Open modal on success
-    reset(); // Clear form
-  }
 
-  function handleModalClose() {
-    setModalOpen(false);
+    reset(); // Clear form
   }
 
   return (
