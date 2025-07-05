@@ -37,7 +37,6 @@ function Navlinks() {
         setNavState("logout");
         return;
       }
-
       const { data } = await supabase.auth.getSession();
       if (data.session) {
         setNavState("logout");
