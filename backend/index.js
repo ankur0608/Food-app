@@ -31,10 +31,13 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173", // local dev
+      "http://localhost:5000", // local backend
+      "https://food-app-d8r3.onrender.com", // backend URL (optional)
+
+      // ✅ All deployed frontend URLs
       "https://food-app-five-mu.vercel.app",
-      "https://food-app-d8r3.onrender.com",
       "https://food-app-git-main-ankur-patels-projects-15e166ca.vercel.app",
-      "http://localhost:5000",
+      "https://food-ddbg91ujb-ankur-patels-projects-15e166ca.vercel.app",
     ],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
@@ -175,10 +178,10 @@ app.get("/meals", async (req, res) => {
 app.post("/signup", async (req, res) => {
   // console.log("🔔 Signup request body:", req.body);
 
-  const { username, email, password } = req.body;
-  console.log("👉 Parsed fields:", { username, email, password });
+  const { name, email, password } = req.body;
+  console.log("👉 Parsed fields:", { name, email, password });
 
-  if (!username || !email || !password) {
+  if (!name || !email || !password) {
     console.log("❌ One or more fields missing");
     return res.status(400).json({ error: "All fields are required" });
   }
@@ -206,7 +209,7 @@ app.post("/signup", async (req, res) => {
     // 3. Insert new user
     const { data: insertedData, error: insertError } = await supabase
       .from("users")
-      .insert([{ username, email, password: hashedPassword }])
+      .insert([{ name, email, password: hashedPassword }])
       .select(); // 👈 Required to get the inserted row
 
     if (insertError) {

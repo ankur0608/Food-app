@@ -16,6 +16,7 @@ import { GiHotMeal } from "react-icons/gi";
 import LogoImage from "../../assets/main-logo.png";
 import { supabase } from "../../../supabaseClient.js";
 import Sidebar from "./Sidebar";
+import AvatarDropdown from "../AvatarDropdown.jsx";
 
 function Navlinks() {
   const location = useLocation();
@@ -104,8 +105,9 @@ function Navlinks() {
       </Link>
     );
 
-  const navLinks = (
-    <ul className={styles.navList}>
+  // Main navigation links (without auth)
+  const mainLinks = (
+    <>
       <li>
         <NavLink
           to="/home"
@@ -128,45 +130,6 @@ function Navlinks() {
           About us
         </NavLink>
       </li>
-      {navState === "signup" && (
-        <li>
-          <NavLink
-            to="/signup"
-            className={({ isActive }) => (isActive ? styles.active : "")}
-          >
-            <span className={styles.mobileIcon}>
-              <FaUserPlus size={16} />
-            </span>{" "}
-            Signup
-          </NavLink>
-        </li>
-      )}
-      {navState === "login" && (
-        <li>
-          <NavLink
-            to="/login"
-            className={({ isActive }) => (isActive ? styles.active : "")}
-          >
-            <span className={styles.mobileIcon}>
-              <FaSignInAlt size={16} />
-            </span>{" "}
-            Login
-          </NavLink>
-        </li>
-      )}
-      {navState === "logout" && (
-        <li>
-          <button
-            onClick={handleLogout}
-            className={`${styles.logoutButton} ${styles.Link}`}
-          >
-            <span className={styles.mobileIcon}>
-              <FaSignOutAlt size={16} />
-            </span>{" "}
-            Logout
-          </button>
-        </li>
-      )}
       <li>
         <NavLink
           to="/meals"
@@ -189,6 +152,43 @@ function Navlinks() {
           Contact us
         </NavLink>
       </li>
+    </>
+  );
+
+  // Auth link (always last)
+  const authLink =
+    navState === "signup" ? (
+      <NavLink
+        to="/signup"
+        className={({ isActive }) =>
+          isActive ? styles.active : styles.authLink
+        }
+      >
+        <span className={styles.mobileIcon}>
+          <FaUserPlus size={16} />
+        </span>{" "}
+        Signup
+      </NavLink>
+    ) : navState === "login" ? (
+      <NavLink
+        to="/login"
+        className={({ isActive }) =>
+          isActive ? styles.active : styles.authLink
+        }
+      >
+        <span className={styles.mobileIcon}>
+          <FaSignInAlt size={16} />
+        </span>{" "}
+        Login
+      </NavLink>
+    ) : (
+      <AvatarDropdown onLogout={() => setNavState("signup")} />
+    );
+
+  const navLinks = (
+    <ul className={styles.navList}>
+      {mainLinks}
+      <li className={styles.rightSection}>{authLink}</li>
     </ul>
   );
 
