@@ -43,11 +43,7 @@ export default function Login() {
 
   return (
     <>
-      <div
-        className={`${styles.container} ${modalOpen ? styles.blurred : ""} ${
-          styles[theme]
-        }`}
-      >
+      <div className={`${styles.container}  ${styles[theme]}`}>
         <h1 className={styles.heading}>Login</h1>
 
         <form

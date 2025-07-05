@@ -21,17 +21,6 @@ export default function Newsletter() {
 
   return (
     <>
-      <Modal
-        ref={modalRef}
-        open={isModalOpen}
-        buttonCaption="Okay"
-        onModalclose={handleModalClose}
-        isSuccess={true}
-      >
-        <h1 style={{ color: "green", fontWeight: "bold" }}>Subscribed!</h1>
-        <p>You’ll now receive the latest updates and offers via email.</p>
-      </Modal>
-
       {/* Newsletter Form */}
       <section
         className={`${styles.newsletter} ${
