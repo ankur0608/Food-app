@@ -59,6 +59,7 @@ function Navlinks() {
 
     setNavState("signup");
     navigate("/signup");
+    window.location.reload();
     setMenuOpen(false);
   }
 

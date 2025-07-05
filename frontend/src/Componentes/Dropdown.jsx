@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import styles from "../Pages/Navbar/Navbar.module.css";
+import styles from "./Dropdown.module.css"; // or Navbar.module.css
+
 import userLight from "../../src/assets/user.png";
 import userDark from "../assets/user1.png";
 import { useTheme } from "../store/ThemeContext";

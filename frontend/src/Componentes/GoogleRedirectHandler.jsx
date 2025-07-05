@@ -50,11 +50,7 @@ export default function GoogleRedirectHandler() {
         // ✅ Save token and user to localStorage
         localStorage.setItem("token", result.token);
         localStorage.setItem("user", JSON.stringify(result.user));
-
-        console.log("🎉 Google login successful:", result.user);
-
-        // ✅ Navigate to home
-        window.location.href = "/"; // or your main/home route
+        window.location.href = "/"; // Force reload so Navbar updates
       } catch (err) {
         console.error("❌ Google final auth failed:", err);
         alert("Something went wrong. Please try again.");

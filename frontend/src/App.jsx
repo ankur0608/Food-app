@@ -10,6 +10,7 @@ import Layout from "./Componentes/Navbar/Layout.jsx";
 import GoogleRedirectHandler from "./Componentes/GoogleRedirectHandler.jsx";
 import ResetPassword from "./Componentes/ResetPassword.jsx";
 import PaymentHistory from "./Componentes/Pages/PaymentHistory.jsx";
+import Profile from "./Componentes/Pages/Profile.jsx";
 // Lazy-loaded components
 const Meals = lazy(() => import("./Componentes/Pages/Meals.jsx"));
 const Home = lazy(() => import("./Componentes/Pages/Home.jsx"));
@@ -47,7 +48,7 @@ const router = createBrowserRouter([
       { path: "google-redirect", element: <GoogleRedirectHandler /> },
       { path: "reset-password", element: <ResetPassword /> },
       { path: "payment-history", element: <PaymentHistory /> },
-
+      { path: "Profile", element: <Profile /> },
       { path: "*", element: <div>404 - Page Not Found</div> },
     ],
   },

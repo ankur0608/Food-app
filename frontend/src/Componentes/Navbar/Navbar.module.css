@@ -351,6 +351,7 @@
   border: 2px solid #ff9800;
   background: #fff;
   transition: box-shadow 0.2s;
+  cursor: pointer;
 }
 
 .avatar:hover,
@@ -362,7 +363,7 @@
   position: absolute;
   right: 0;
   top: 120%;
-  min-width: 160px;
+  min-width: 180px;
   background: #222;
   border-radius: 12px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.14);
