@@ -1,64 +1,53 @@
+// src/pages/GoogleRedirectHandler.jsx
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../../supabaseClient";
 
-const API =
-  import.meta.env.VITE_API_BASE_URL || "https://food-app-d8r3.onrender.com";
-
-export default function GoogleRedirectHandler() {
+function GoogleRedirectHandler() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const handleGoogleRedirect = async () => {
-      console.log("🔁 Checking Supabase session...");
+    const handleOAuthLogin = async () => {
+      const { data, error } = await supabase.auth.getSession();
 
-      const {
-        data: { session },
-        error,
-      } = await supabase.auth.getSession();
-
-      if (error || !session) {
-        console.error("❌ Google session error:", error);
-        alert("Google login failed.");
+      if (error || !data.session) {
+        alert("Failed to log in with Google");
+        navigate("/login");
         return;
       }
 
-      const { user } = session;
-      const email = user.email;
-      const name = user.user_metadata.full_name || "Google User";
+      const { user, access_token } = data.session;
 
-      console.log("✅ Google user:", { email, name });
-      console.log("🔗 Using API base URL:", API);
+      localStorage.setItem("token", access_token);
+      localStorage.setItem("user_email", user.email);
+      localStorage.setItem("justSignedUp", "true");
 
-      try {
-        const response = await fetch(`${API}/google-auth`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
+      // Insert into 'users' table if not exists
+      const { data: existingUser, error: fetchError } = await supabase
+        .from("users")
+        .select("*")
+        .eq("email", user.email)
+        .single();
+
+      if (!existingUser) {
+        const { error: insertError } = await supabase.from("users").insert([
+          {
+            email: user.email,
+            name: user.user_metadata.full_name || user.email,
+            password: null,
           },
-          body: JSON.stringify({ email, name }),
-        });
-
-        const result = await response.json();
-
-        if (!response.ok) {
-          console.error("❌ Google auth failed:", result);
-          alert(result.error || "Google signup/login failed");
-          return;
-        }
-
-        // ✅ Save token and user to localStorage
-        localStorage.setItem("token", result.token);
-        localStorage.setItem("user", JSON.stringify(result.user));
-        window.location.href = "/"; // Force reload so Navbar updates
-      } catch (err) {
-        console.error("❌ Google final auth failed:", err);
-        alert("Something went wrong. Please try again.");
+        ]);
+        if (insertError) console.error("Insert failed", insertError);
       }
+
+      navigate("/home");
+      window.location.reload();
     };
 
-    handleGoogleRedirect();
+    handleOAuthLogin();
   }, [navigate]);
 
-  return <div>Signing you in with Google...</div>;
+  return <div>Logging you in via Google...</div>;
 }
+
+export default GoogleRedirectHandler;

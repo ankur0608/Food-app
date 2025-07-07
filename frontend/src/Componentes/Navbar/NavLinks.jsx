@@ -3,12 +3,7 @@ import { NavLink, Link, useLocation, useNavigate } from "react-router-dom";
 import styles from "./Navbar.module.css";
 import { CartContext } from "../Store/CartContext";
 import { useTheme } from "../Store/theme.jsx";
-import {
-  FaShoppingBag,
-  FaUserPlus,
-  FaSignInAlt,
-  FaSignOutAlt,
-} from "react-icons/fa";
+import { FaShoppingBag, FaUserPlus, FaSignInAlt } from "react-icons/fa";
 import { IoMoonOutline, IoSunnyOutline, IoHomeOutline } from "react-icons/io5";
 import { FcAbout } from "react-icons/fc";
 import { IoMdContact } from "react-icons/io";
@@ -26,22 +21,25 @@ function Navlinks() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [navState, setNavState] = useState("signup");
 
-  const TotalNumber = CartCtx.items.reduce(
+  const totalItems = CartCtx.items.reduce(
     (total, item) => total + item.quantity,
     0
   );
 
   useEffect(() => {
     const checkAuthStatus = async () => {
-      const token = localStorage.getItem("token");
-      if (token) {
-        setNavState("logout");
-        return;
-      }
-      const { data } = await supabase.auth.getSession();
-      if (data.session) {
-        setNavState("logout");
-      } else {
+      try {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        if (session?.user) {
+          setNavState("logout");
+        } else {
+          const justSignedUp = localStorage.getItem("justSignedUp");
+          setNavState(justSignedUp ? "login" : "signup");
+        }
+      } catch (error) {
+        console.error("Error checking auth status:", error);
         setNavState("signup");
       }
     };
@@ -49,18 +47,32 @@ function Navlinks() {
     checkAuthStatus();
   }, [location.pathname]);
 
+  // Listen for auth changes (login, logout)
+  useEffect(() => {
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (event === "SIGNED_IN" && session?.user) {
+          console.log("✅ User signed in:", session.user);
+          setNavState("logout");
+        } else if (event === "SIGNED_OUT") {
+          setNavState("signup");
+        }
+      }
+    );
+
+    return () => listener.subscription.unsubscribe();
+  }, []);
+
   async function handleLogout() {
-    if (!window.confirm("Are you sure you want to logout?")) return;
+    const confirmed = window.confirm("Are you sure you want to logout?");
+    if (!confirmed) return;
 
-    localStorage.removeItem("token");
     localStorage.removeItem("justSignedUp");
-
+    localStorage.removeItem("token");
     await supabase.auth.signOut();
 
     setNavState("signup");
     navigate("/signup");
-    window.location.reload();
-    setMenuOpen(false);
   }
 
   useEffect(() => setMenuOpen(false), [location.pathname]);
@@ -69,13 +81,13 @@ function Navlinks() {
     <NavLink
       to="/cart"
       className={({ isActive }) =>
-        isActive
-          ? `${styles.Link} ${styles.active} ${styles.cart} ${className || ""}`
-          : `${styles.Link} ${styles.cart} ${className || ""}`
+        `${styles.Link} ${styles.cart} ${isActive ? styles.active : ""} ${
+          className || ""
+        }`
       }
     >
       <FaShoppingBag size={24} />
-      {TotalNumber > 0 && <span className={styles.badge}>{TotalNumber}</span>}
+      {totalItems > 0 && <span className={styles.badge}>{totalItems}</span>}
     </NavLink>
   );
 
@@ -106,7 +118,6 @@ function Navlinks() {
       </Link>
     );
 
-  // Main navigation links (without auth)
   const mainLinks = (
     <>
       <li>
@@ -156,7 +167,6 @@ function Navlinks() {
     </>
   );
 
-  // Auth link (always last)
   const authLink =
     navState === "signup" ? (
       <NavLink
@@ -183,7 +193,7 @@ function Navlinks() {
         Login
       </NavLink>
     ) : (
-      <AvatarDropdown onLogout={() => setNavState("signup")} />
+      <AvatarDropdown onLogout={handleLogout} />
     );
 
   const navLinks = (
@@ -195,7 +205,6 @@ function Navlinks() {
 
   return (
     <div className={styles.navbar}>
-      {/* Hamburger menu toggle */}
       <button
         className={styles.menuToggle}
         onClick={() => setMenuOpen((prev) => !prev)}
@@ -204,27 +213,23 @@ function Navlinks() {
         ☰
       </button>
 
-      {/* Mobile-only cart and theme toggle */}
       <div className={styles.mobileExtras}>
         <CartLink />
         <ThemeToggle />
       </div>
 
-      {/* Logo */}
       <div className={styles.logo}>
         <Link to="/">
           <img src={LogoImage} alt="Logo" />
         </Link>
       </div>
 
-      {/* Desktop links */}
       <div className={styles.links}>
         {navLinks}
         <CartLink className={styles.desktopOnly} />
         <ThemeToggle className={styles.desktopOnly} />
       </div>
 
-      {/* Mobile Sidebar */}
       <Sidebar isOpen={menuOpen} onClose={() => setMenuOpen(false)}>
         {navLinks}
       </Sidebar>

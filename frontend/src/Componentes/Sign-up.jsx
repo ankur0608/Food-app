@@ -50,13 +50,11 @@ function Signup() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: "/",
+        redirectTo: `${window.location.origin}/google-redirect`,
       },
     });
 
-    if (error) {
-      alert("Google login failed");
-    }
+    if (error) alert("Google login failed");
   };
 
   return (
