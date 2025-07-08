@@ -117,11 +117,7 @@ export default function Menu() {
             >
               <li className={styles["meal-card"]}>
                 <img
-                  src={
-                    meal.image.startsWith("http")
-                      ? meal.image
-                      : `https://food-app-d8r3.onrender.com/images/${meal.image}`
-                  }
+                  src={meal.image}
                   alt={meal.name}
                   onError={handleImageError}
                 />

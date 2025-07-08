@@ -74,7 +74,7 @@ export default function MealsDetail() {
             src={
               meal.image.startsWith("http")
                 ? meal.image
-                : `https://food-app-d8r3.onrender.com/images/${meal.image}`
+                : `https://food-app-d8r3.onrender.com/meals/${meal.image}`
             }
             alt={meal.name}
             className={styles.image}
