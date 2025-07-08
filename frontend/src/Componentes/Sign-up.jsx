@@ -59,7 +59,7 @@ function Signup() {
 
   return (
     <div className={`${styles.container} ${styles[theme]}`}>
-      <h1 className={styles.heading}>Signup</h1>
+      <h1 className={styles.heading}>Sign up</h1>
 
       <form
         onSubmit={handleSubmit(onSubmit)}

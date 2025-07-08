@@ -1,50 +1,56 @@
 import { useEffect, useState, useContext } from "react";
-import styles from "./Meals.module.css";
-import { CartContext } from "../Store/CartContext.jsx";
-import { useNavigate } from "react-router-dom";
-import { useTheme } from "../Store/theme";
+import { Link, useNavigate } from "react-router-dom";
 import { FaSearch, FaTimes } from "react-icons/fa";
-import Loading from "../../Componentes/Loading.jsx";
-import OpeningHours from "../OpeningHours.jsx";
 import axios from "axios";
 
-export default function Product() {
-  const [meals, setMeals] = useState([]);
+import styles from "./Meals.module.css";
+import { CartContext } from "../Store/CartContext.jsx";
+import { useTheme } from "../Store/theme";
+import Loading from "../../Componentes/Loading.jsx";
+import OpeningHours from "../OpeningHours.jsx";
+import { useQuery } from "@tanstack/react-query";
+
+export default function Menu() {
+  // ---------------------- State ----------------------
+
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
-  const [loading, setLoading] = useState(true);
+
   const mealsPerPage = 6;
 
   const { addItem } = useContext(CartContext);
   const { theme } = useTheme();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchMeals = async () => {
-      try {
-        const res = await axios.get("https://food-app-d8r3.onrender.com/meals");
-        // if (!res.ok) throw new Error("Failed to fetch meals.");
-        // const data = await res.json();
-        setMeals(res.data);
-      } catch (err) {
-        console.error("Error:", err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchMeals();
-  }, []);
+  const {
+    data: meals = [],
+    isLoading: loading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ["meals"],
+    queryFn: async () => {
+      const res = await axios.get("https://food-app-d8r3.onrender.com/meals");
+      return res.data;
+    },
+  });
 
-  useEffect(() => setCurrentPage(1), [selectedCategory, searchQuery]);
-
-  const categories = ["All", ...new Set(meals.map((meal) => meal.category))];
-
-  const handleAddToCart = (meal) => {
+  // ---------------------- Handlers ----------------------
+  const handleAddToCart = (e, meal) => {
+    e.stopPropagation(); // prevent link navigation
+    e.preventDefault();
     localStorage.getItem("token") ? addItem(meal) : navigate("/signup");
   };
 
-  const filteredMeals = meals.filter(({ category, name }) => {
+  const handleImageError = (e) => {
+    e.target.src = "/assets/default-meal.jpg";
+  };
+
+  // ---------------------- Filter Logic ----------------------
+  const categories = ["All", ...new Set(meals.map((meal) => meal.category))];
+
+  const filteredMeals = meals.filter(({ name, category }) => {
     const matchCategory =
       selectedCategory === "All" || category === selectedCategory;
     const matchSearch = name.toLowerCase().includes(searchQuery.toLowerCase());
@@ -57,9 +63,10 @@ export default function Product() {
     currentPage * mealsPerPage
   );
 
+  // ---------------------- UI ----------------------
   return (
     <div className={`${styles["product-container"]} ${styles[theme]}`}>
-      <h1>Meals</h1>
+      <h1 className={styles.title}>Menu</h1>
 
       {/* Category Filter */}
       <div className={styles.categoryFilter}>
@@ -76,7 +83,7 @@ export default function Product() {
         ))}
       </div>
 
-      {/* Search Box */}
+      {/* Search Bar */}
       <div className={styles.searchWrapper}>
         <FaSearch className={styles.searchIcon} />
         <input
@@ -95,7 +102,7 @@ export default function Product() {
         )}
       </div>
 
-      {/* Meals List */}
+      {/* Meals Display */}
       {loading ? (
         <Loading />
       ) : filteredMeals.length === 0 ? (
@@ -103,21 +110,29 @@ export default function Product() {
       ) : (
         <ul className={styles["meals-list"]}>
           {currentMeals.map((meal) => (
-            <li className={styles["meal-card"]} key={meal.id}>
-              <img
-                src={
-                  meal.image.startsWith("http")
-                    ? meal.image
-                    : `https://food-app-d8r3.onrender.com/images/${meal.image}`
-                }
-                alt={meal.name}
-                onError={(e) => (e.target.src = "/assets/default-meal.jpg")}
-              />
-              <h3>{meal.name}</h3>
-              <p className={styles["meal-price"]}>{meal.description}</p>
-              <span>${meal.price}</span>
-              <button onClick={() => handleAddToCart(meal)}>Add To Cart</button>
-            </li>
+            <Link
+              to={`/meals/${meal.name}`}
+              className={styles["meal-Link"]}
+              key={meal.name}
+            >
+              <li className={styles["meal-card"]}>
+                <img
+                  src={
+                    meal.image.startsWith("http")
+                      ? meal.image
+                      : `https://food-app-d8r3.onrender.com/images/${meal.image}`
+                  }
+                  alt={meal.name}
+                  onError={handleImageError}
+                />
+                <h3>{meal.name}</h3>
+                <p className={styles["meal-price"]}>{meal.description}</p>
+                <span>${meal.price}</span>
+                <button onClick={(e) => handleAddToCart(e, meal)}>
+                  Add To Cart
+                </button>
+              </li>
+            </Link>
           ))}
         </ul>
       )}
@@ -126,12 +141,13 @@ export default function Product() {
       {totalPages > 1 && (
         <div className={styles.pagination}>
           <button
-            onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
             disabled={currentPage === 1}
             className={`${styles["page-btn"]} ${styles.prev}`}
           >
             Prev
           </button>
+
           {Array.from({ length: totalPages }, (_, i) => (
             <button
               key={i + 1}
@@ -143,8 +159,11 @@ export default function Product() {
               {i + 1}
             </button>
           ))}
+
           <button
-            onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            }
             disabled={currentPage === totalPages}
             className={`${styles["page-btn"]} ${styles.next}`}
           >
@@ -152,6 +171,8 @@ export default function Product() {
           </button>
         </div>
       )}
+
+      {/* Opening Hours */}
       <OpeningHours />
     </div>
   );

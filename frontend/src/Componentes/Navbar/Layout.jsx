@@ -7,13 +7,15 @@ import ScrollToTop from "../ScrollToTop.jsx";
 import OpeningHours from "../OpeningHours.jsx";
 
 function Layout() {
-  const location = useLocation();
+  const { pathname } = useLocation();
 
-  // Pages where these features should be hidden
-  const hideOn = ["/about", "/contact", "/meals"];
+  // Define routes where extras should be hidden (exact or prefix)
+  const hiddenPaths = ["/about", "/contact", "/meals"];
 
-  // Only show if not on About Us, Contact Us, or Meals
-  const shouldShowExtras = !hideOn.includes(location.pathname);
+  // Check if current path starts with any of the restricted routes
+  const shouldHideExtras = hiddenPaths.some((path) =>
+    pathname.startsWith(path)
+  );
 
   return (
     <>
@@ -24,9 +26,14 @@ function Layout() {
 
       <Outlet />
 
-      {shouldShowExtras && <OpeningHours />}
-      {shouldShowExtras && <Reservation />}
-      {shouldShowExtras && <Newsletter />}
+      {!shouldHideExtras && (
+        <>
+          <OpeningHours />
+          <Reservation />
+          <Newsletter />
+        </>
+      )}
+
       <Footer />
     </>
   );

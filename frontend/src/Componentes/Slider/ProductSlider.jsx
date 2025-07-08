@@ -2,6 +2,8 @@ import { useState, useEffect, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Slider from "react-slick";
 import axios from "axios";
+import { useQuery } from "@tanstack/react-query";
+
 import { CartContext } from "../Store/CartContext";
 import { useTheme } from "../Store/theme";
 import "slick-carousel/slick/slick.css";
@@ -10,31 +12,22 @@ import "./SliderModule.css";
 import Loding from "../Loading.jsx";
 
 const AutoPlaySlider = () => {
-  const [meals, setMeals] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const { addItem } = useContext(CartContext);
   const { theme } = useTheme();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    async function fetchMeals() {
-      try {
-        const response = await axios.get(
-          "https://food-app-d8r3.onrender.com/meals"
-        );
-        setMeals(response.data);
-      } catch (error) {
-        console.error("Error fetching meals:", error.message);
-        setError("Failed to load meals. Please try again.");
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchMeals();
-  }, []);
-
+  const {
+    data: meals = [],
+    isLoading: loading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ["meals"],
+    queryFn: async () => {
+      const res = await axios.get("https://food-app-d8r3.onrender.com/meals");
+      return res.data;
+    },
+  });
   const handleAddToCart = (meal) => {
     const token = localStorage.getItem("token");
 
@@ -73,18 +66,6 @@ const AutoPlaySlider = () => {
       },
     ],
   };
-
-  if (loading) {
-    return (
-      <div
-        className={`slider-container ${
-          theme === "dark" ? "dark-theme" : "light-theme"
-        }`}
-      >
-        <Loding />
-      </div>
-    );
-  }
 
   return (
     <div

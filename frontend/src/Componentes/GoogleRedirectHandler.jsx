@@ -41,7 +41,7 @@ function GoogleRedirectHandler() {
       }
 
       navigate("/home");
-      window.location.reload();
+      // window.location.reload();
     };
 
     handleOAuthLogin();

@@ -15,7 +15,7 @@ const supabase = createClient(
   process.env.SUPABASE_ANON_KEY
 );
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = 5000;
 
 // Middleware
 app.use(express.json());
@@ -41,37 +41,9 @@ const razorpay = new Razorpay({
 });
 
 // Health Check
-app.get("/home", (req, res) => {
-  res.send("✅ Food App Backend is running!");
-});
-
-// Static Assets
-app.use("/images", express.static(path.join(__dirname, "images")));
-
-// Helpers
-const readJsonFile = (filename) => {
-  return new Promise((resolve, reject) => {
-    const filePath = path.join(__dirname, "data", filename);
-    fs.readFile(filePath, "utf8", (err, data) => {
-      if (err) return reject(err);
-      try {
-        resolve(JSON.parse(data));
-      } catch (parseErr) {
-        reject(parseErr);
-      }
-    });
-  });
-};
-
-const writeJsonFile = (filename, data) => {
-  return new Promise((resolve, reject) => {
-    const filePath = path.join(__dirname, "data", filename);
-    fs.writeFile(filePath, JSON.stringify(data, null, 2), (err) => {
-      if (err) return reject(err);
-      resolve();
-    });
-  });
-};
+// app.get("/home", (req, res) => {
+//   res.send("✅ Food App Backend is running!");
+// });
 
 // Routes
 app.get("/meals", async (req, res) => {
@@ -81,6 +53,26 @@ app.get("/meals", async (req, res) => {
     res.json(meals);
   } catch (err) {
     res.status(500).json({ message: "Failed to fetch meals from DB" });
+  }
+});
+
+app.get("/meals/:name", async (req, res) => {
+  try {
+    const { data: meals, error } = await supabase.from("foods").select("*");
+    if (error) throw error;
+
+    const meal = meals.find(
+      (meal) => meal.name.toLowerCase() === req.params.name.toLowerCase()
+    );
+
+    if (!meal) {
+      return res.status(404).json({ error: "Meal not found" });
+    }
+
+    res.json(meal);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch meal" });
   }
 });
 
@@ -189,7 +181,7 @@ app.get("/payment-history", authenticateToken, async (req, res) => {
   try {
     const userId = req.user.id;
     const { data, error } = await supabase
-      .from("payments")
+      .from("orders")
       .select("*")
       .eq("user_id", userId)
       .order("created_at", { ascending: false });

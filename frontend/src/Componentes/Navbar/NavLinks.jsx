@@ -150,7 +150,7 @@ function Navlinks() {
           <span className={styles.mobileIcon}>
             <GiHotMeal size={18} />
           </span>{" "}
-          Meals
+          Menu
         </NavLink>
       </li>
       <li>
@@ -161,7 +161,7 @@ function Navlinks() {
           <span className={styles.mobileIcon}>
             <IoMdContact size={18} />
           </span>{" "}
-          Contact us
+          Reservation
         </NavLink>
       </li>
     </>
