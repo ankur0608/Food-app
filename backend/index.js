@@ -110,19 +110,30 @@ app.post("/signup", async (req, res) => {
 
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;
+  console.log("Login attempt:", email); // ✅ log incoming request
+
   if (!email || !password) {
     return res.status(400).json({ error: "Email and password are required" });
   }
+
   try {
     const { data: users, error } = await supabase
       .from("users")
       .select("*")
       .eq("email", email);
+
+    console.log("Supabase result:", users, error); // ✅ log user lookup
+
     if (error || !users.length)
       return res.status(401).json({ error: "Invalid email or password" });
 
     const user = users[0];
+
+    console.log("User from DB:", user); // ✅ log fetched user
+
     const isMatch = await bcrypt.compare(password, user.password);
+    console.log("Password match:", isMatch); // ✅ log password check
+
     if (!isMatch)
       return res.status(401).json({ error: "Invalid email or password" });
 
@@ -131,12 +142,16 @@ app.post("/login", async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
+
+    console.log("JWT token generated");
+
     res.json({
       message: "Login successful",
       token,
       user: { id: user.id, email: user.email },
     });
   } catch (err) {
+    console.error("🔥 Internal server error:", err); // ✅ log actual error
     res.status(500).json({ error: "Internal server error" });
   }
 });

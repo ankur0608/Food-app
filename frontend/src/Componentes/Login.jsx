@@ -57,7 +57,10 @@ export default function Login() {
       <h2 className={styles.heading}>Login</h2>
       <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
         <div className={styles.inputGroup}>
-          <span className={styles.icon}><IoMailOutline /></span>
+          <label htmlFor="email" className={styles.label}>
+            <IoMailOutline className={styles.icon} />
+            Email
+          </label>
           <input
             className={styles.input}
             type="email"
@@ -65,10 +68,15 @@ export default function Login() {
             {...register("email", { required: "Email is required" })}
             autoComplete="username"
           />
-          {errors.email && <small className={styles.small}>{errors.email.message}</small>}
+          {errors.email && (
+            <small className={styles.small}>{errors.email.message}</small>
+          )}
         </div>
         <div className={styles.inputGroup}>
-          <span className={styles.icon}><TbLockPassword /></span>
+          <label htmlFor="password" className={styles.label}>
+            <TbLockPassword className={styles.icon} />
+            Password
+          </label>
           <input
             className={styles.input}
             type="password"
@@ -76,7 +84,9 @@ export default function Login() {
             {...register("password", { required: "Password is required" })}
             autoComplete="current-password"
           />
-          {errors.password && <small className={styles.small}>{errors.password.message}</small>}
+          {errors.password && (
+            <small className={styles.small}>{errors.password.message}</small>
+          )}
         </div>
         {errorMsg && <div className={styles.small}>{errorMsg}</div>}
         <button className={styles.button} type="submit" disabled={isSubmitting}>
@@ -84,13 +94,19 @@ export default function Login() {
         </button>
       </form>
       <div className={styles.divider}>or</div>
-      <button onClick={handleGoogleLogin} className={styles.googleButton} type="button">
+      <button
+        onClick={handleGoogleLogin}
+        className={styles.googleButton}
+        type="button"
+      >
         <img src={googleLogo} alt="Google logo" className={styles.googleIcon} />
         Continue with Google
       </button>
       <div className={styles.accountPrompt}>
         <span className={styles.text}>Don't have an account? </span>
-        <Link to="/signup" className={styles.Link}>Sign up</Link>
+        <Link to="/signup" className={styles.Link}>
+          Sign up
+        </Link>
       </div>
     </div>
   );

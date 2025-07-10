@@ -11,6 +11,7 @@ import GoogleRedirectHandler from "./Componentes/GoogleRedirectHandler.jsx";
 import ResetPassword from "./Componentes/ResetPassword.jsx";
 import PaymentHistory from "./Componentes/Pages/PaymentHistory.jsx";
 import Profile from "./Componentes/Pages/Profile.jsx";
+import Verify from "./Componentes/Verify.jsx";
 
 // Lazy-loaded components
 const Meals = lazy(() => import("./Componentes/Pages/Meals.jsx"));
@@ -52,7 +53,8 @@ const router = createBrowserRouter([
       { path: "google-redirect", element: <GoogleRedirectHandler /> },
       { path: "reset-password", element: <ResetPassword /> },
       { path: "payment-history", element: <PaymentHistory /> },
-      { path: "profile", element: <Profile /> }, // lowercase path
+      { path: "profile", element: <Profile /> },
+      { path: "verify", element: <Verify /> },
       {
         path: "*",
         element: (
