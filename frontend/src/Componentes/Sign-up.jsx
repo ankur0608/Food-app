@@ -22,27 +22,44 @@ function Signup() {
 
   async function onSubmit(data) {
     try {
-      const response = await fetch(
-        "https://food-app-d8r3.onrender.com/signup",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name: data.name,
-            email: data.email,
-            password: data.password,
-          }),
-        }
-      );
+      const { data: signUpData, error: signUpError } =
+        await supabase.auth.signUp({
+          email: data.email,
+          password: data.password,
+          options: {
+            data: { name: data.name },
+            emailRedirectTo: `${window.location.origin}/login?verified=true`,
+          },
+        });
 
-      const result = await response.json();
-
-      if (!response.ok) {
-        alert(result.error || "Signup failed");
+      if (signUpError) {
+        alert(signUpError.message || "Signup failed");
         return;
       }
 
-      alert("Signup successful!");
+      const user = signUpData.user;
+
+      // ✅ Insert into your custom `users` table
+      if (user) {
+        const { error: insertError } = await supabase.from("users").insert([
+          {
+            id: user.id, // ✅ make sure your `users` table uses `id` (UUID) as primary key
+            name: data.name,
+            email: data.email,
+          },
+        ]);
+
+        if (insertError) {
+          console.error(
+            "⚠️ Error inserting into users table:",
+            insertError.message
+          );
+        }
+      }
+
+      alert(
+        "Signup successful! Please check your email to verify your account."
+      );
       navigate("/login");
     } catch (error) {
       console.error("❌ Signup error:", error);

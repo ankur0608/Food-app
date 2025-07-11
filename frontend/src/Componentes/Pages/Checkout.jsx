@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import { useEffect, useRef, useState, useContext } from "react";
+import { useEffect, useState, useContext } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import styles from "./Checkout.module.css";
 import { CartContext } from "../Store/CartContext.jsx";
@@ -11,8 +11,9 @@ const CheckoutForm = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { clearCart } = useContext(CartContext);
-
   const total = location.state?.total || 0;
+
+  const [showPaymentToast, setShowPaymentToast] = useState(false);
 
   const savedData = JSON.parse(localStorage.getItem("signupData")) || {};
   const {
@@ -35,17 +36,14 @@ const CheckoutForm = () => {
     document.body.appendChild(script);
   }, []);
 
-
   const onSubmit = async (formData) => {
     try {
-      // Step 1: Create Razorpay order
       const res = await axios.post(
         "https://food-app-d8r3.onrender.com/create-order",
         { amount: total * 100, currency: "USD" }
       );
       const order = res.data;
 
-      // Step 2: Open Razorpay Checkout
       const options = {
         key: "rzp_test_7jWpAfUxjwYR6P",
         amount: order.amount,
@@ -73,7 +71,7 @@ const CheckoutForm = () => {
                 mobile: formData.mobile,
                 address: formData.address,
                 items:
-                  JSON.parse(localStorage.getItem("cartItems"))?.items || [], // ✅ include cart
+                  JSON.parse(localStorage.getItem("cartItems"))?.items || [],
               }),
             }
           );
@@ -82,6 +80,7 @@ const CheckoutForm = () => {
             console.error("❌ Failed to save payment");
             return alert("Payment completed but failed to save!");
           }
+
           localStorage.removeItem("cartItems");
           clearCart();
 
@@ -101,7 +100,13 @@ const CheckoutForm = () => {
           };
 
           localStorage.setItem("orderDetails", JSON.stringify(orderDetails));
-          navigate("/order-summary");
+
+          // ✅ Show success toast before navigating
+          setShowPaymentToast(true);
+          setTimeout(() => {
+            setShowPaymentToast(false);
+            navigate("/order-summary");
+          }, 3000);
         },
         prefill: {
           name: formData.name,
@@ -123,6 +128,12 @@ const CheckoutForm = () => {
 
   return (
     <>
+      {showPaymentToast && (
+        <div className={styles.toast}>
+          ✅ Payment completed successfully. Redirecting to summary...
+        </div>
+      )}
+
       <form
         onSubmit={handleSubmit(onSubmit)}
         className={styles.checkoutForm}

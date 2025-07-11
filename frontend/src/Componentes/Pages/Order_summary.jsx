@@ -3,11 +3,11 @@ import styles from "./OrderSummary.module.css";
 import { Link } from "react-router-dom";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { useTheme } from "../Store/theme"; 
+import { useTheme } from "../Store/theme";
 
 const OrderSummary = () => {
   const [orderDetails, setOrderDetails] = useState(null);
-  const { theme } = useTheme(); 
+  const { theme } = useTheme();
 
   useEffect(() => {
     const data = JSON.parse(localStorage.getItem("orderDetails"));
@@ -48,7 +48,7 @@ const OrderSummary = () => {
           theme === "dark" ? "dark" : ""
         }`}
       >
-        Loading order details...
+        <p className={styles.text}>Loading order details...</p>
       </div>
     );
   }

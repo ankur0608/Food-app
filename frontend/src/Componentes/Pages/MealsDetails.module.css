@@ -4,20 +4,20 @@
   padding: 2rem;
   height: 650px;
   max-width: 800px;
-  margin: 0 auto;
+  margin: 10px 10px 10px 10px;
   border-radius: 1rem;
   box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
   transition: background-color 0.3s ease;
 }
 
 .light {
-  margin-top: 1rem;
+  /* margin-top: 1rem; */
   background-color: #f9f9f9;
   color: #222;
 }
 
 .dark {
-  margin-top: 1rem;
+  /* margin-top: 1rem; */
   background-color: #1e1e1e;
   color: #eee;
 }

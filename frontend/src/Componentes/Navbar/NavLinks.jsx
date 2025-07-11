@@ -28,24 +28,15 @@ function Navlinks() {
 
   useEffect(() => {
     const checkAuthStatus = async () => {
-      try {
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
-        const token = localStorage.getItem("token");
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
 
-        console.log("🔍 Supabase session:", session);
-        console.log("🔍 Local token:", token);
-
-        if (session?.user && token) {
-          setNavState("logout");
-        } else {
-          const justSignedUp = localStorage.getItem("justSignedUp");
-          setNavState(justSignedUp ? "login" : "signup");
-        }
-      } catch (error) {
-        console.error("Error checking auth status:", error);
-        setNavState("signup");
+      if (session?.user) {
+        setNavState("logout");
+      } else {
+        const justSignedUp = localStorage.getItem("justSignedUp");
+        setNavState(justSignedUp ? "login" : "signup");
       }
     };
 
@@ -54,12 +45,10 @@ function Navlinks() {
 
   useEffect(() => {
     const { data: listener } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        const token = localStorage.getItem("token");
-        if (event === "SIGNED_IN" && session?.user && token) {
-          console.log("✅ User signed in:", session.user);
+      (_event, session) => {
+        if (session?.user) {
           setNavState("logout");
-        } else if (event === "SIGNED_OUT") {
+        } else {
           setNavState("signup");
         }
       }
@@ -73,11 +62,9 @@ function Navlinks() {
     if (!confirmed) return;
 
     localStorage.removeItem("justSignedUp");
-    localStorage.removeItem("token");
     await supabase.auth.signOut();
-
     setNavState("signup");
-    navigate("/signup");
+    navigate("/login");
   }
 
   useEffect(() => setMenuOpen(false), [location.pathname]);
@@ -197,9 +184,7 @@ function Navlinks() {
         </span>{" "}
         Login
       </NavLink>
-    ) : (
-      <AvatarDropdown onLogout={handleLogout} />
-    );
+    ) : null;
 
   const navLinks = (
     <ul className={styles.navList}>
@@ -218,9 +203,11 @@ function Navlinks() {
         ☰
       </button>
 
+      {/* Mobile view extras (cart, theme, avatar) */}
       <div className={styles.mobileExtras}>
         <CartLink />
         <ThemeToggle />
+        {navState === "logout" && <AvatarDropdown onLogout={handleLogout} />}
       </div>
 
       <div className={styles.logo}>
@@ -233,10 +220,18 @@ function Navlinks() {
         {navLinks}
         <CartLink className={styles.desktopOnly} />
         <ThemeToggle className={styles.desktopOnly} />
+        {navState === "logout" && (
+          <div className={styles.desktopOnly}>
+            <AvatarDropdown onLogout={handleLogout} />
+          </div>
+        )}
       </div>
 
       <Sidebar isOpen={menuOpen} onClose={() => setMenuOpen(false)}>
-        {navLinks}
+        <ul className={styles.navList}>
+          {mainLinks}
+          <li className={styles.rightSection}>{authLink}</li>
+        </ul>
       </Sidebar>
     </div>
   );

@@ -1,4 +1,4 @@
-/* Navbar Container */
+/* Base Styles */
 .navbar {
   background-color: #222;
   padding: 25px 20px;
@@ -14,7 +14,6 @@
   backdrop-filter: blur(8px);
 }
 
-/* Logo */
 .logo img {
   height: 42px;
   border-radius: 50%;
@@ -25,7 +24,6 @@
   transform: scale(1.05);
 }
 
-/* Hamburger Toggle (mobile only) */
 .menuToggle {
   display: none;
   font-size: 1.8rem;
@@ -35,14 +33,12 @@
   cursor: pointer;
 }
 
-/* Main Links Wrapper */
 .links {
   display: flex;
   align-items: center;
   gap: 25px;
 }
 
-/* Navigation List */
 .navList {
   list-style: none;
   display: flex;
@@ -78,7 +74,6 @@
   border-bottom: 2px solid #f1c40f;
 }
 
-/* Logout */
 .logoutButton {
   background: none;
   border: none;
@@ -94,7 +89,6 @@
   color: #f1c40f;
 }
 
-/* Cart Icon */
 .cart {
   position: relative;
   color: #eee;
@@ -117,7 +111,6 @@
   font-weight: 700;
 }
 
-/* Theme Toggle */
 .themeLink {
   background: none;
   border: none;
@@ -134,31 +127,55 @@
   color: #f1c40f;
 }
 
-/* Mobile Extras (cart + theme toggle) */
-.mobileExtras {
-  display: none;
-}
-
-/* Mobile Icons beside nav text */
-.mobileIcon {
-  display: none;
-  margin-right: 0.5rem;
-  vertical-align: middle;
-}
 .rightSection {
   margin-left: auto;
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
-/* Responsive Layout */
+
+/* Mobile-specific Extras */
+.mobileExtras {
+  display: none;
+  align-items: center;
+  gap: 12px;
+  margin-right: 160px;
+  margin-bottom: 10px;
+}
+
+.mobileExtras img {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #f1c40f;
+  cursor: pointer;
+  transition: box-shadow 0.2s ease;
+}
+
+.mobileExtras img:hover,
+.mobileExtras img:focus {
+  box-shadow: 0 0 0 2px #f1c40f88;
+}
+
+.mobileIcon {
+  display: none;
+  margin-right: 0.5rem;
+  vertical-align: middle;
+}
+
+/* Desktop-only Items */
+.desktopOnly {
+  display: block;
+}
+
+/* Responsive Queries */
 @media (max-width: 768px) {
   .navbar {
     padding: 8px 15px;
   }
 
   .logo img {
-    margin: 5px auto;
     width: 30px;
     height: 30px;
   }
@@ -169,8 +186,6 @@
 
   .mobileExtras {
     display: flex;
-    margin-right: 160px;
-    margin-bottom: 10px;
   }
 
   .links {
@@ -201,6 +216,11 @@
     display: flex;
     align-items: center;
     width: 100%;
+    font-size: 13px;
+  }
+
+  .logoutButton {
+    font-size: 13px;
   }
 
   .mobileIcon {
@@ -216,18 +236,8 @@
   .desktopOnly {
     display: none !important;
   }
-
-  .active {
-    width: auto;
-    border-bottom: 2px solid #f1c40f;
-  }
-  .navList li a {
-    font-size: 13px;
-  }
-  .logoutButton {
-    font-size: 13px;
-  }
 }
+
 @media (max-width: 467px) {
   .navbar {
     padding: 6px 10px;
@@ -238,18 +248,9 @@
     width: 28px;
   }
 
-  .menuToggle {
-    font-size: 1.5rem;
-  }
-
   .mobileExtras {
-    margin-right: 175px;
     margin-bottom: 7px;
     gap: 10px;
-  }
-
-  .links {
-    padding: 10px 0;
   }
 
   .navList {
@@ -274,6 +275,11 @@
     margin-top: 6px;
   }
 
+  .mobileExtras img {
+    width: 30px;
+    height: 30px;
+  }
+
   .badge {
     font-size: 10px;
     padding: 1px 5px;
@@ -281,6 +287,7 @@
     right: -8px;
   }
 }
+
 @media (max-width: 367px) {
   .navbar {
     padding: 0px 0px;
@@ -291,23 +298,10 @@
     width: 23px;
   }
 
-  .menuToggle {
-    font-size: 1.5rem;
-  }
-
   .mobileExtras {
-    margin-right: 130px;
+    margin-right: 100px;
     margin-bottom: 7px;
     gap: 10px;
-  }
-
-  .links {
-    padding: 10px 0;
-  }
-
-  .navList {
-    gap: 12px;
-    padding-left: 15px;
   }
 
   .navList li a {
@@ -322,9 +316,12 @@
 
   .cart,
   .themeLink {
-    font-size: 10px;
-    /* margin-left: 10px; */
-    /* margin-top: 6px; */
+    font-size: 16px;
+  }
+
+  .mobileExtras img {
+    width: 26px;
+    height: 26px;
   }
 
   .badge {
@@ -332,5 +329,94 @@
     padding: 1px 5px;
     top: -5px;
     right: -8px;
+  }
+}
+@media screen and (max-width: 375px) {
+  .navbar {
+    padding: 0px 0px;
+  }
+
+  .logo img {
+    height: 20px;
+    width: 20px;
+  }
+
+  .mobileExtras {
+    margin-bottom: 7px;
+    gap: 10px;
+  }
+
+  .navList li a {
+    font-size: 11px;
+    padding: 3px 5px;
+  }
+
+  .logoutButton {
+    font-size: 11px;
+    padding: 3px 5px;
+  }
+
+  .cart,
+  .themeLink {
+    font-size: 14px;
+    margin-left: 8px;
+    margin-top: 4px;
+  }
+
+  .mobileExtras img {
+    width: 22px;
+    height: 22px;
+  }
+
+  .badge {
+    font-size: 9px;
+    padding: 1px 4px;
+    top: -4px;
+    right: -6px;
+  }
+  
+}
+@media screen and (max-width: 320px) {
+  .navbar {
+    padding: 0px 0px;
+  }
+
+  .logo img {
+    height: 18px;
+    width: 18px;
+  }
+
+  .mobileExtras {
+    margin-bottom: 7px;
+    gap: 10px;
+  }
+
+  .navList li a {
+    font-size: 10px;
+    padding: 2px 4px;
+  }
+
+  .logoutButton {
+    font-size: 10px;
+    padding: 2px 4px;
+  }
+
+  .cart,
+  .themeLink {
+    font-size: 12px;
+    margin-left: 6px;
+    margin-top: 2px;
+  }
+
+  .mobileExtras img {
+    width: 20px;
+    height: 20px;
+  }
+
+  .badge {
+    font-size: 8px;
+    padding: 1px 3px;
+    top: -3px;
+    right: -5px;
   }
 }

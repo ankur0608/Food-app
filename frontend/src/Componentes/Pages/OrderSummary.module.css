@@ -22,7 +22,9 @@
   margin-bottom: 1.5rem;
   color: #1e293b;
 }
-
+.text {
+  color: #0f172a;
+}
 .dark .heading {
   color: #f1f5f9;
 }
