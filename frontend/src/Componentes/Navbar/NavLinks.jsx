@@ -32,7 +32,12 @@ function Navlinks() {
         const {
           data: { session },
         } = await supabase.auth.getSession();
-        if (session?.user) {
+        const token = localStorage.getItem("token");
+
+        console.log("🔍 Supabase session:", session);
+        console.log("🔍 Local token:", token);
+
+        if (session?.user && token) {
           setNavState("logout");
         } else {
           const justSignedUp = localStorage.getItem("justSignedUp");
@@ -47,11 +52,11 @@ function Navlinks() {
     checkAuthStatus();
   }, [location.pathname]);
 
-  // Listen for auth changes (login, logout)
   useEffect(() => {
     const { data: listener } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        if (event === "SIGNED_IN" && session?.user) {
+        const token = localStorage.getItem("token");
+        if (event === "SIGNED_IN" && session?.user && token) {
           console.log("✅ User signed in:", session.user);
           setNavState("logout");
         } else if (event === "SIGNED_OUT") {

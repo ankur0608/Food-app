@@ -19,30 +19,36 @@ function Signup() {
   const password = watch("password");
   const navigate = useNavigate();
   const { theme } = useTheme();
-async function onSubmit(data) {
-  try {
-    const { error } = await supabase.auth.signUp({
-      email: data.email,
-      password: data.password,
-      options: {
-        data: { name: data.name },
-        emailRedirectTo: `${window.location.origin}/verify`, 
-      },
-    });
 
-    if (error) {
-      alert(error.message || "Signup failed");
-      return;
+  async function onSubmit(data) {
+    try {
+      const response = await fetch(
+        "https://food-app-d8r3.onrender.com/signup",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: data.name,
+            email: data.email,
+            password: data.password,
+          }),
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        alert(result.error || "Signup failed");
+        return;
+      }
+
+      alert("Signup successful!");
+      navigate("/login");
+    } catch (error) {
+      console.error("❌ Signup error:", error);
+      alert("Something went wrong. Please try again.");
     }
-
-    alert("Signup successful! Check your email to verify your account.");
-    navigate("/login");
-  } catch (error) {
-    console.error("❌ Signup error:", error);
-    alert("Something went wrong. Please try again.");
   }
-}
-
 
   const handleGoogleLogin = async () => {
     const { error } = await supabase.auth.signInWithOAuth({

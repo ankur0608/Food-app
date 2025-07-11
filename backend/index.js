@@ -78,80 +78,127 @@ app.get("/meals/:name", async (req, res) => {
 
 app.post("/signup", async (req, res) => {
   const { name, email, password } = req.body;
+
   if (!name || !email || !password) {
     return res.status(400).json({ error: "All fields are required" });
   }
+
   try {
     const { data: existingUsers, error: fetchError } = await supabase
       .from("users")
-      .select("*")
+      .select("id")
       .eq("email", email);
+
     if (fetchError) throw fetchError;
-    if (existingUsers.length > 0)
-      return res.status(400).json({ error: "Email already exists" });
+
+    if (existingUsers.length > 0) {
+      return res.status(409).json({ error: "Email already exists" });
+    }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+
     const { data: insertedData, error: insertError } = await supabase
       .from("users")
-      .insert([{ name, email, password: hashedPassword }])
+      .insert([{ username: name, email, password: hashedPassword }])
       .select();
 
-    if (insertError || !insertedData.length) throw insertError;
+    if (insertError) {
+      console.error("Signup insert error:", insertError.message);
+      if (insertError.message.includes("duplicate key value")) {
+        return res.status(409).json({ error: "Email already exists" });
+      }
+      throw insertError;
+    }
+
+    if (!insertedData || insertedData.length === 0) {
+      return res.status(500).json({ error: "User insert failed" });
+    }
 
     const userId = insertedData[0].id;
     const token = jwt.sign({ id: userId }, process.env.JWT_SECRET, {
       expiresIn: "1d",
     });
+
     res.status(201).json({ message: "Signup successful", token });
   } catch (err) {
+    console.error("🔥 Signup error:", err);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;
-  console.log("Login attempt:", email); // ✅ log incoming request
+  console.log("🔐 Login attempt:", email);
 
+  // Validate input
   if (!email || !password) {
     return res.status(400).json({ error: "Email and password are required" });
   }
 
   try {
-    const { data: users, error } = await supabase
+    // Fetch user by email
+    const { data: user, error } = await supabase
       .from("users")
       .select("*")
-      .eq("email", email);
+      .eq("email", email)
+      .single();
 
-    console.log("Supabase result:", users, error); // ✅ log user lookup
-
-    if (error || !users.length)
+    if (error || !user) {
+      console.warn("❌ Login failed: User not found or DB error:", error);
       return res.status(401).json({ error: "Invalid email or password" });
+    }
 
-    const user = users[0];
+    console.log("👤 User found:", user);
 
-    console.log("User from DB:", user); // ✅ log fetched user
+    // Check if user signed up via Google (password will be null)
+    if (!user.password) {
+      return res.status(400).json({
+        error:
+          "This account uses Google login. Please use 'Continue with Google'.",
+      });
+    }
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    console.log("Password match:", isMatch); // ✅ log password check
+    // Double-check password is provided
+    if (!password) {
+      return res.status(400).json({ error: "Password is required" });
+    }
 
-    if (!isMatch)
+    // Compare passwords
+    let isMatch = false;
+    try {
+      isMatch = await bcrypt.compare(password, user.password);
+    } catch (bcryptError) {
+      console.error("❌ Bcrypt compare error:", bcryptError);
+      return res
+        .status(500)
+        .json({ error: "Internal server error during password check" });
+    }
+
+    if (!isMatch) {
+      console.warn("❌ Invalid password for:", email);
       return res.status(401).json({ error: "Invalid email or password" });
+    }
 
+    // Generate JWT token
     const token = jwt.sign(
       { id: user.id, email: user.email },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
 
-    console.log("JWT token generated");
+    console.log("✅ Login successful:", email);
 
-    res.json({
+    res.status(200).json({
       message: "Login successful",
       token,
-      user: { id: user.id, email: user.email },
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name || "",
+      },
     });
   } catch (err) {
-    console.error("🔥 Internal server error:", err); // ✅ log actual error
+    console.error("🔥 Internal server error:", err);
     res.status(500).json({ error: "Internal server error" });
   }
 });
