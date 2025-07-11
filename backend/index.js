@@ -99,7 +99,7 @@ app.post("/signup", async (req, res) => {
 
     const { data: insertedData, error: insertError } = await supabase
       .from("users")
-      .insert([{ username: name, email, password: hashedPassword }])
+      .insert([{ user: name, email, password: hashedPassword }])
       .select();
 
     if (insertError) {
@@ -194,7 +194,7 @@ app.post("/login", async (req, res) => {
       user: {
         id: user.id,
         email: user.email,
-        name: user.name || "",
+        name: user.user || "",
       },
     });
   } catch (err) {
