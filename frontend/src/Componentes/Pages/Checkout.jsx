@@ -106,7 +106,7 @@ const CheckoutForm = () => {
           setShowPaymentToast(true);
           setTimeout(() => {
             setShowPaymentToast(false);
-            navigate("/order-summary");
+            navigate("/payment-history");
           }, 3000);
         },
         prefill: {
@@ -139,7 +139,7 @@ const CheckoutForm = () => {
     <>
       {showPaymentToast && (
         <div className={styles.toast}>
-          ✅ Payment completed successfully. Redirecting to summary...
+          Payment completed successfully. Redirecting to summary...
         </div>
       )}
 

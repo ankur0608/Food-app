@@ -10,7 +10,7 @@ function Layout() {
   const { pathname } = useLocation();
 
   // Define routes where extras should be hidden (exact or prefix)
-  const hiddenPaths = ["/about", "/contact", "/meals"];
+  const hiddenPaths = ["/about", "/contact", "/meals", "/profile"];
 
   // Check if current path starts with any of the restricted routes
   const shouldHideExtras = hiddenPaths.some((path) =>

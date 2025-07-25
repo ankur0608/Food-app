@@ -75,7 +75,7 @@ export default function AvatarDropdown({ onLogout }) {
           <Avatar
             src={avatar}
             alt="User Avatar"
-            sx={{ width: 42, height: 42 }}
+            sx={{ width: 40, height: 40 }}
             onError={() => {
               setAvatar(userLogo);
               localStorage.removeItem("image");
@@ -106,10 +106,10 @@ export default function AvatarDropdown({ onLogout }) {
           👤 Profile
         </MenuItem>
         <Divider />
-        <MenuItem component={Link} to="/order-summary">
+        {/* <MenuItem component={Link} to="/order-summary">
           📝 Order Summary
-        </MenuItem>
-        <Divider />
+        </MenuItem> */}
+        {/* <Divider /> */}
         <MenuItem component={Link} to="/payment-history">
           💳 Payment History
         </MenuItem>

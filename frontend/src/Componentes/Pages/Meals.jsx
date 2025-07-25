@@ -14,7 +14,7 @@ export default function Menu() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
-  const mealsPerPage = 6;
+  const mealsPerPage = 8;
 
   const { addItem } = useContext(CartContext);
   const { theme } = useTheme();
@@ -128,7 +128,7 @@ export default function Menu() {
                 />
                 <h3>{meal.name}</h3>
                 <p className={styles["meal-price"]}>{meal.description}</p>
-                <span>${meal.price}</span>
+                <span>₹{meal.price}</span>
                 <button onClick={(e) => handleAddToCart(e, meal)}>
                   Add To Cart
                 </button>

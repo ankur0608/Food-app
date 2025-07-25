@@ -16,9 +16,9 @@ import Verify from "./Componentes/Verify.jsx";
 // Lazy-loaded components
 const Meals = lazy(() => import("./Componentes/Pages/Meals.jsx"));
 const Home = lazy(() => import("./Componentes/Pages/Home.jsx"));
-const OrderSummary = lazy(() =>
-  import("./Componentes/Pages/Order_summary.jsx")
-);
+// const OrderSummary = lazy(() =>
+  // import("./Componentes/Pages/Order_summary.jsx")
+// );
 const About = lazy(() => import("./Componentes/Pages/About.jsx"));
 const Contact = lazy(() => import("./Componentes/Pages/Contact/Contact.jsx"));
 const Signup = lazy(() => import("./Componentes/Sign-up.jsx"));
@@ -49,7 +49,7 @@ const router = createBrowserRouter([
       { path: "privacypolicy", element: <PrivacyPolicy /> },
       { path: "cart", element: <Cart /> },
       { path: "checkout", element: <Checkout /> },
-      { path: "order-summary", element: <OrderSummary /> },
+      // { path: "order-summary", element: <OrderSummary /> },
       { path: "google-redirect", element: <GoogleRedirectHandler /> },
       { path: "reset-password", element: <ResetPassword /> },
       { path: "payment-history", element: <PaymentHistory /> },

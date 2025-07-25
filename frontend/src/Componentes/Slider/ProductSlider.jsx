@@ -50,7 +50,7 @@ const MealCard = ({ meal, onAddToCart }) => {
       />
       <h3>{meal.name}</h3>
       <p className="meal-description">{meal.description}</p>
-      <p className="meal-price">${meal.price}</p>
+      <p className="meal-price">₹{meal.price}</p>
       <button className="add-btn" onClick={() => onAddToCart(meal)}>
         Add To Cart
       </button>
