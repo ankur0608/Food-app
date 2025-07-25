@@ -1,6 +1,6 @@
 /* Meals.module.css */
 .product-container {
-  padding: 2.5rem 1rem;
+  padding: 0.7rem 1rem;
   font-family: "Segoe UI", Arial, sans-serif;
   transition: background-color 0.3s, color 0.3s;
   min-height: 100vh;
@@ -75,7 +75,7 @@
 .meals-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
-  gap: 2rem;
+  gap: 1rem;
   list-style-type: none;
   padding: 0;
 }
@@ -83,7 +83,7 @@
 .meal-card {
   border: none;
   border-radius: 14px;
-  padding: 1.3rem 1rem 1.2rem 1rem;
+  padding: 1rem 1rem 1.2rem 1rem;
   text-align: center;
   background: var(--card-bg, #fff);
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);

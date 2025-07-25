@@ -2,21 +2,18 @@ import { useEffect, useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaSearch, FaTimes } from "react-icons/fa";
 import axios from "axios";
-
+import { useQuery } from "@tanstack/react-query";
+import Skeleton from "@mui/material/Skeleton";
 import styles from "./Meals.module.css";
+
 import { CartContext } from "../Store/CartContext.jsx";
 import { useTheme } from "../Store/theme";
-import Loading from "../../Componentes/Loading.jsx";
 import OpeningHours from "../OpeningHours.jsx";
-import { useQuery } from "@tanstack/react-query";
 
 export default function Menu() {
-  // ---------------------- State ----------------------
-
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
-
   const mealsPerPage = 6;
 
   const { addItem } = useContext(CartContext);
@@ -25,7 +22,7 @@ export default function Menu() {
 
   const {
     data: meals = [],
-    isLoading: loading,
+    isLoading,
     isError,
     error,
   } = useQuery({
@@ -36,10 +33,9 @@ export default function Menu() {
     },
   });
 
-  // ---------------------- Handlers ----------------------
   const handleAddToCart = (e, meal) => {
-    e.stopPropagation(); // prevent link navigation
     e.preventDefault();
+    e.stopPropagation();
     localStorage.getItem("token") ? addItem(meal) : navigate("/signup");
   };
 
@@ -47,7 +43,6 @@ export default function Menu() {
     e.target.src = "/assets/default-meal.jpg";
   };
 
-  // ---------------------- Filter Logic ----------------------
   const categories = ["All", ...new Set(meals.map((meal) => meal.category))];
 
   const filteredMeals = meals.filter(({ name, category }) => {
@@ -63,7 +58,6 @@ export default function Menu() {
     currentPage * mealsPerPage
   );
 
-  // ---------------------- UI ----------------------
   return (
     <div className={`${styles["product-container"]} ${styles[theme]}`}>
       <h1 className={styles.title}>Menu</h1>
@@ -102,14 +96,25 @@ export default function Menu() {
         )}
       </div>
 
-      {/* Meals Display */}
-      {loading ? (
-        <Loading />
-      ) : filteredMeals.length === 0 ? (
-        <p className={styles["no-meals"]}>No meals found.</p>
-      ) : (
-        <ul className={styles["meals-list"]}>
-          {currentMeals.map((meal) => (
+      {/* Meals List */}
+      <ul className={styles["meals-list"]}>
+        {isLoading ? (
+          Array.from({ length: 6 }).map((_, index) => (
+            <li className={styles["meal-card"]} key={index}>
+              <Skeleton variant="rectangular" width="100%" height={160} />
+              <Skeleton
+                variant="text"
+                width="60%"
+                height={30}
+                style={{ marginTop: 8 }}
+              />
+              <Skeleton variant="text" width="80%" height={20} />
+              <Skeleton variant="text" width="40%" height={20} />
+              <Skeleton variant="rounded" width="100%" height={36} />
+            </li>
+          ))
+        ) : currentMeals.length > 0 ? (
+          currentMeals.map((meal) => (
             <Link
               to={`/meals/${meal.name}`}
               className={styles["meal-Link"]}
@@ -129,9 +134,11 @@ export default function Menu() {
                 </button>
               </li>
             </Link>
-          ))}
-        </ul>
-      )}
+          ))
+        ) : (
+          <p className={styles["no-meals"]}>No meals found.</p>
+        )}
+      </ul>
 
       {/* Pagination */}
       {totalPages > 1 && (

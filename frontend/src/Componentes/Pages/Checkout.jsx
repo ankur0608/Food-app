@@ -6,6 +6,7 @@ import { CartContext } from "../Store/CartContext.jsx";
 import { FaPhone, FaRegUser, FaRegAddressBook } from "react-icons/fa6";
 import { IoMailOutline } from "react-icons/io5";
 import axios from "axios";
+import logo from "../../assets/main-logo.png";
 
 const CheckoutForm = () => {
   const navigate = useNavigate();
@@ -40,17 +41,17 @@ const CheckoutForm = () => {
     try {
       const res = await axios.post(
         "https://food-app-d8r3.onrender.com/create-order",
-        { amount: total * 100, currency: "USD" }
+        { amount: total * 100, currency: "INR" }
       );
       const order = res.data;
 
       const options = {
         key: "rzp_test_7jWpAfUxjwYR6P",
         amount: order.amount,
-        currency: "USD",
+        currency: "INR",
         name: "Meal Checkout",
         description: "Thank you for your purchase!",
-        image: "/assets/logo.png",
+        image: { logo },
         order_id: order.id,
         handler: async function (response) {
           const saveRes = await fetch(
@@ -115,6 +116,14 @@ const CheckoutForm = () => {
         },
         theme: {
           color: "#0f172a",
+        },
+        method: {
+          netbanking: true,
+          card: true,
+          upi: true,
+          wallet: true,
+          emi: false,
+          paylater: false,
         },
       };
 

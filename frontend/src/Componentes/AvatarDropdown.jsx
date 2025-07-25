@@ -1,37 +1,39 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import styles from "./AvatarDropdown.module.css";
+import Avatar from "@mui/material/Avatar";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import IconButton from "@mui/material/IconButton";
+import Tooltip from "@mui/material/Tooltip";
+import Divider from "@mui/material/Divider";
 import userLogo from "../assets/user.png";
-import { useTheme } from "./Store/theme.jsx";
+import { useTheme } from "./Store/theme";
 import { supabase } from "../../supabaseClient";
 
 export default function AvatarDropdown({ onLogout }) {
-  const [open, setOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
   const [avatar, setAvatar] = useState(userLogo);
-  const dropdownRef = useRef(null);
   const navigate = useNavigate();
   const { theme } = useTheme();
 
-  // ✅ Close on outside click or Escape
-  useEffect(() => {
-    function handleClickOutside(e) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        setOpen(false);
-      }
-    }
-    function handleEsc(e) {
-      if (e.key === "Escape") setOpen(false);
-    }
+  const handleOpenMenu = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    document.addEventListener("keydown", handleEsc);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      document.removeEventListener("keydown", handleEsc);
-    };
-  }, []);
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
+  };
 
-  // ✅ Avatar load logic
+  const handleLogout = async () => {
+    localStorage.clear();
+    await supabase.auth.signOut();
+    if (onLogout) onLogout();
+    navigate("/signup");
+    window.location.reload();
+  };
+
+  // Avatar loading logic
   useEffect(() => {
     const localUser = localStorage.getItem("user");
     const storedImage = localStorage.getItem("image");
@@ -66,59 +68,54 @@ export default function AvatarDropdown({ onLogout }) {
     }
   }, []);
 
-  // ✅ Logout
-  const handleLogoutClick = async () => {
-    localStorage.clear();
-    await supabase.auth.signOut();
-    if (onLogout) onLogout();
-    navigate("/signup");
-    window.location.reload();
-  };
-
   return (
-    <div className={styles.dropdownWrapper} ref={dropdownRef}>
-      <img
-        src={avatar}
-        alt="User Avatar"
-        className={styles.avatar}
-        onClick={() => setOpen((prev) => !prev)}
-        onError={() => {
-          setAvatar(userLogo);
-          localStorage.removeItem("image");
-        }}
-      />
+    <>
+      <Tooltip title="Account">
+        <IconButton onClick={handleOpenMenu} sx={{ p: 0 }}>
+          <Avatar
+            src={avatar}
+            alt="User Avatar"
+            sx={{ width: 42, height: 42 }}
+            onError={() => {
+              setAvatar(userLogo);
+              localStorage.removeItem("image");
+            }}
+          />
+        </IconButton>
+      </Tooltip>
 
-      {open && (
-        <div className={styles.dropdownMenu}>
-          <Link
-            to="/profile"
-            className={styles.dropdownMenuItem}
-            onClick={() => setOpen(false)}
-          >
-            👤 Profile
-          </Link>
-          <Link
-            to="/order-summary"
-            className={styles.dropdownMenuItem}
-            onClick={() => setOpen(false)}
-          >
-            📝 Order Summary
-          </Link>
-          <Link
-            to="/payment-history"
-            className={styles.dropdownMenuItem}
-            onClick={() => setOpen(false)}
-          >
-            💳 Payment History
-          </Link>
-          <button
-            onClick={handleLogoutClick}
-            className={styles.dropdownMenuItem}
-          >
-            🚪 Logout
-          </button>
-        </div>
-      )}
-    </div>
+      <Menu
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleCloseMenu}
+        onClick={handleCloseMenu}
+        transformOrigin={{ horizontal: "right", vertical: "top" }}
+        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+        PaperProps={{
+          elevation: 4,
+          sx: {
+            mt: 2.5,
+            minWidth: 200,
+            borderRadius: 2,
+            bgcolor: theme === "dark" ? "#2d2d2d" : "#fff",
+            color: theme === "dark" ? "#fff" : "#000",
+          },
+        }}
+      >
+        <MenuItem component={Link} to="/profile">
+          👤 Profile
+        </MenuItem>
+        <Divider />
+        <MenuItem component={Link} to="/order-summary">
+          📝 Order Summary
+        </MenuItem>
+        <Divider />
+        <MenuItem component={Link} to="/payment-history">
+          💳 Payment History
+        </MenuItem>
+        <Divider />
+        <MenuItem onClick={handleLogout}>🚪 Logout</MenuItem>
+      </Menu>
+    </>
   );
 }
