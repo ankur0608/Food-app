@@ -2,7 +2,7 @@
 
 .container {
   padding: 2rem;
-  height: 650px;
+  height: auto;
   max-width: 800px;
   margin: 10px 10px 10px 180px;
   border-radius: 1rem;
@@ -80,6 +80,18 @@
   font-weight: bold;
   padding: 1rem;
 }
+.ratingSection {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  border-top: 1px solid #ccc;
+}
+
+.imageContainer img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
 @media (max-width: 768px) {
   .container {
     margin: 0;

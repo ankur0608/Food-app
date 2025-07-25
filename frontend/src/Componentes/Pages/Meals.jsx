@@ -1,3 +1,4 @@
+// Meals.jsx
 import { useEffect, useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaSearch, FaTimes } from "react-icons/fa";
@@ -5,10 +6,12 @@ import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import Skeleton from "@mui/material/Skeleton";
 import styles from "./Meals.module.css";
-
 import { CartContext } from "../Store/CartContext.jsx";
 import { useTheme } from "../Store/theme";
 import OpeningHours from "../OpeningHours.jsx";
+import OverallRating from "../RatingOverall.jsx";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 
 export default function Menu() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -62,7 +65,6 @@ export default function Menu() {
     <div className={`${styles["product-container"]} ${styles[theme]}`}>
       <h1 className={styles.title}>Menu</h1>
 
-      {/* Category Filter */}
       <div className={styles.categoryFilter}>
         {categories.map((cat) => (
           <button
@@ -77,7 +79,6 @@ export default function Menu() {
         ))}
       </div>
 
-      {/* Search Bar */}
       <div className={styles.searchWrapper}>
         <FaSearch className={styles.searchIcon} />
         <input
@@ -96,7 +97,6 @@ export default function Menu() {
         )}
       </div>
 
-      {/* Meals List */}
       <ul className={styles["meals-list"]}>
         {isLoading ? (
           Array.from({ length: 6 }).map((_, index) => (
@@ -129,6 +129,7 @@ export default function Menu() {
                 <h3>{meal.name}</h3>
                 <p className={styles["meal-price"]}>{meal.description}</p>
                 <span>₹{meal.price}</span>
+                <OverallRating foodId={meal.id} />
                 <button onClick={(e) => handleAddToCart(e, meal)}>
                   Add To Cart
                 </button>
@@ -140,7 +141,6 @@ export default function Menu() {
         )}
       </ul>
 
-      {/* Pagination */}
       {totalPages > 1 && (
         <div className={styles.pagination}>
           <button
@@ -148,7 +148,7 @@ export default function Menu() {
             disabled={currentPage === 1}
             className={`${styles["page-btn"]} ${styles.prev}`}
           >
-            Prev
+            <KeyboardArrowLeftIcon />
           </button>
 
           {Array.from({ length: totalPages }, (_, i) => (
@@ -170,12 +170,11 @@ export default function Menu() {
             disabled={currentPage === totalPages}
             className={`${styles["page-btn"]} ${styles.next}`}
           >
-            Next
+            <ChevronRightIcon />
           </button>
         </div>
       )}
 
-      {/* Opening Hours */}
       <OpeningHours />
     </div>
   );

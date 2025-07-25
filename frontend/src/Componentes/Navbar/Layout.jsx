@@ -5,7 +5,7 @@ import Footer from "../Footer.jsx";
 import Reservation from "../Reservation.jsx";
 import ScrollToTop from "../ScrollToTop.jsx";
 import OpeningHours from "../OpeningHours.jsx";
-
+import { Toaster } from "react-hot-toast";
 function Layout() {
   const { pathname } = useLocation();
 
@@ -22,6 +22,7 @@ function Layout() {
       <nav>
         <Navlinks />
         <ScrollToTop />
+        <Toaster />
       </nav>
 
       <Outlet />
