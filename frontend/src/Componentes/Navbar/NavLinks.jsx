@@ -1,240 +1,234 @@
-import { useState, useEffect, useContext } from "react";
-import { NavLink, Link, useLocation, useNavigate } from "react-router-dom";
-import styles from "./Navbar.module.css";
+import {
+  AppBar,
+  Toolbar,
+  IconButton,
+  Typography,
+  Box,
+  Button,
+  Drawer,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Badge,
+  Avatar,
+  Menu,
+  MenuItem,
+  useMediaQuery,
+} from "@mui/material";
+import { useContext, useState, useEffect } from "react";
+import { Link, useNavigate, NavLink } from "react-router-dom";
+import {
+  FaHome,
+  FaMapMarkedAlt,
+  FaInfoCircle,
+  FaEnvelope,
+  FaBlog,
+} from "react-icons/fa";
+import MenuIcon from "@mui/icons-material/Menu";
+import CloseIcon from "@mui/icons-material/Close";
+import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCart";
+import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
+import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
+import AvatarDropdown from "../AvatarDropdown";
+
 import { CartContext } from "../Store/CartContext";
-import { useTheme } from "../Store/theme.jsx";
-import { FaShoppingBag, FaUserPlus, FaSignInAlt } from "react-icons/fa";
-import { IoMoonOutline, IoSunnyOutline, IoHomeOutline } from "react-icons/io5";
-import { FcAbout } from "react-icons/fc";
-import { IoMdContact } from "react-icons/io";
-import { GiHotMeal } from "react-icons/gi";
-import LogoImage from "../../assets/main-logo.png";
-import { supabase } from "../../../supabaseClient.js";
-import Sidebar from "./Sidebar";
-import AvatarDropdown from "../AvatarDropdown.jsx";
+import { supabase } from "../../../supabaseClient";
+import { useTheme as useMuiTheme } from "@mui/material/styles";
+import { useTheme as useCustomTheme } from "../Store/theme";
 
-function Navlinks() {
-  const location = useLocation();
+const navLinks = [
+  { text: "Home", icon: <FaHome />, path: "/home" },
+  { text: "Menu", icon: <FaMapMarkedAlt />, path: "/meals" },
+  { text: "About", icon: <FaInfoCircle />, path: "/about" },
+  { text: "Reservation", icon: <FaEnvelope />, path: "/contact" },
+  { text: "Blog", icon: <FaBlog />, path: "/blog" },
+];
+
+export default function Navbar() {
+  const muiTheme = useMuiTheme();
+  const isMobile = useMediaQuery(muiTheme.breakpoints.down("md"));
+
+  const { theme: currentTheme, toggleTheme, theme } = useCustomTheme();
+  const { items } = useContext(CartContext);
   const navigate = useNavigate();
-  const CartCtx = useContext(CartContext);
-  const { theme, toggleTheme } = useTheme();
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [navState, setNavState] = useState("signup");
 
-  const totalItems = CartCtx.items.reduce(
-    (total, item) => total + item.quantity,
-    0
-  );
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const totalItems = items.reduce((acc, item) => acc + item.quantity, 0);
 
+  const openMenu = Boolean(anchorEl);
+
+  // Supabase auth check
   useEffect(() => {
-    const checkAuthStatus = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsAuthenticated(!!session?.user);
+    });
 
-      if (session?.user) {
-        setNavState("logout");
-      } else {
-        const justSignedUp = localStorage.getItem("justSignedUp");
-        setNavState(justSignedUp ? "login" : "signup");
-      }
-    };
-
-    checkAuthStatus();
-  }, [location.pathname]);
-
-  useEffect(() => {
     const { data: listener } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        if (session?.user) {
-          setNavState("logout");
-        } else {
-          setNavState("signup");
-        }
-      }
+      (_event, session) => setIsAuthenticated(!!session?.user)
     );
 
-    return () => listener.subscription.unsubscribe();
+    return () => listener?.subscription?.unsubscribe?.();
   }, []);
 
-  async function handleLogout() {
-    const confirmed = window.confirm("Are you sure you want to logout?");
-    if (!confirmed) return;
-
-    localStorage.removeItem("justSignedUp");
+  const handleAvatarClick = (e) => setAnchorEl(e.currentTarget);
+  const handleMenuClose = () => setAnchorEl(null);
+  const handleLogout = async () => {
     await supabase.auth.signOut();
-    setNavState("signup");
+    localStorage.removeItem("justSignedUp");
+    setIsAuthenticated(false);
     navigate("/login");
-  }
+  };
 
-  useEffect(() => setMenuOpen(false), [location.pathname]);
-
-  const CartLink = ({ className }) => (
-    <NavLink
-      to="/cart"
-      className={({ isActive }) =>
-        `${styles.Link} ${styles.cart} ${isActive ? styles.active : ""} ${
-          className || ""
-        }`
-      }
-    >
-      <FaShoppingBag size={24} />
-      {totalItems > 0 && <span className={styles.badge}>{totalItems}</span>}
-    </NavLink>
+  const ThemeToggle = () => (
+    <IconButton onClick={toggleTheme} color="inherit">
+      {currentTheme === "light" ? (
+        <IoMoonOutline size={22} />
+      ) : (
+        <IoSunnyOutline size={22} />
+      )}
+    </IconButton>
   );
 
-  const ThemeToggle = ({ className, as = "button" }) =>
-    as === "button" ? (
-      <button
-        onClick={toggleTheme}
-        className={`${styles.themeLink} ${className || ""}`}
-        aria-label="Toggle Theme"
-      >
-        {theme === "light" ? (
-          <IoMoonOutline size={25} />
-        ) : (
-          <IoSunnyOutline size={25} />
-        )}
-      </button>
-    ) : (
-      <Link
-        onClick={toggleTheme}
-        className={`${styles.themeLink} ${className || ""}`}
-        aria-label="Toggle Theme"
-      >
-        {theme === "light" ? (
-          <IoMoonOutline size={25} />
-        ) : (
-          <IoSunnyOutline size={25} />
-        )}
-      </Link>
-    );
+  const navbarBgColor = currentTheme === "dark" ? "#0d1117" : "#ffffff";
+  // const textColor = theme === "dark" ? "#ffffff" : "#1a1a1a";
 
-  const mainLinks = (
-    <>
-      <li>
-        <NavLink
-          to="/home"
-          className={({ isActive }) => (isActive ? styles.active : "")}
-        >
-          <span className={styles.mobileIcon}>
-            <IoHomeOutline size={18} />
-          </span>{" "}
-          Home
-        </NavLink>
-      </li>
-      <li>
-        <NavLink
-          to="/about"
-          className={({ isActive }) => (isActive ? styles.active : "")}
-        >
-          <span className={styles.mobileIcon}>
-            <FcAbout size={18} />
-          </span>{" "}
-          About us
-        </NavLink>
-      </li>
-      <li>
-        <NavLink
-          to="/meals"
-          className={({ isActive }) => (isActive ? styles.active : "")}
-        >
-          <span className={styles.mobileIcon}>
-            <GiHotMeal size={18} />
-          </span>{" "}
-          Menu
-        </NavLink>
-      </li>
-      <li>
-        <NavLink
-          to="/contact"
-          className={({ isActive }) => (isActive ? styles.active : "")}
-        >
-          <span className={styles.mobileIcon}>
-            <IoMdContact size={18} />
-          </span>{" "}
-          Reservation
-        </NavLink>
-      </li>
-    </>
-  );
-
-  const authLink =
-    navState === "signup" ? (
-      <NavLink
-        to="/signup"
-        className={({ isActive }) =>
-          isActive ? styles.active : styles.authLink
-        }
-      >
-        <span className={styles.mobileIcon}>
-          <FaUserPlus size={16} />
-        </span>{" "}
-        Signup
-      </NavLink>
-    ) : navState === "login" ? (
-      <NavLink
-        to="/login"
-        className={({ isActive }) =>
-          isActive ? styles.active : styles.authLink
-        }
-      >
-        <span className={styles.mobileIcon}>
-          <FaSignInAlt size={16} />
-        </span>{" "}
-        Login
-      </NavLink>
-    ) : null;
-
-  const navLinks = (
-    <ul className={styles.navList}>
-      {mainLinks}
-      <li className={styles.rightSection}>{authLink}</li>
-    </ul>
-  );
-
+  const iconColor = theme === "light" ? "#333" : "#fff";
   return (
-    <div className={styles.navbar}>
-      <button
-        className={styles.menuToggle}
-        onClick={() => setMenuOpen((prev) => !prev)}
-        aria-label="Toggle menu"
-      >
-        ☰
-      </button>
+    <AppBar
+      position="sticky"
+      sx={{
+        backgroundColor: navbarBgColor,
+        // color: textColor,
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+        transition: "background-color 0.3s ease",
+      }}
+    >
+      <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
+        {/* Logo */}
+        <Typography
+          variant="h6"
+          component={Link}
+          to="/home"
+          sx={{
+            textDecoration: "none",
+            fontWeight: "bold",
+            fontSize: "1.4rem",
+            color: iconColor,
+          }}
+        >
+          My Food App
+        </Typography>
 
-      {/* Mobile view extras (cart, theme, avatar) */}
-      <div className={styles.mobileExtras}>
-        <CartLink />
-        <ThemeToggle />
-        {navState === "logout" && <AvatarDropdown onLogout={handleLogout} />}
-      </div>
-
-      <div className={styles.logo}>
-        <Link to="/">
-          <img src={LogoImage} alt="Logo" />
-        </Link>
-      </div>
-
-      <div className={styles.links}>
-        {navLinks}
-        <CartLink className={styles.desktopOnly} />
-        <ThemeToggle className={styles.desktopOnly} />
-        {navState === "logout" && (
-          <div className={styles.desktopOnly}>
-            <AvatarDropdown onLogout={handleLogout} />
-          </div>
+        {/* Navigation Links */}
+        {isMobile ? (
+          <>
+            <IconButton color="inherit" onClick={() => setDrawerOpen(true)}>
+              <MenuIcon sx={{ color: iconColor }} />
+            </IconButton>
+            <Drawer
+              anchor="left"
+              open={drawerOpen}
+              onClose={() => setDrawerOpen(false)}
+            >
+              <Box sx={{ width: 250 }}>
+                <IconButton onClick={() => setDrawerOpen(false)}>
+                  <CloseIcon />
+                </IconButton>
+                <List>
+                  {navLinks.map((item) => (
+                    <ListItem key={item.text} disablePadding>
+                      <ListItemButton component={Link} to={item.path}>
+                        <ListItemIcon>{item.icon}</ListItemIcon>
+                        <ListItemText primary={item.text} />
+                      </ListItemButton>
+                    </ListItem>
+                  ))}
+                </List>
+              </Box>
+            </Drawer>
+          </>
+        ) : (
+          <Box sx={{ display: "flex", gap: 2 }}>
+            {navLinks.map((item) => (
+              <NavLink
+                key={item.text}
+                to={item.path}
+                style={{
+                  textDecoration: "none",
+                  color: currentTheme === "dark" ? "#fff" : "#333",
+                }}
+              >
+                {({ isActive }) => (
+                  <Button
+                    sx={{
+                      color: isActive ? "primary.main" : "inherit",
+                      fontWeight: isActive ? "bold" : "normal",
+                      backgroundColor: isActive
+                        ? currentTheme === "dark"
+                          ? "#313131ff"
+                          : "#dedfddff"
+                        : "transparent",
+                      borderRadius: 2,
+                      px: 2,
+                      transition: "all 0.3s ease",
+                    }}
+                  >
+                    {item.text}
+                  </Button>
+                )}
+              </NavLink>
+            ))}
+          </Box>
         )}
-      </div>
 
-      <Sidebar isOpen={menuOpen} onClose={() => setMenuOpen(false)}>
-        <ul className={styles.navList}>
-          {mainLinks}
-          <li className={styles.rightSection}>{authLink}</li>
-        </ul>
-      </Sidebar>
-    </div>
+        {/* Right Icons */}
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <IconButton onClick={toggleTheme}>
+            {theme === "light" ? (
+              <DarkModeOutlinedIcon sx={{ color: iconColor }} />
+            ) : (
+              <LightModeOutlinedIcon sx={{ color: iconColor }} />
+            )}
+          </IconButton>
+          <IconButton color="inherit" component={Link} to="/cart">
+            <Badge badgeContent={totalItems} color="error">
+              <ShoppingCartOutlinedIcon sx={{ color: iconColor }} />
+            </Badge>
+          </IconButton>
+
+          <AvatarDropdown />
+
+          {!isAuthenticated && (
+            <Button
+              component={Link}
+              to="/login"
+              sx={{
+                color: currentTheme === "dark" ? "#fff" : "#000",
+                border: `1px solid ${
+                  currentTheme === "dark" ? "#fff" : "#000"
+                }`,
+                backgroundColor: "transparent",
+                fontWeight: "500",
+                borderRadius: 2,
+                px: 2,
+                transition: "all 0.3s ease",
+                "&:hover": {
+                  backgroundColor:
+                    currentTheme === "dark"
+                      ? "rgba(255,255,255,0.1)"
+                      : "rgba(0,0,0,0.05)",
+                },
+              }}
+            >
+              Login
+            </Button>
+          )}
+        </Box>
+      </Toolbar>
+    </AppBar>
   );
 }
-
-export default Navlinks;

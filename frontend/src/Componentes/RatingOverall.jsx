@@ -1,16 +1,27 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../supabaseClient";
-import { Box, Typography, Rating, useTheme, Skeleton } from "@mui/material";
-
+import {
+  Box,
+  Typography,
+  Rating,
+  useTheme,
+  Skeleton,
+  useMediaQuery,
+} from "@mui/material";
+import StarIcon from "@mui/icons-material/Star";
+import StarBorderIcon from "@mui/icons-material/StarBorder";
+import StarHalfIcon from "@mui/icons-material/StarHalf";
 export default function OverallRating({ foodId }) {
   const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
   const [average, setAverage] = useState(null);
   const [count, setCount] = useState(0);
-  const [loading, setLoading] = useState(true); // 👈 loading state
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchAverageRating = async () => {
-      setLoading(true); // 👈 Start loading
+      setLoading(true);
       const { data, error } = await supabase
         .from("food_reviews")
         .select("rating")
@@ -26,7 +37,7 @@ export default function OverallRating({ foodId }) {
         setCount(0);
       }
 
-      setLoading(false); // 👈 Stop loading
+      setLoading(false);
     };
 
     fetchAverageRating();
@@ -34,29 +45,39 @@ export default function OverallRating({ foodId }) {
 
   if (loading) {
     return (
-      <Box sx={{ display: "flex", alignItems: "center", ml: 6, gap: 1 }}>
-        <Skeleton variant="text" width={24} height={24} />
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1, ml: 2 }}>
+        <Skeleton variant="text" width={28} height={28} />
         <Skeleton
           variant="rectangular"
-          width={80}
-          height={24}
+          width={90}
+          height={28}
           sx={{ borderRadius: 1 }}
         />
-        <Skeleton variant="text" width={30} height={20} />
+        <Skeleton variant="text" width={40} height={24} />
       </Box>
     );
   }
 
-  if (!average || count === 0) return null;
+  if (count === 0 || !average) {
+    return (
+      <Typography
+        variant="body2"
+        sx={{ color: theme.palette.text.secondary, ml: 2 }}
+      >
+        No ratings yet
+      </Typography>
+    );
+  }
 
   return (
     <Box
       sx={{
         display: "flex",
         alignItems: "center",
-        ml: 6,
         gap: 1,
-        mb: 0,
+        // ml: isMobile ? 1 : 2,
+        flexWrap: "wrap",
+        ml:9
       }}
     >
       <Typography
@@ -74,15 +95,12 @@ export default function OverallRating({ foodId }) {
         precision={0.1}
         readOnly
         size="small"
-        sx={{
-          "& .MuiRating-iconFilled": {
-            color: "#FFD700",
-          },
-          "& .MuiRating-iconEmpty": {
-            color: "#ccc",
-          },
-          mt: 2.3,
-        }}
+        icon={<StarIcon fontSize="inherit" sx={{ color: "#FFD700" }} />}
+        emptyIcon={
+          <StarBorderIcon fontSize="inherit" sx={{ color: "#FFD700" }} />
+        }
+        // halfIcon={<StarHalfIcon fontSize="inherit" sx={{ color: "#FFD700" }} />}
+        sx={{ mt: 2.3 }}
       />
 
       <Typography variant="body2" color="text.secondary">

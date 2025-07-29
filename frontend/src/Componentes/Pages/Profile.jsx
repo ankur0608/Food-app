@@ -3,56 +3,64 @@ import styles from "./Profile.module.css";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../../../supabaseClient.js";
 import { useTheme } from "../Store/theme.jsx";
-
+import Avatar from "@mui/material/Avatar";
 export default function Profile() {
   const [user, setUser] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({ name: "", avatar: "" });
   const navigate = useNavigate();
   const { theme } = useTheme();
-
   useEffect(() => {
-    const localUser = localStorage.getItem("user");
+    const fetchUser = async () => {
+      const { data: supaUserData, error } = await supabase.auth.getUser();
 
-    if (localUser) {
-      const parsed = JSON.parse(localUser);
-      setUser(parsed);
-      setFormData({
-        name: parsed.name || "",
-        avatar: parsed.avatar || "",
-      });
-    } else {
-      async function fetchSupabaseUser() {
-        const {
-          data: { user: supaUser },
-          error,
-        } = await supabase.auth.getUser();
-        if (error) {
-          console.error("❌ Supabase getUser error:", error.message);
-          return;
-        }
-
-        if (supaUser) {
-          const updatedUser = {
-            name: supaUser.user_metadata?.full_name || supaUser.email,
-            email: supaUser.email,
-            avatar: supaUser.user_metadata?.avatar_url || "",
-          };
-          setUser(updatedUser);
-          setFormData({
-            name: updatedUser.name,
-            avatar: updatedUser.avatar,
-          });
-        }
+      if (error || !supaUserData?.user) {
+        console.error("❌ Supabase getUser error:", error?.message);
+        return;
       }
 
-      fetchSupabaseUser();
-    }
+      const supaUser = supaUserData.user;
+
+      // Always fetch from `users` table to ensure it's up-to-date
+      const { data: userRow, error: userError } = await supabase
+        .from("users")
+        .select("*")
+        .eq("id", supaUser.id)
+        .single();
+
+      // If user not found, create one
+      if (!userRow && !userError) {
+        const { name, avatar_url } = supaUser.user_metadata || {};
+        await supabase.from("users").insert([
+          {
+            id: supaUser.id,
+            name: name || supaUser.email,
+            email: supaUser.email,
+            avatar: avatar_url || "",
+          },
+        ]);
+      }
+
+      const currentUser = {
+        id: supaUser.id,
+        email: supaUser.email,
+        name: userRow?.name || supaUser.user_metadata?.name || supaUser.email,
+        avatar: userRow?.avatar || supaUser.user_metadata?.avatar_url || "",
+      };
+
+      setUser(currentUser);
+      setFormData({
+        name: currentUser.name,
+        avatar: currentUser.avatar,
+      });
+
+      localStorage.setItem("user", JSON.stringify(currentUser));
+    };
+
+    fetchUser();
   }, []);
 
-  const handleEditToggle = () => {
-    setIsEditing(!isEditing);
-  };
+  const handleEditToggle = () => setIsEditing(!isEditing);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -68,38 +76,64 @@ export default function Profile() {
     setUser(updatedUser);
     localStorage.setItem("user", JSON.stringify(updatedUser));
 
-    // Optional: update metadata in Supabase
-    const { error } = await supabase.auth.updateUser({
+    // Update auth metadata
+    const { error: authError } = await supabase.auth.updateUser({
       data: {
-        full_name: formData.name,
+        name: formData.name,
         avatar_url: formData.avatar,
       },
     });
-    if (error) {
-      console.error("❌ Failed to update user:", error.message);
+
+    if (authError) {
+      console.error("❌ Supabase auth update error:", authError.message);
     }
+
+    // Optional: update 'users' table as well
+    await supabase
+      .from("users")
+      .update({
+        name: formData.name,
+        avatar: formData.avatar,
+      })
+      .eq("id", user.id);
 
     setIsEditing(false);
   };
 
+  const stringToInitials = (name) => {
+    return name
+      .split(" ")
+      .map((word) => word[0])
+      .join("")
+      .toUpperCase();
+  };
+
   if (!user) {
     return (
-      <div className={`${styles.container} ${theme === "dark" ? "dark" : ""}`}>
+      <div
+        className={`${styles.container} ${theme === "dark" ? styles.dark : ""}`}
+      >
         <h2>Profile</h2>
         <p>Loading user info...</p>
       </div>
     );
   }
+  const avatarSrc = formData.avatar?.trim();
 
   return (
-    <div className={`${styles.container} ${theme === "dark" ? "dark" : ""}`}>
+    <div
+      className={`${styles.container} ${theme === "dark" ? styles.dark : ""}`}
+    >
       <h2>Your Profile</h2>
       <div className={styles.profileCard}>
-        <img
-          src={formData.avatar || "/assets/default-profile.png"}
-          alt="Profile"
-          className={styles.avatar}
-        />
+        {avatarSrc ? (
+          <Avatar src={avatarSrc} sx={{ width: 64, height: 64 }} />
+        ) : (
+          <Avatar sx={{ width: 64, height: 64, bgcolor: "#1976d2" }}>
+            {stringToInitials(formData.name || "U")}
+          </Avatar>
+        )}
+
         <div className={styles.info}>
           {isEditing ? (
             <>
@@ -142,8 +176,8 @@ export default function Profile() {
         >
           {isEditing ? "Save Changes" : "Edit Profile"}
         </button>
-        <button className={styles.button} onClick={() => navigate("/meals")}>
-          Back to Meals
+        <button className={styles.button} onClick={() => navigate(-1)}>
+          Back
         </button>
       </div>
     </div>

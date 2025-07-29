@@ -1,11 +1,18 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import Avatar from "@mui/material/Avatar";
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
-import IconButton from "@mui/material/IconButton";
-import Tooltip from "@mui/material/Tooltip";
-import Divider from "@mui/material/Divider";
+import {
+  Avatar,
+  Menu,
+  MenuItem,
+  IconButton,
+  Tooltip,
+  Divider,
+  ListItemIcon,
+  ListItemText,
+} from "@mui/material";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import HistoryIcon from "@mui/icons-material/History";
+import LogoutIcon from "@mui/icons-material/Logout";
 import userLogo from "../assets/user.png";
 import { useTheme } from "./Store/theme";
 import { supabase } from "../../supabaseClient";
@@ -16,6 +23,14 @@ export default function AvatarDropdown({ onLogout }) {
   const [avatar, setAvatar] = useState(userLogo);
   const navigate = useNavigate();
   const { theme } = useTheme();
+
+  const stringToInitials = (name) => {
+    return name
+      .split(" ")
+      .map((word) => word[0])
+      .join("")
+      .toUpperCase();
+  };
 
   const handleOpenMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -33,41 +48,66 @@ export default function AvatarDropdown({ onLogout }) {
     window.location.reload();
   };
 
-  // Avatar loading logic
   useEffect(() => {
-    const localUser = localStorage.getItem("user");
-    const storedImage = localStorage.getItem("image");
-
-    if (storedImage?.startsWith("http")) {
-      setAvatar(storedImage);
-      return;
-    }
-
-    if (localUser) {
-      const parsed = JSON.parse(localUser);
-      const url =
-        parsed?.user_metadata?.avatar_url || parsed?.user_metadata?.picture;
-      if (url?.startsWith("http")) {
-        setAvatar(url);
-        localStorage.setItem("image", url);
-      } else {
-        setAvatar(userLogo);
+    const loadAvatar = async () => {
+      const cachedImage = localStorage.getItem("image");
+      if (cachedImage) {
+        setAvatar(cachedImage);
+        return;
       }
-    } else {
-      supabase.auth.getUser().then(({ data }) => {
-        const url =
-          data?.user?.user_metadata?.avatar_url ||
-          data?.user?.user_metadata?.picture;
-        if (url?.startsWith("http")) {
-          setAvatar(url);
-          localStorage.setItem("image", url);
-        } else {
-          setAvatar(userLogo);
+
+      let name = "User";
+      let avatarUrl = null;
+
+      const localUser = localStorage.getItem("user");
+      let userMetadata = null;
+
+      if (localUser) {
+        try {
+          const parsed = JSON.parse(localUser);
+          userMetadata = parsed?.user_metadata;
+        } catch (err) {
+          console.warn("Error parsing user from localStorage:", err);
         }
-      });
-    }
+      }
+
+      if (!userMetadata) {
+        const { data, error } = await supabase.auth.getUser();
+        if (error) {
+          console.error("Supabase getUser failed:", error.message);
+          return;
+        }
+        userMetadata = data.user?.user_metadata;
+        localStorage.setItem("user", JSON.stringify(data.user));
+      }
+
+      name =
+        userMetadata?.name ||
+        userMetadata?.full_name ||
+        userMetadata?.email?.split("@")[0] ||
+        "User";
+
+      avatarUrl =
+        userMetadata?.avatar_url ||
+        userMetadata?.picture ||
+        userMetadata?.full_picture ||
+        null;
+
+      if (avatarUrl?.startsWith("http")) {
+        setAvatar(avatarUrl);
+        localStorage.setItem("image", avatarUrl);
+      } else {
+        const initials = stringToInitials(name);
+        const initialsAvatar = `https://ui-avatars.com/api/?name=${initials}&background=random&color=fff&bold=true&size=128`;
+        setAvatar(initialsAvatar);
+        localStorage.setItem("image", initialsAvatar);
+      }
+    };
+
+    loadAvatar();
   }, []);
 
+  const iconColor = theme === "light" ? "#333" : "#fff";
   return (
     <>
       <Tooltip title="Account">
@@ -75,7 +115,7 @@ export default function AvatarDropdown({ onLogout }) {
           <Avatar
             src={avatar}
             alt="User Avatar"
-            sx={{ width: 40, height: 40 }}
+            sx={{ width: 37, height: 37 }}
             onError={() => {
               setAvatar(userLogo);
               localStorage.removeItem("image");
@@ -94,7 +134,7 @@ export default function AvatarDropdown({ onLogout }) {
         PaperProps={{
           elevation: 4,
           sx: {
-            mt: 2.5,
+            mt: 1.8,
             minWidth: 200,
             borderRadius: 2,
             bgcolor: theme === "dark" ? "#2d2d2d" : "#fff",
@@ -103,18 +143,29 @@ export default function AvatarDropdown({ onLogout }) {
         }}
       >
         <MenuItem component={Link} to="/profile">
-          👤 Profile
+          <ListItemIcon>
+            <AccountCircleIcon fontSize="small" sx={{ color: iconColor }} />
+          </ListItemIcon>
+          <ListItemText primary="Profile" />
         </MenuItem>
+
         <Divider />
-        {/* <MenuItem component={Link} to="/order-summary">
-          📝 Order Summary
-        </MenuItem> */}
-        {/* <Divider /> */}
+
         <MenuItem component={Link} to="/payment-history">
-          💳 Payment History
+          <ListItemIcon>
+            <HistoryIcon fontSize="small" sx={{ color: iconColor }} />
+          </ListItemIcon>
+          <ListItemText primary="Payment History" />
         </MenuItem>
+
         <Divider />
-        <MenuItem onClick={handleLogout}>🚪 Logout</MenuItem>
+
+        <MenuItem onClick={handleLogout}>
+          <ListItemIcon>
+            <LogoutIcon fontSize="small" sx={{ color: iconColor }} />
+          </ListItemIcon>
+          <ListItemText primary="Logout" />
+        </MenuItem>
       </Menu>
     </>
   );

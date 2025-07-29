@@ -110,36 +110,70 @@ export default function MealsDetail() {
       <Button
         variant="outlined"
         startIcon={<ArrowBackIcon />}
-        onClick={() => navigate("/meals")}
+        onClick={() => navigate(-1)}
         sx={{ mb: 2 }}
       >
-        Back to Meals
+        Back
       </Button>
-
       <Card
         sx={{
           mb: 4,
-          bgcolor: theme === "dark" ? "#1e1e1e" : "#fff",
-          color: theme === "dark" ? "#f5f5f5" : "#000",
+          bgcolor: theme === "dark" ? "#1a1a1a" : "#fdfdfd",
+          color: theme === "dark" ? "#f5f5f5" : "#1a1a1a",
+          borderRadius: 3,
+          overflow: "hidden",
+          boxShadow:
+            theme === "dark"
+              ? "0 2px 12px rgba(0,0,0,0.6)"
+              : "0 2px 12px rgba(0,0,0,0.1)",
+          transition: "all 0.3s ease",
         }}
       >
-        {imageUrl && (
-          <CardMedia
-            component="img"
-            height="300"
-            image={meal.image.startsWith("http") ? meal.image : imageUrl}
-            alt={meal.name}
-            onError={handleImageError}
-          />
-        )}
+        <CardMedia
+          component="img"
+          height="400"
+          image={meal.image.startsWith("http") ? meal.image : imageUrl}
+          alt={meal.name}
+          onError={handleImageError}
+          sx={{
+            objectFit: "cover",
+            filter: theme === "dark" ? "brightness(0.85)" : "none",
+          }}
+        />
         <CardContent>
-          <Typography variant="h4" gutterBottom>
+          <Typography
+            variant="h4"
+            gutterBottom
+            sx={{
+              fontWeight: "bold",
+              fontSize: { xs: "1.8rem", md: "2.2rem" },
+            }}
+          >
             {meal.name}
           </Typography>
-          <Typography variant="body1" gutterBottom>
+
+          <Typography
+            variant="body1"
+            gutterBottom
+            sx={{ fontSize: { xs: "1rem", md: "1.1rem" }, mb: 2 }}
+          >
             {meal.description}
           </Typography>
-          <Typography variant="h6" color="primary">
+
+          <Typography
+            variant="h6"
+            color="primary"
+            sx={{
+              fontWeight: "600",
+              fontSize: "1.2rem",
+              backgroundColor:
+                theme === "dark" ? "rgba(255,255,255,0.05)" : "#f0f0f0",
+              display: "inline-block",
+              px: 2,
+              py: 1,
+              borderRadius: 2,
+            }}
+          >
             ₹{meal.price}
           </Typography>
         </CardContent>

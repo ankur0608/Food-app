@@ -175,7 +175,7 @@
 }
 
 .meal-card button {
-  margin-top: auto;
+  margin-top: -20px;
   background: linear-gradient(90deg, #ff6600 60%, #ff6600 100%);
   color: #fff;
   border: none;

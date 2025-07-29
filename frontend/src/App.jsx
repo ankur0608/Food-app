@@ -16,9 +16,6 @@ import Verify from "./Componentes/Verify.jsx";
 // Lazy-loaded components
 const Meals = lazy(() => import("./Componentes/Pages/Meals.jsx"));
 const Home = lazy(() => import("./Componentes/Pages/Home.jsx"));
-// const OrderSummary = lazy(() =>
-  // import("./Componentes/Pages/Order_summary.jsx")
-// );
 const About = lazy(() => import("./Componentes/Pages/About.jsx"));
 const Contact = lazy(() => import("./Componentes/Pages/Contact/Contact.jsx"));
 const Signup = lazy(() => import("./Componentes/Sign-up.jsx"));
@@ -27,6 +24,8 @@ const ForgotPassword = lazy(() => import("./Componentes/ForgotPassword.jsx"));
 const PrivacyPolicy = lazy(() => import("./Componentes/PrivacyPolicy.jsx"));
 const Cart = lazy(() => import("./Componentes/Pages/Cart.jsx"));
 const MealsDetail = lazy(() => import("./Componentes/Pages/MealsDetails.jsx"));
+const BlogList = lazy(() => import("./Componentes/BlogList.jsx"));
+const BlogDetail = lazy(() => import("./Componentes/BlogDetail.jsx"));
 
 // Router setup
 const router = createBrowserRouter([
@@ -55,6 +54,9 @@ const router = createBrowserRouter([
       { path: "payment-history", element: <PaymentHistory /> },
       { path: "profile", element: <Profile /> },
       { path: "verify", element: <Verify /> },
+      { path: "/blog", element: <BlogList /> },
+      { path: "/blog/:id", element: <BlogDetail /> },
+
       {
         path: "*",
         element: (

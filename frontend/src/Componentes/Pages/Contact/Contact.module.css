@@ -35,7 +35,7 @@
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   width: 100%;
-  max-width: 600px;
+  max-width: 750px;
   box-sizing: border-box;
   transition: background-color 0.3s ease;
 }

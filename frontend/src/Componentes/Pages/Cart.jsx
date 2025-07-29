@@ -11,7 +11,7 @@ export default function Cart() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!localStorage.getItem("token")) {
+    if (!localStorage.getItem("user")) {
       navigate("/signup");
     }
   }, [navigate]);

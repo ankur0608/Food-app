@@ -1,0 +1,28 @@
+.blog-list {
+  padding: 2rem;
+}
+.blog-card {
+  display: block;
+  margin: 1rem 0;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  text-decoration: none;
+  color: inherit;
+  border-radius: 8px;
+}
+.blog-card:hover {
+  background-color: #f8f8f8;
+}
+.blog-card img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+}
+.blog-detail {
+  padding: 2rem;
+}
+.blog-detail img {
+  max-width: 100%;
+  height: auto;
+  margin: 1rem 0;
+}

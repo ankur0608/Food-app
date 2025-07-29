@@ -1,17 +1,19 @@
 // Meals.jsx
-import { useEffect, useState, useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaSearch, FaTimes } from "react-icons/fa";
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import Skeleton from "@mui/material/Skeleton";
-import styles from "./Meals.module.css";
+import Box from "@mui/material/Box";
+import Stack from "@mui/material/Stack";
+import Pagination from "@mui/material/Pagination";
+
 import { CartContext } from "../Store/CartContext.jsx";
 import { useTheme } from "../Store/theme";
 import OpeningHours from "../OpeningHours.jsx";
 import OverallRating from "../RatingOverall.jsx";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
+import styles from "./Meals.module.css";
 
 export default function Menu() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -99,7 +101,7 @@ export default function Menu() {
 
       <ul className={styles["meals-list"]}>
         {isLoading ? (
-          Array.from({ length: 6 }).map((_, index) => (
+          Array.from({ length: 8 }).map((_, index) => (
             <li className={styles["meal-card"]} key={index}>
               <Skeleton variant="rectangular" width="100%" height={160} />
               <Skeleton
@@ -140,41 +142,32 @@ export default function Menu() {
           <p className={styles["no-meals"]}>No meals found.</p>
         )}
       </ul>
-
-      {totalPages > 1 && (
-        <div className={styles.pagination}>
-          <button
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-            className={`${styles["page-btn"]} ${styles.prev}`}
-          >
-            <KeyboardArrowLeftIcon />
-          </button>
-
-          {Array.from({ length: totalPages }, (_, i) => (
-            <button
-              key={i + 1}
-              onClick={() => setCurrentPage(i + 1)}
-              className={`${styles["page-btn"]} ${
-                currentPage === i + 1 ? styles.active : ""
-              }`}
-            >
-              {i + 1}
-            </button>
-          ))}
-
-          <button
-            onClick={() =>
-              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-            }
-            disabled={currentPage === totalPages}
-            className={`${styles["page-btn"]} ${styles.next}`}
-          >
-            <ChevronRightIcon />
-          </button>
-        </div>
-      )}
-
+      <Box
+        sx={{
+          mt: 8,
+          display: "flex",
+          justifyContent: "center",
+        }}
+      >
+        {totalPages > 1 && (
+          <Pagination
+            count={totalPages}
+            page={currentPage}
+            onChange={(e, page) => setCurrentPage(page)}
+            variant="outlined"
+            shape="rounded"
+            sx={{
+              "& .MuiPaginationItem-root": {
+                backgroundColor: "#fff",
+                "&.Mui-selected": {
+                  backgroundColor: "#f3592aff",
+                  color: "#fff",
+                },
+              },
+            }}
+          />
+        )}
+      </Box>
       <OpeningHours />
     </div>
   );
