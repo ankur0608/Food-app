@@ -200,9 +200,9 @@ export default function Navbar() {
             </Badge>
           </IconButton>
 
-          <AvatarDropdown />
-
-          {!isAuthenticated && (
+          {isAuthenticated ? (
+            <AvatarDropdown />
+          ) : (
             <Button
               component={Link}
               to="/login"
