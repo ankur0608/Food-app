@@ -9,15 +9,6 @@
   transition: background-color 0.3s, color 0.3s;
 }
 
-.light {
-  --container-bg: #f9f9f9;
-  color: #1a1a1a;
-}
-.dark {
-  --container-bg: #121212;
-  color: #f1f1f1;
-}
-
 .light .heading,
 .light .paragraph,
 .dark .heading,
@@ -39,13 +30,14 @@
 
 .leftContent {
   flex: 1;
-  /* margin: auto; */
-  margin-left: 330px;
   min-width: 320px;
-  padding: 1rem;
+  padding: 1rem 2rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  max-width: 600px;
+  margin: 0 auto;
+  text-align: left;
 }
 
 .heading {
@@ -134,7 +126,7 @@
   margin-top: 1rem;
 }
 .card {
-  background-color: var(--card-bg, #fff);
+  background-color: var(--card-bg);
   border-radius: 1.2rem;
   padding: 1.5rem;
   width: 230px;
@@ -148,10 +140,10 @@
 }
 
 .light .card {
-  --card-bg: #fff;
+  --card-bg: #d8d8d8;
   color: #222;
 }
-.dark .card {
+.light .card {
   --card-bg: #1e1e1e;
   color: #eee;
 }
@@ -193,7 +185,7 @@
 /* === Container with Background === */
 .container {
   position: relative;
-  min-height: 65vh;
+  min-height: 75vh;
   padding: 4rem 2rem;
   background-image: url("../../assets/bg (1).png");
   background-size: cover;
@@ -237,51 +229,141 @@
 .rightImage:first-of-type {
   display: none; /* hides the top <img> if you're using background instead */
 }
-
-/* Responsive Styling */
-@media (max-width: 768px) {
-  .container {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .leftContent,
-  .rightImage {
-    padding: 1rem;
-    width: 100%;
-  }
-
-  .heading {
-    font-size: 2.2rem;
-    text-align: center;
-  }
-
-  .paragraph {
-    text-align: center;
-    font-size: 1.05rem;
-  }
-
-  .button {
-    margin: auto;
+/* Responsive styles */
+@media (max-width: 1200px) {
+  .leftContent {
+    margin-left: 200px;
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 992px) {
+  .container {
+    flex-direction: column;
+    align-items: center;
+    /* padding: 3rem 1.5rem; */
+    background-position: top center;
+  }
+
+  .leftContent {
+    margin-left: 0;
+    text-align: center;
+    align-items: center;
+  }
+
+  .btnbar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .button,
+  .buttonTable {
+    width: 80%;
+    text-align: center;
+  }
+
+  .rightImage {
+    display: none;
+  }
+
   .heading {
-    font-size: 1.9rem;
+    font-size: 2rem;
   }
 
   .paragraph {
     font-size: 1rem;
+    max-width: 100%;
   }
 
-  .button {
-    font-size: 1rem;
-    padding: 0.7rem 1.5rem;
+  .title {
+    font-size: 1.8rem;
+  }
+
+  .grid {
+    gap: 0.8rem;
+  }
+
+  .card {
+    width: 200px;
+    padding: 1rem;
+  }
+
+  .card h3 {
+    font-size: 1.1rem;
+  }
+
+  .card p {
+    font-size: 0.95rem;
+  }
+
+  .icon,
+  .iconFruit,
+  .iconVegetables,
+  .iconnon {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .heading {
+    font-size: 1.75rem;
+  }
+
+  .paragraph {
+    font-size: 0.95rem;
+  }
+
+  .title {
+    font-size: 1.5rem;
   }
 
   .card {
     width: 100%;
-    max-width: 100%;
+    max-width: 300px;
+  }
+
+  .grid {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .button,
+  .buttonTable {
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+  }
+
+  .leftContent {
+    padding: 1rem 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 2rem 1rem;
+    height: 90vh;
+  }
+
+  .heading {
+    font-size: 1.5rem;
+  }
+
+  .paragraph {
+    font-size: 0.9rem;
+  }
+
+  .button,
+  .buttonTable {
+    font-size: 0.95rem;
+  }
+
+  .title {
+    font-size: 1.3rem;
+  }
+
+  .card {
+    padding: 1rem;
+    width: 90%;
   }
 }

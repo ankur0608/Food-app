@@ -4,7 +4,7 @@ import homeimage from "../../assets/bg (1).png";
 import Slider from "../Slider/ProductSlider.jsx";
 import { useTheme } from "../Store/theme.jsx";
 import { FaLeaf, FaCarrot, FaAppleAlt, FaDrumstickBite } from "react-icons/fa";
-
+import SmallBlog from "../SmallBlog.jsx";
 function Home() {
   const { theme } = useTheme();
 
@@ -79,6 +79,9 @@ function Home() {
       <section className={styles.sliderSection}>
         <Slider />
       </section>
+      <div>
+        <SmallBlog />
+      </div>
     </>
   );
 }

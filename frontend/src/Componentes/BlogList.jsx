@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "../../supabaseClient";
-import "./Blog.css"; 
+import styles from "./BlogList.module.css";
+import { useTheme } from "../Componentes/Store/theme";
 
-export default function BlogList() {
-  const [posts, setPosts] = useState([]);
+const BlogList = () => {
+  const [blogs, setBlogs] = useState([]);
+
+  const { theme } = useTheme();
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -13,22 +16,40 @@ export default function BlogList() {
         .select("*")
         .order("created_at", { ascending: false });
 
-      if (!error) setPosts(data);
+      if (!error) setBlogs(data);
     };
 
     fetchPosts();
   }, []);
 
   return (
-    <div className="blog-list">
-      <h1>Latest Blogs</h1>
-      {posts.map((post) => (
-        <Link key={post.id} to={`/blog/${post.id}`} className="blog-card">
-          {post.image_url && <img src={post.image_url} alt={post.title} />}
-          <h2>{post.title}</h2>
-          <p>{post.content.slice(0, 100)}...</p>
-        </Link>
-      ))}
+    <div
+      className={`${styles.blogList} ${
+        theme === "dark" ? styles.dark : styles.light
+      }`}
+    >
+      <h2 className={styles.heading}>Latest Blog Posts</h2>
+      <div className={styles.grid}>
+        {blogs.map((blog) => (
+          <Link key={blog.id} to={`/blog/${blog.id}`} className={styles.card}>
+            {blog.image_url && (
+              <img
+                src={blog.image_url}
+                alt={blog.title}
+                className={styles.image}
+              />
+            )}
+            <div className={styles.cardContent}>
+              <h3 className={styles.title}>{blog.title}</h3>
+              <p className={styles.date}>
+                {new Date(blog.created_at).toDateString()}
+              </p>
+            </div>
+          </Link>
+        ))}
+      </div>
     </div>
   );
-}
+};
+
+export default BlogList;

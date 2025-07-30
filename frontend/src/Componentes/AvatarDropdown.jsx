@@ -9,6 +9,8 @@ import {
   Divider,
   ListItemIcon,
   ListItemText,
+  Box,
+  Typography,
 } from "@mui/material";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import HistoryIcon from "@mui/icons-material/History";
@@ -19,8 +21,9 @@ import { supabase } from "../../supabaseClient";
 
 export default function AvatarDropdown({ onLogout }) {
   const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
   const [avatar, setAvatar] = useState(userLogo);
+  const [userMetadata, setUserMetadata] = useState({});
+  const open = Boolean(anchorEl);
   const navigate = useNavigate();
   const { theme } = useTheme();
 
@@ -53,45 +56,38 @@ export default function AvatarDropdown({ onLogout }) {
       const cachedImage = localStorage.getItem("image");
       if (cachedImage) {
         setAvatar(cachedImage);
-        return;
       }
 
       let name = "User";
       let avatarUrl = null;
 
       const localUser = localStorage.getItem("user");
-      let userMetadata = null;
+      let meta = null;
 
       if (localUser) {
         try {
           const parsed = JSON.parse(localUser);
-          userMetadata = parsed?.user_metadata;
+          meta = parsed?.user_metadata;
         } catch (err) {
           console.warn("Error parsing user from localStorage:", err);
         }
       }
 
-      if (!userMetadata) {
+      if (!meta) {
         const { data, error } = await supabase.auth.getUser();
         if (error) {
           console.error("Supabase getUser failed:", error.message);
           return;
         }
-        userMetadata = data.user?.user_metadata;
+        meta = data.user?.user_metadata;
         localStorage.setItem("user", JSON.stringify(data.user));
       }
 
       name =
-        userMetadata?.name ||
-        userMetadata?.full_name ||
-        userMetadata?.email?.split("@")[0] ||
-        "User";
+        meta?.name || meta?.full_name || meta?.email?.split("@")[0] || "User";
 
       avatarUrl =
-        userMetadata?.avatar_url ||
-        userMetadata?.picture ||
-        userMetadata?.full_picture ||
-        null;
+        meta?.avatar_url || meta?.picture || meta?.full_picture || null;
 
       if (avatarUrl?.startsWith("http")) {
         setAvatar(avatarUrl);
@@ -102,12 +98,18 @@ export default function AvatarDropdown({ onLogout }) {
         setAvatar(initialsAvatar);
         localStorage.setItem("image", initialsAvatar);
       }
+
+      setUserMetadata({
+        name,
+        email: meta?.email || "email@example.com",
+      });
     };
 
     loadAvatar();
   }, []);
 
   const iconColor = theme === "light" ? "#333" : "#fff";
+
   return (
     <>
       <Tooltip title="Account">
@@ -135,21 +137,51 @@ export default function AvatarDropdown({ onLogout }) {
           elevation: 4,
           sx: {
             mt: 1.8,
-            minWidth: 200,
+            minWidth: 240,
             borderRadius: 2,
             bgcolor: theme === "dark" ? "#2d2d2d" : "#fff",
             color: theme === "dark" ? "#fff" : "#000",
           },
         }}
       >
+        <Box
+          sx={{
+            px: 2,
+            py: 1.8,
+            display: "flex",
+            alignItems: "center",
+            gap: 1.5,
+            borderBottom: `1px solid ${theme === "dark" ? "#444" : "#eee"}`,
+          }}
+        >
+          <Avatar
+            src={avatar}
+            alt="User Avatar"
+            sx={{ width: 44, height: 44 }}
+          />
+          <Box>
+            <Typography
+              variant="subtitle1"
+              fontWeight="bold"
+              sx={{ color: theme === "dark" ? "#fff" : "#000" }}
+            >
+              {userMetadata.name || "User"}
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{ color: theme === "dark" ? "#ccc" : "#666" }}
+            >
+              {userMetadata.email}
+            </Typography>
+          </Box>
+        </Box>
+
         <MenuItem component={Link} to="/profile">
           <ListItemIcon>
             <AccountCircleIcon fontSize="small" sx={{ color: iconColor }} />
           </ListItemIcon>
           <ListItemText primary="Profile" />
         </MenuItem>
-
-        <Divider />
 
         <MenuItem component={Link} to="/payment-history">
           <ListItemIcon>
