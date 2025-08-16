@@ -68,7 +68,7 @@ export default function MobileNavbar({
             color: iconColor,
           }}
         >
-          My Food App
+          My <span>Food</span> App
         </Typography>
         <IconButton color="inherit" component={Link} to="/cart">
           <Badge badgeContent={totalItems} color="error">

@@ -2,12 +2,12 @@
   transition: background 0.3s ease, color 0.3s ease;
 }
 
-.light-theme {
+/* .light-theme {
   background: #f7f7f7;
   color: #1a1a1a;
-}
+} */
 
-.dark-theme {
+/* .dark-theme {
   background: #1e1e1e;
   color: #f7f7f7;
-}
+} */
