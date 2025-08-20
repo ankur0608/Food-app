@@ -1,11 +1,9 @@
 import React, { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { CartContext } from "../Store/CartContext";
-import { useTheme } from "../Store/theme";
 import styles from "./Cart.module.css";
 
 export default function Cart() {
-  const { theme } = useTheme();
   const { items, addItem, removeItem, clearCart, checkoutData } =
     useContext(CartContext);
   const navigate = useNavigate();
@@ -26,14 +24,13 @@ export default function Cart() {
     navigate("/checkout", { state: { total: totalAmount.toFixed(2) } });
 
   return (
-    <div className={`${styles.cartContainer} ${styles[theme]}`}>
+    <div className={styles.cartContainer}>
       <h2 className={styles.title}>Your Cart</h2>
 
       {items.length === 0 ? (
         <p>Your cart is empty.</p>
       ) : (
         <>
-          {/*  Cart Table */}
           <div className={styles.cartTableWrapper}>
             <table className={styles.cartTable}>
               <thead>
@@ -53,16 +50,8 @@ export default function Cart() {
                     <td data-label="Qty">{quantity}</td>
                     <td data-label="Total">${(price * quantity).toFixed(2)}</td>
                     <td data-label="Actions">
+                      <button onClick={() => removeItem(id)}>-</button>
                       <button
-                        aria-label={`Remove one ${name}`}
-                        className={styles.button}
-                        onClick={() => removeItem(id)}
-                      >
-                        -
-                      </button>
-                      <button
-                        aria-label={`Add one ${name}`}
-                        className={styles.button}
                         onClick={() =>
                           addItem({ id, name, price, quantity: 1 })
                         }
@@ -76,10 +65,8 @@ export default function Cart() {
             </table>
           </div>
 
-          {/*  Total */}
           <h3 className={styles.total}>Total: ${totalAmount.toFixed(2)}</h3>
 
-          {/* Last Checkout Data */}
           {checkoutData && (
             <div className={styles.checkoutInfo}>
               <h4>Last Checkout Info:</h4>
@@ -98,22 +85,12 @@ export default function Cart() {
             </div>
           )}
 
-          {/*  Action Buttons */}
           <div className={styles.cartActions}>
-            <button
-              className={styles.continueBtn}
-              onClick={handleContinueShopping}
-            >
-              Continue Shopping
-            </button>
-            <button className={styles.checkoutBtn} onClick={handleCheckout}>
-              Checkout
-            </button>
+            <button onClick={handleContinueShopping}>Continue Shopping</button>
+            <button onClick={handleCheckout}>Checkout</button>
           </div>
 
-          <button className={styles.clearBtn} onClick={clearCart}>
-            Clear Cart
-          </button>
+          <button onClick={clearCart}>Clear Cart</button>
         </>
       )}
     </div>

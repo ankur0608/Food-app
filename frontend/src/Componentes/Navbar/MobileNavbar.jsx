@@ -11,6 +11,9 @@ import {
   ListItemIcon,
   ListItemText,
   Box,
+  Divider,
+  Avatar,
+  Badge,
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import MenuIcon from "@mui/icons-material/Menu";
@@ -22,10 +25,8 @@ import {
   FaEnvelope,
   FaBlog,
 } from "react-icons/fa";
-import { Badge } from "@mui/material";
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import { useState } from "react";
-import AvatarDropdown from "../AvatarDropdown";
 
 const navLinks = [
   { text: "Home", icon: <FaHome />, path: "/home" },
@@ -40,6 +41,7 @@ export default function MobileNavbar({
   navbarBgColor,
   isAuthenticated,
   totalItems,
+  user, // 👈 pass { name, email, image } as props
 }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -53,10 +55,12 @@ export default function MobileNavbar({
       }}
     >
       <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
-        {" "}
+        {/* Left: Menu button */}
         <IconButton color="inherit" onClick={() => setDrawerOpen(true)}>
           <MenuIcon sx={{ color: iconColor }} />
         </IconButton>
+
+        {/* Center: Logo */}
         <Typography
           variant="h6"
           component={Link}
@@ -68,37 +72,66 @@ export default function MobileNavbar({
             color: iconColor,
           }}
         >
-          My <span>Food</span> App
+          My <span style={{ color: "blue" }}>Food</span> App
         </Typography>
+
+        {/* Right: Cart */}
         <IconButton color="inherit" component={Link} to="/cart">
           <Badge badgeContent={totalItems} color="error">
             <ShoppingCartOutlinedIcon sx={{ color: iconColor }} />
           </Badge>
         </IconButton>
-        {/* {isAuthenticated && <AvatarDropdown />} */}
-        <Drawer
-          anchor="left"
-          open={drawerOpen}
-          onClose={() => setDrawerOpen(false)}
-        >
-          <Box sx={{ width: 250 }}>
+      </Toolbar>
+
+      {/* Sidebar Drawer */}
+      <Drawer
+        anchor="left"
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+      >
+        <Box sx={{ width: 270, p: 2 }}>
+          {/* Close Button */}
+          <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
             <IconButton onClick={() => setDrawerOpen(false)}>
               <CloseIcon />
             </IconButton>
-            <List>
-              {navLinks.map((item) => (
-                <ListItem key={item.text} disablePadding>
-                  <ListItemButton component={Link} to={item.path}>
-                    <ListItemIcon>{item.icon}</ListItemIcon>
-                    <ListItemText primary={item.text} />
-                  </ListItemButton>
-                </ListItem>
-              ))}
-            </List>
           </Box>
-          {isAuthenticated && <AvatarDropdown />}
-        </Drawer>
-      </Toolbar>
+
+          {/* User Info */}
+          {isAuthenticated && user && (
+            <Box sx={{ display: "flex", alignItems: "center", mb: 2, mt: 1 }}>
+              <Avatar src={user.image} alt={user.name} sx={{ mr: 2 }} />
+              <Box>
+                <Typography variant="subtitle1" fontWeight="bold">
+                  {user.name}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {user.email}
+                </Typography>
+              </Box>
+            </Box>
+          )}
+
+          {/* Divider */}
+          <Divider sx={{ mb: 1 }} />
+
+          {/* Nav Links */}
+          <List>
+            {navLinks.map((item) => (
+              <ListItem key={item.text} disablePadding>
+                <ListItemButton
+                  component={Link}
+                  to={item.path}
+                  onClick={() => setDrawerOpen(false)}
+                >
+                  <ListItemIcon sx={{ minWidth: 40 }}>{item.icon}</ListItemIcon>
+                  <ListItemText primary={item.text} />
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </List>
+        </Box>
+      </Drawer>
     </AppBar>
   );
 }
