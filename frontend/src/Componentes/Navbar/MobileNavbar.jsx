@@ -15,7 +15,7 @@ import {
   Avatar,
   Badge,
 } from "@mui/material";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
 import {
@@ -26,7 +26,12 @@ import {
   FaBlog,
 } from "react-icons/fa";
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
-import { useState } from "react";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import HistoryIcon from "@mui/icons-material/History";
+import LogoutIcon from "@mui/icons-material/Logout";
+import { useState, useEffect } from "react";
+import { supabase } from "../../../supabaseClient";
+import SearchBar from "../../Componentes/SearchBar";
 
 const navLinks = [
   { text: "Home", icon: <FaHome />, path: "/home" },
@@ -41,9 +46,62 @@ export default function MobileNavbar({
   navbarBgColor,
   isAuthenticated,
   totalItems,
-  user, // 👈 pass { name, email, image } as props
 }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [userMetadata, setUserMetadata] = useState({});
+  const [avatar, setAvatar] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const navigate = useNavigate();
+
+  // ✅ load avatar + user info
+  useEffect(() => {
+    const loadAvatar = async () => {
+      let meta = null;
+      const localUser = localStorage.getItem("user");
+
+      if (localUser) {
+        try {
+          const parsed = JSON.parse(localUser);
+          meta = parsed?.user_metadata;
+        } catch (err) {
+          console.warn("Error parsing user from localStorage:", err);
+        }
+      }
+
+      if (!meta) {
+        const { data, error } = await supabase.auth.getUser();
+        if (!error && data.user) {
+          meta = data.user.user_metadata;
+          localStorage.setItem("user", JSON.stringify(data.user));
+        }
+      }
+
+      const name =
+        meta?.name || meta?.full_name || meta?.email?.split("@")[0] || "User";
+      const avatarUrl =
+        meta?.avatar_url || meta?.picture || meta?.full_picture || null;
+
+      if (avatarUrl?.startsWith("http")) {
+        setAvatar(avatarUrl);
+        localStorage.setItem("image", avatarUrl);
+      }
+
+      setUserMetadata({
+        name,
+        email: meta?.email || "email@example.com",
+      });
+    };
+
+    loadAvatar();
+  }, []);
+
+  const handleLogout = async () => {
+    localStorage.clear();
+    await supabase.auth.signOut();
+    navigate("/signup");
+    window.location.reload();
+  };
 
   return (
     <AppBar
@@ -51,7 +109,6 @@ export default function MobileNavbar({
       sx={{
         backgroundColor: navbarBgColor,
         boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-        transition: "background-color 0.3s ease",
       }}
     >
       <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
@@ -72,7 +129,7 @@ export default function MobileNavbar({
             color: iconColor,
           }}
         >
-          My <span style={{ color: "blue" }}>Food</span> App
+          My <span style={{ color: "#3678f4ff" }}>Food</span> App
         </Typography>
 
         {/* Right: Cart */}
@@ -82,40 +139,75 @@ export default function MobileNavbar({
           </Badge>
         </IconButton>
       </Toolbar>
-
       {/* Sidebar Drawer */}
+
       <Drawer
         anchor="left"
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
       >
         <Box sx={{ width: 270, p: 2 }}>
-          {/* Close Button */}
-          <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+          {" "}
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <Typography variant="h5" fontWeight="bold">
+              Menu
+            </Typography>
             <IconButton onClick={() => setDrawerOpen(false)}>
               <CloseIcon />
             </IconButton>
           </Box>
-
-          {/* User Info */}
-          {isAuthenticated && user && (
-            <Box sx={{ display: "flex", alignItems: "center", mb: 2, mt: 1 }}>
-              <Avatar src={user.image} alt={user.name} sx={{ mr: 2 }} />
-              <Box>
-                <Typography variant="subtitle1" fontWeight="bold">
-                  {user.name}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {user.email}
-                </Typography>
-              </Box>
+          <Divider />
+          {/* ✅ Avatar at Top as Menu Link */}
+          {isAuthenticated && (
+            <List>
+              <ListItem disablePadding>
+                <ListItemButton
+                  component={Link}
+                  to="/profile"
+                  onClick={() => setDrawerOpen(false)}
+                  sx={{ gap: 1 }}
+                >
+                  <Avatar src={avatar} alt={userMetadata.name} />
+                  <ListItemText
+                    primary={userMetadata.name}
+                    secondary={userMetadata.email}
+                  />
+                </ListItemButton>
+              </ListItem>
+            </List>
+          )}
+          <Divider sx={{ my: 1 }} />
+          {/* ✅ User Section (Details below avatar) */}
+          {isAuthenticated && (
+            <Box sx={{ mb: 2 }}>
+              <List>
+                <ListItem disablePadding>
+                  <ListItemButton component={Link} to="/profile">
+                    <ListItemIcon>
+                      <AccountCircleIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="Profile" />
+                  </ListItemButton>
+                </ListItem>
+                <ListItem disablePadding>
+                  <ListItemButton component={Link} to="/payment-history">
+                    <ListItemIcon>
+                      <HistoryIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="Payment History" />
+                  </ListItemButton>
+                </ListItem>
+              </List>
+              <Divider sx={{ my: 1 }} />
             </Box>
           )}
-
-          {/* Divider */}
-          <Divider sx={{ mb: 1 }} />
-
-          {/* Nav Links */}
+          {/* Navigation Links */}
           <List>
             {navLinks.map((item) => (
               <ListItem key={item.text} disablePadding>
@@ -124,12 +216,26 @@ export default function MobileNavbar({
                   to={item.path}
                   onClick={() => setDrawerOpen(false)}
                 >
-                  <ListItemIcon sx={{ minWidth: 40 }}>{item.icon}</ListItemIcon>
+                  <ListItemIcon>{item.icon}</ListItemIcon>
                   <ListItemText primary={item.text} />
                 </ListItemButton>
               </ListItem>
             ))}
           </List>
+          <Divider sx={{ my: 1 }} />
+          {/* Logout button if authenticated */}
+          {isAuthenticated && (
+            <List>
+              <ListItem disablePadding>
+                <ListItemButton onClick={handleLogout}>
+                  <ListItemIcon>
+                    <LogoutIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Logout" />
+                </ListItemButton>
+              </ListItem>
+            </List>
+          )}
         </Box>
       </Drawer>
     </AppBar>

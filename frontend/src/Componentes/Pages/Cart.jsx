@@ -1,104 +1,104 @@
-import React, { useContext, useEffect, useState } from "react";
+// src/Componentes/Pages/Cart.jsx
+import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
+  Paper,
+  Stack,
+} from "@mui/material";
 import { CartContext } from "../Store/CartContext";
-import styles from "./Cart.module.css";
 
 export default function Cart() {
-  const {
-    items = [],
-    addItem,
-    removeItem,
-    clearCart,
-    loadCartFromSupabase,
-    checkoutData,
-  } = useContext(CartContext);
-
+  const { items, addItem, removeItem, clearCart } = useContext(CartContext);
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
 
-  useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("user"));
-    if (!storedUser) {
-      navigate("/signup");
-      return;
-    }
-    setUser(storedUser);
-    loadCartFromSupabase(storedUser.id);
-  }, [navigate, loadCartFromSupabase]);
-
-  if (!user) return null;
-
-  const totalAmount = (items || []).reduce(
+  const user = JSON.parse(localStorage.getItem("user"));
+  const totalAmount = items.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
   );
 
   return (
-    <div className={styles.cartContainer}>
-      <h2 className={styles.title}>Your Cart</h2>
+    <TableContainer
+      component={Paper}
+      sx={{ maxWidth: 800, mx: "auto", mt: 4, p: 2 }}
+    >
+      <Typography variant="h5" gutterBottom>
+        Your Cart
+      </Typography>
 
       {items.length === 0 ? (
-        <p>Your cart is empty.</p>
+        <Typography variant="body1">Your cart is empty.</Typography>
       ) : (
         <>
-          <div className={styles.cartTableWrapper}>
-            <table className={styles.cartTable}>
-              <thead>
-                <tr>
-                  <th>Item</th>
-                  <th>Price</th>
-                  <th>Qty</th>
-                  <th>Total</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {items.map(({ id, name, price, quantity }) => (
-                  <tr key={id}>
-                    <td>{name}</td>
-                    <td>₹{price}</td>
-                    <td>{quantity}</td>
-                    <td>₹{(price * quantity).toFixed(2)}</td>
-                    <td>
-                      <button onClick={() => removeItem(id, user.id, 1)}>
+          <Table stickyHeader>
+            <TableHead>
+              <TableRow>
+                <TableCell align="center">Item</TableCell>
+                <TableCell align="center">Price</TableCell>
+                <TableCell align="center">Qty</TableCell>
+                <TableCell align="center">Total</TableCell>
+                <TableCell align="center">Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {items.map(({ id, name, price, quantity }) => (
+                <TableRow key={id}>
+                  <TableCell align="center">{name}</TableCell>
+                  <TableCell align="center">₹{price}</TableCell>
+                  <TableCell align="center">{quantity}</TableCell>
+                  <TableCell align="center">
+                    ₹{(price * quantity).toFixed(2)}
+                  </TableCell>
+                  <TableCell align="center">
+                    <Stack direction="row" spacing={1} justifyContent="center">
+                      <Button
+                        variant="outlined"
+                        color="error"
+                        size="small"
+                        onClick={() => removeItem(id, 1, user.id)}
+                      >
                         -
-                      </button>
-                      <button
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        color="primary"
+                        size="small"
                         onClick={() =>
                           addItem({ id, name, price, quantity: 1 }, user.id)
                         }
                       >
                         +
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <h3 className={styles.total}>Total: ₹{totalAmount.toFixed(2)}</h3>
-
-          {checkoutData && (
-            <div className={styles.checkoutInfo}>
-              <h4>Last Checkout Info:</h4>
-              {["name", "email", "address"].map((field) => (
-                <p key={field}>
-                  <strong>{field}:</strong> {checkoutData[field]}
-                </p>
+                      </Button>
+                    </Stack>
+                  </TableCell>
+                </TableRow>
               ))}
-              <p>
-                <strong>Total:</strong> ₹
-                {parseFloat(checkoutData.total).toFixed(2)}
-              </p>
-            </div>
-          )}
+            </TableBody>
+          </Table>
 
-          <div className={styles.cartActions}>
-            <button onClick={() => navigate("/meals")}>
+          <Typography
+            variant="h6"
+            align="right"
+            sx={{ mt: 2, fontWeight: "bold" }}
+          >
+            Total: ₹{totalAmount.toFixed(2)}
+          </Typography>
+
+          <Stack direction="row" spacing={2} justifyContent="flex-end" mt={2}>
+            <Button variant="outlined" onClick={() => navigate("/meals")}>
               Continue Shopping
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
               onClick={() =>
                 navigate("/checkout", {
                   state: { total: totalAmount.toFixed(2) },
@@ -106,17 +106,17 @@ export default function Cart() {
               }
             >
               Checkout
-            </button>
-          </div>
-
-          <button
-            className={styles.clearBtn}
-            onClick={() => clearCart(user.id)}
-          >
-            Clear Cart
-          </button>
+            </Button>
+            <Button
+              variant="contained"
+              color="error"
+              onClick={() => clearCart(user.id)}
+            >
+              Clear Cart
+            </Button>
+          </Stack>
         </>
       )}
-    </div>
+    </TableContainer>
   );
 }

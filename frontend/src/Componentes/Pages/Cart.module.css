@@ -52,7 +52,7 @@
   width: 100%;
   border-collapse: collapse;
   font-size: 1rem;
-  /* min-width: 600px; */
+  table-layout: fixed; /* ✅ prevents shifting when content changes */
 }
 
 .cartTable thead {
@@ -64,11 +64,37 @@
   padding: 0.75rem 1rem;
   text-align: center;
   border-bottom: 1px solid #ddd;
+  vertical-align: middle; /* ✅ keeps content aligned */
+}
+
+.cartTable tbody tr {
+  height: 60px; /* ✅ fixed row height */
 }
 
 .cartTable tbody tr:hover {
   background-color: var(--table-row-hover-bg);
   transition: background-color 0.3s ease;
+}
+
+/* ✅ Fix widths for stable layout */
+.cartTable th:nth-child(2), /* Price */
+.cartTable td:nth-child(2) {
+  width: 100px;
+}
+
+.cartTable th:nth-child(3), /* Qty */
+.cartTable td:nth-child(3) {
+  width: 80px;
+}
+
+.cartTable th:nth-child(4), /* Total */
+.cartTable td:nth-child(4) {
+  width: 120px;
+}
+
+.cartTable th:nth-child(5), /* Actions */
+.cartTable td:nth-child(5) {
+  width: 120px;
 }
 
 /* Total */

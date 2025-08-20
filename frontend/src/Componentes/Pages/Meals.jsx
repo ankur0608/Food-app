@@ -1,37 +1,43 @@
-// Meals.jsx
-import { useState, useEffect, useContext } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { FaSearch, FaTimes } from "react-icons/fa";
+// src/Componentes/Pages/Meals.jsx
+import { useState, useContext, useMemo } from "react";
+import { useNavigate, Link as RouterLink } from "react-router-dom";
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
-import Skeleton from "@mui/material/Skeleton";
-import Box from "@mui/material/Box";
-import Pagination from "@mui/material/Pagination";
-
+import {
+  Grid,
+  Card,
+  CardContent,
+  CardMedia,
+  Typography,
+  Button,
+  Box,
+  Skeleton,
+  Pagination,
+  Link,
+  TextField,
+  InputAdornment,
+} from "@mui/material";
+import { FaSearch } from "react-icons/fa";
 import { CartContext } from "../Store/CartContext.jsx";
 import { useTheme } from "../Store/theme";
 import OpeningHours from "../OpeningHours.jsx";
 import OverallRating from "../RatingOverall.jsx";
-import styles from "./Meals.module.css";
 
-export default function Menu() {
+export default function Meals() {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [addingId, setAddingId] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [addingId, setAddingId] = useState(null); // Track which meal is being added
   const mealsPerPage = 8;
 
   const { addItem } = useContext(CartContext);
   const { theme } = useTheme();
   const navigate = useNavigate();
 
-  // Fetch meals from API
-  const {
-    data: meals = [],
-    isLoading,
-    isError,
-    error,
-  } = useQuery({
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  // Fetch meals
+  const { data: meals = [], isLoading } = useQuery({
     queryKey: ["meals"],
     queryFn: async () => {
       const res = await axios.get("https://food-app-d8r3.onrender.com/meals");
@@ -39,15 +45,34 @@ export default function Menu() {
     },
   });
 
-  // Add meal to cart
-  const handleAddToCart = async (e, meal) => {
-    e.preventDefault();
-    e.stopPropagation();
+  // Categories
+  const categories = useMemo(
+    () => ["All", ...new Set(meals.map((meal) => meal.category))],
+    [meals]
+  );
 
-    const token = localStorage.getItem("token");
-    const user = JSON.parse(localStorage.getItem("user"));
+  // Filter meals
+  const filteredMeals = meals.filter((meal) => {
+    const matchesCategory =
+      selectedCategory === "All" || meal.category === selectedCategory;
 
-    if (!token || !user) {
+    const matchesSearch = meal.name
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
+
+    return matchesCategory && matchesSearch;
+  });
+
+  // Pagination
+  const totalPages = Math.ceil(filteredMeals.length / mealsPerPage);
+  const currentMeals = filteredMeals.slice(
+    (currentPage - 1) * mealsPerPage,
+    currentPage * mealsPerPage
+  );
+
+  // Add to cart
+  const handleAddToCart = async (meal) => {
+    if (!user) {
       navigate("/signup");
       return;
     }
@@ -72,117 +97,224 @@ export default function Menu() {
     e.target.src = "/assets/default-meal.jpg";
   };
 
-  const categories = ["All", ...new Set(meals.map((meal) => meal.category))];
-
-  // Filter meals by category and search query
-  const filteredMeals = meals.filter(({ name, category }) => {
-    const matchCategory =
-      selectedCategory === "All" || category === selectedCategory;
-    const matchSearch = name.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchCategory && matchSearch;
-  });
-
-  // Pagination
-  const totalPages = Math.ceil(filteredMeals.length / mealsPerPage);
-  const currentMeals = filteredMeals.slice(
-    (currentPage - 1) * mealsPerPage,
-    currentPage * mealsPerPage
-  );
-
   return (
-    <div className={`${styles["product-container"]} ${styles[theme]}`}>
-      <h1 className={styles.title}>Menu</h1>
+    <Box sx={{ py: 2, px: { xs: 2, md: 6 } }}>
+      {/* Title */}
+      <Typography
+        variant="h4"
+        fontWeight="bold"
+        align="center"
+        gutterBottom
+        color="primary"
+        mt={3}
+      >
+        Explore Our Menu
+      </Typography>
 
       {/* Category Filter */}
-      <div className={styles.categoryFilter}>
+      {/* Category Filter */}
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          flexWrap: "wrap",
+          gap: { xs: 1, sm: 1.5, md: 2 }, // tighter on mobile
+          mb: 4,
+          mt: 2,
+          px: { xs: 0.5, sm: 1 },
+        }}
+      >
         {categories.map((cat) => (
-          <button
+          <Button
             key={cat}
-            onClick={() => setSelectedCategory(cat)}
-            className={`${styles.btn_category} ${
-              selectedCategory === cat ? styles.active : ""
-            }`}
+            onClick={() => {
+              setSelectedCategory(cat);
+              setCurrentPage(1);
+            }}
+            sx={{
+              textTransform: "capitalize",
+              borderRadius: "20px", // smaller pill for mobile
+              px: { xs: 1.5, sm: 2.5, md: 3 },
+              py: { xs: 0.4, sm: 0.7, md: 1 },
+              fontSize: { xs: "0.7rem", sm: "0.85rem", md: "1rem" },
+              fontWeight: 600,
+              minWidth: "auto", // prevents large empty buttons
+              color: selectedCategory === cat ? "#fff" : "primary.main",
+              backgroundColor:
+                selectedCategory === cat ? "primary.main" : "transparent",
+              border: "1.5px solid",
+              borderColor:
+                selectedCategory === cat ? "primary.main" : "rgba(0,0,0,0.2)",
+              "&:hover": {
+                backgroundColor:
+                  selectedCategory === cat
+                    ? "primary.dark"
+                    : "rgba(0,0,0,0.05)",
+              },
+              transition: "all 0.3s ease",
+            }}
           >
             {cat}
-          </button>
+          </Button>
         ))}
-      </div>
+      </Box>
 
-      {/* Search Input */}
-      <div className={styles.searchWrapper}>
-        <FaSearch className={styles.searchIcon} />
-        <input
-          type="text"
-          placeholder="Search meals..."
+      {/* Search */}
+      {/* <Box sx={{ display: "flex", justifyContent: "center", mb: 3 }}>
+        <TextField
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className={styles.searchinput}
+          placeholder="Search meals (e.g. Dinner)"
+          variant="outlined"
+          sx={{ width: { xs: "100%", sm: "60%", md: "40%" } }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <FaSearch />
+              </InputAdornment>
+            ),
+          }}
         />
-        {searchQuery && (
-          <FaTimes
-            className={styles.clearIcon}
-            onClick={() => setSearchQuery("")}
-            title="Clear search"
-          />
-        )}
-      </div>
+      </Box> */}
 
-      {/* Meals List */}
-      <ul className={styles["meals-list"]}>
+      {/* Meals Grid */}
+      {/* Meals Grid */}
+      <Grid
+        container
+        spacing={{ xs: 2, sm: 3 }} // smaller gaps on mobile, bigger on desktop
+        alignItems="stretch"
+      >
         {isLoading ? (
-          Array.from({ length: 8 }).map((_, index) => (
-            <li className={styles["meal-card"]} key={index}>
-              <Skeleton variant="rectangular" width="100%" height={160} />
-              <Skeleton
-                variant="text"
-                width="60%"
-                height={30}
-                style={{ marginTop: 8 }}
-              />
-              <Skeleton variant="text" width="80%" height={20} />
-              <Skeleton variant="text" width="40%" height={20} />
-              <Skeleton variant="rounded" width="100%" height={36} />
-            </li>
+          Array.from({ length: mealsPerPage }).map((_, index) => (
+            <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
+              <Card
+                sx={{
+                  height: { xs: 400, sm: 430, md: 450 },
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+              >
+                <Skeleton variant="rectangular" width="100%" height={180} />
+                <CardContent sx={{ flexGrow: 1 }}>
+                  <Skeleton variant="text" width="60%" />
+                  <Skeleton variant="text" width="80%" />
+                  <Skeleton variant="rounded" width="100%" height={36} />
+                </CardContent>
+              </Card>
+            </Grid>
           ))
         ) : currentMeals.length > 0 ? (
           currentMeals.map((meal) => (
-            <Link
-              to={`/meals/${meal.name}`}
-              className={styles["meal-Link"]}
+            <Grid
+              item
               key={meal.id}
+              xs={12} // full width on mobile
+              sm={6} // 2 per row on small screens
+              md={4} // 3 per row on medium
+              lg={3} // 4 per row on large
+              sx={{
+                marginBottom: "20px",
+                // On desktop force fixed 4 per row (23%)
+                "@media (min-width:1200px)": {
+                  flex: "0 0 23%",
+                  maxWidth: "23%",
+                },
+              }}
             >
-              <li className={styles["meal-card"]}>
-                <img
-                  src={meal.image}
-                  alt={meal.name}
-                  onError={handleImageError}
-                />
-                <h3>{meal.name}</h3>
-                <p className={styles["meal-price"]}>{meal.description}</p>
-                <span>₹{meal.price}</span>
-                <OverallRating foodId={meal.id} />
-                <button
-                  onClick={(e) => handleAddToCart(e, meal)}
-                  disabled={addingId === meal.id}
+              <Link
+                component={RouterLink}
+                to={`/meals/${meal.name}`}
+                underline="none"
+                style={{ width: "100%" }}
+              >
+                <Card
+                  sx={{
+                    height: { xs: 470, sm: 430, md: 450 },
+                    display: "flex",
+                    flexDirection: "column",
+                  }}
                 >
-                  {addingId === meal.id ? "Adding..." : "Add To Cart"}
-                </button>
-              </li>
-            </Link>
+                  {/* Meal Image */}
+                  <CardMedia
+                    component="img"
+                    image={meal.image}
+                    alt={meal.name}
+                    onError={handleImageError}
+                    sx={{
+                      height: 180,
+                      objectFit: "cover",
+                      borderTopLeftRadius: 12,
+                      borderTopRightRadius: 12,
+                    }}
+                  />
+
+                  {/* Meal Content */}
+                  <CardContent
+                    sx={{
+                      flexGrow: 1,
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <Box>
+                      <Typography
+                        variant="h6"
+                        sx={{ fontWeight: "bold", mb: 1 }}
+                      >
+                        {meal.name}
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          display: "-webkit-box",
+                          WebkitLineClamp: 3,
+                          WebkitBoxOrient: "vertical",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          minHeight: "3.6em",
+                          maxWidth: "18rem",
+                          mb: 1,
+                        }}
+                      >
+                        {meal.description}
+                      </Typography>
+                      <OverallRating foodId={meal.id} />
+                      <Typography
+                        sx={{ mt: 1, fontWeight: "bold", color: "#1d1d1db0" }}
+                      >
+                        ₹{meal.price}
+                      </Typography>
+                    </Box>
+
+                    <Button
+                      variant="contained"
+                      fullWidth
+                      sx={{
+                        mt: 2,
+                        py: 1.5,
+                        fontWeight: "bold",
+                        borderRadius: 2,
+                      }}
+                      onClick={() => handleAddToCart(meal)}
+                      disabled={addingId === meal.id}
+                    >
+                      {addingId === meal.id ? "Adding..." : "Add To Cart"}
+                    </Button>
+                  </CardContent>
+                </Card>
+              </Link>
+            </Grid>
           ))
         ) : (
-          <p className={styles["no-meals"]}>No meals found.</p>
+          <Typography variant="h6" align="center" sx={{ width: "100%", mt: 4 }}>
+            No meals found.
+          </Typography>
         )}
-      </ul>
+      </Grid>
 
       {/* Pagination */}
-      <Box
-        sx={{
-          mt: 8,
-          display: "flex",
-          justifyContent: "center",
-        }}
-      >
+      <Box sx={{ mt: 5, display: "flex", justifyContent: "center" }}>
         {totalPages > 1 && (
           <Pagination
             count={totalPages}
@@ -190,20 +322,15 @@ export default function Menu() {
             onChange={(e, page) => setCurrentPage(page)}
             variant="outlined"
             shape="rounded"
-            sx={{
-              "& .MuiPaginationItem-root": {
-                backgroundColor: "#fff",
-                "&.Mui-selected": {
-                  backgroundColor: "#f3592aff",
-                  color: "#fff",
-                },
-              },
-            }}
+            color="primary"
           />
         )}
       </Box>
 
-      <OpeningHours />
-    </div>
+      {/* Opening Hours */}
+      <Box sx={{ mt: 6 }}>
+        <OpeningHours />
+      </Box>
+    </Box>
   );
 }

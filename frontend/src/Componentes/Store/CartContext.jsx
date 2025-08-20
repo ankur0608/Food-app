@@ -1,165 +1,132 @@
-"use client";
+// src/Componentes/Store/CartContext.jsx
+import React, { createContext, useReducer, useEffect } from "react";
+import { supabase } from "../../../supabaseClient";
 
-import React, { createContext, useReducer, useEffect, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
+export const CartContext = createContext();
 
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY
-);
+const initialState = {
+  items: [],
+  checkoutData: null,
+};
 
-const CartContext = createContext();
-
-function CartReducer(state, action) {
+function cartReducer(state, action) {
   switch (action.type) {
+    case "SET_ITEMS":
+      return { ...state, items: action.payload };
+
     case "ADD_ITEM": {
-      const idx = state.findIndex((item) => item.id === action.item.id);
-      if (idx !== -1) {
-        const updated = [...state];
-        updated[idx] = {
-          ...updated[idx],
-          quantity: updated[idx].quantity + action.item.quantity,
+      const existingIndex = state.items.findIndex(
+        (item) => item.id === action.payload.id
+      );
+      if (existingIndex >= 0) {
+        const updatedItems = [...state.items];
+        updatedItems[existingIndex] = {
+          ...updatedItems[existingIndex],
+          quantity:
+            updatedItems[existingIndex].quantity + action.payload.quantity,
         };
-        return updated;
+        return { ...state, items: updatedItems };
+      } else {
+        return { ...state, items: [...state.items, action.payload] };
       }
-      return [...state, action.item];
     }
 
     case "REMOVE_ITEM": {
-      const idx = state.findIndex((item) => item.id === action.item.id);
-      if (idx === -1) return state;
-
-      const updated = [...state];
-      const current = updated[idx];
-
-      if (current.quantity <= action.item.quantity) {
-        updated.splice(idx, 1);
-      } else {
-        updated[idx] = {
-          ...current,
-          quantity: current.quantity - action.item.quantity,
-        };
+      const existingIndex = state.items.findIndex(
+        (item) => item.id === action.payload.id
+      );
+      if (existingIndex >= 0) {
+        const updatedItems = [...state.items];
+        const item = updatedItems[existingIndex];
+        if (item.quantity > action.payload.quantity) {
+          updatedItems[existingIndex] = {
+            ...item,
+            quantity: item.quantity - action.payload.quantity,
+          };
+        } else {
+          updatedItems.splice(existingIndex, 1);
+        }
+        return { ...state, items: updatedItems };
       }
-      return updated;
+      return state;
     }
 
     case "CLEAR_CART":
-      return [];
-
-    case "SET_CART":
-      return action.items;
+      return { ...state, items: [] };
 
     default:
       return state;
   }
 }
 
-function CartContextProvider({ children }) {
-  let storedCart;
-  try {
-    const parsed = JSON.parse(localStorage.getItem("cartItems"));
-    storedCart = Array.isArray(parsed) ? parsed : [];
-  } catch {
-    storedCart = [];
-  }
+export function CartContextProvider({ children, userId }) {
+  const [state, dispatch] = useReducer(cartReducer, initialState);
 
-  const [cartState, dispatch] = useReducer(CartReducer, storedCart);
-
-  const [checkoutData, setCheckoutData] = useState(() => {
-    try {
-      const parsed = JSON.parse(localStorage.getItem("checkoutData"));
-      return parsed || null;
-    } catch {
-      return null;
-    }
-  });
-
+  // Load cart from Supabase
   useEffect(() => {
-    localStorage.setItem("cartItems", JSON.stringify(cartState));
-  }, [cartState]);
+    if (!userId) return;
 
-  useEffect(() => {
-    if (checkoutData) {
-      localStorage.setItem("checkoutData", JSON.stringify(checkoutData));
-    }
-  }, [checkoutData]);
-
-  // Add Item (+)
-  const addItem = async (item, userId) => {
-    try {
-      const { data: existing } = await supabase
+    const loadCart = async () => {
+      const { data, error } = await supabase
         .from("cart")
         .select("*")
-        .eq("user_id", userId)
-        .eq("meal_id", item.id)
-        .single();
+        .eq("user_id", userId);
 
-      if (existing) {
-        const newQty = existing.quantity + item.quantity;
-        await supabase
-          .from("cart")
-          .update({ quantity: newQty })
-          .eq("user_id", userId)
-          .eq("meal_id", item.id);
-
-        dispatch({
-          type: "ADD_ITEM",
-          item: { ...item, quantity: item.quantity }, // keep it consistent
-        });
-      } else {
-        await supabase.from("cart").insert({
-          user_id: userId,
-          meal_id: item.id,
-          name: item.name,
-          price: item.price,
-          quantity: item.quantity,
-        });
-
-        dispatch({ type: "ADD_ITEM", item });
+      if (!error && data) {
+        const formatted = data.map((row) => ({
+          id: row.meal_id,
+          name: row.name,
+          price: row.price,
+          quantity: row.quantity,
+        }));
+        dispatch({ type: "SET_ITEMS", payload: formatted });
       }
-    } catch (error) {
-      console.error("Error adding item:", error.message);
+    };
+
+    loadCart();
+  }, [userId]);
+
+  const addItem = async (newItem, userId) => {
+    dispatch({ type: "ADD_ITEM", payload: newItem });
+
+    if (userId) {
+      await supabase.from("cart").upsert(
+        {
+          user_id: userId,
+          meal_id: newItem.id,
+          name: newItem.name,
+          price: newItem.price,
+          quantity: newItem.quantity,
+        },
+        { onConflict: ["user_id", "meal_id"] }
+      );
     }
   };
 
-  // Remove Item (-)
-  const removeItem = async (id, userId, qty = 1) => {
-    try {
-      const { data: existing } = await supabase
+  const removeItem = async (mealId, qty = 1, userId) => {
+    dispatch({ type: "REMOVE_ITEM", payload: { id: mealId, quantity: qty } });
+
+    if (userId) {
+      const { data } = await supabase
         .from("cart")
-        .select("*")
+        .select("quantity")
         .eq("user_id", userId)
-        .eq("meal_id", id)
+        .eq("meal_id", mealId)
         .single();
 
-      if (!existing) return;
-
-      if (existing.quantity > qty) {
-        const newQty = existing.quantity - qty;
+      if (data && data.quantity > qty) {
         await supabase
           .from("cart")
-          .update({ quantity: newQty })
+          .update({ quantity: data.quantity - qty })
           .eq("user_id", userId)
-          .eq("meal_id", id);
-
-        dispatch({
-          type: "REMOVE_ITEM",
-          item: { id, quantity: qty },
-        });
+          .eq("meal_id", mealId);
       } else {
         await supabase
           .from("cart")
           .delete()
           .eq("user_id", userId)
-          .eq("meal_id", id);
-
-        dispatch({
-          type: "REMOVE_ITEM",
-          item: { id, quantity: existing.quantity },
-        });
+          .eq("meal_id", mealId);
       }
-    } catch (error) {
-      console.error("Error removing item:", error.message);
     }
   };
 
@@ -170,38 +137,17 @@ function CartContextProvider({ children }) {
     }
   };
 
-  const loadCartFromSupabase = async (userId) => {
-    const { data } = await supabase
-      .from("cart")
-      .select("*")
-      .eq("user_id", userId);
-
-    if (data) {
-      const items = data.map((item) => ({
-        id: item.meal_id,
-        name: item.name,
-        price: item.price,
-        quantity: item.quantity,
-      }));
-      dispatch({ type: "SET_CART", items });
-    }
-  };
-
   return (
     <CartContext.Provider
       value={{
-        items: cartState,
+        items: state.items,
         addItem,
         removeItem,
         clearCart,
-        loadCartFromSupabase,
-        checkoutData,
-        setCheckoutData,
+        checkoutData: state.checkoutData,
       }}
     >
       {children}
     </CartContext.Provider>
   );
 }
-
-export { CartContext, CartContextProvider };

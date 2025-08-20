@@ -1,20 +1,11 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../supabaseClient";
-import {
-  Box,
-  Typography,
-  Rating,
-  useTheme,
-  Skeleton,
-  useMediaQuery,
-} from "@mui/material";
+import { Box, Typography, Rating, Skeleton, useTheme } from "@mui/material";
 import StarIcon from "@mui/icons-material/Star";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
-import StarHalfIcon from "@mui/icons-material/StarHalf";
+
 export default function OverallRating({ foodId }) {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-
   const [average, setAverage] = useState(null);
   const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -45,7 +36,7 @@ export default function OverallRating({ foodId }) {
 
   if (loading) {
     return (
-      <Box sx={{ display: "flex", alignItems: "center", gap: 1, ml: 2 }}>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
         <Skeleton variant="text" width={28} height={28} />
         <Skeleton
           variant="rectangular"
@@ -60,10 +51,7 @@ export default function OverallRating({ foodId }) {
 
   if (count === 0 || !average) {
     return (
-      <Typography
-        variant="body2"
-        sx={{ color: theme.palette.text.secondary, ml: 2 }}
-      >
+      <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
         No ratings yet
       </Typography>
     );
@@ -74,18 +62,12 @@ export default function OverallRating({ foodId }) {
       sx={{
         display: "flex",
         alignItems: "center",
-        gap: 1,
-        // ml: isMobile ? 1 : 2,
-        flexWrap: "wrap",
-        ml:9
+        gap: 0.5, // small gap between elements
       }}
     >
       <Typography
         variant="body1"
-        sx={{
-          fontWeight: 600,
-          color: theme.palette.primary.main,
-        }}
+        sx={{ fontWeight: 600, color: theme.palette.primary.main }}
       >
         {average.toFixed(1)}
       </Typography>
@@ -99,8 +81,6 @@ export default function OverallRating({ foodId }) {
         emptyIcon={
           <StarBorderIcon fontSize="inherit" sx={{ color: "#FFD700" }} />
         }
-        // halfIcon={<StarHalfIcon fontSize="inherit" sx={{ color: "#FFD700" }} />}
-        sx={{ mt: 2.3 }}
       />
 
       <Typography variant="body2" color="text.secondary">
