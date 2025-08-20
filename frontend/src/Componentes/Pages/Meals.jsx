@@ -6,7 +6,6 @@ import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import Skeleton from "@mui/material/Skeleton";
 import Box from "@mui/material/Box";
-import Stack from "@mui/material/Stack";
 import Pagination from "@mui/material/Pagination";
 
 import { CartContext } from "../Store/CartContext.jsx";
@@ -19,12 +18,14 @@ export default function Menu() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
+  const [addingId, setAddingId] = useState(null); // Track which meal is being added
   const mealsPerPage = 8;
 
   const { addItem } = useContext(CartContext);
   const { theme } = useTheme();
   const navigate = useNavigate();
 
+  // Fetch meals from API
   const {
     data: meals = [],
     isLoading,
@@ -38,10 +39,33 @@ export default function Menu() {
     },
   });
 
-  const handleAddToCart = (e, meal) => {
+  // Add meal to cart
+  const handleAddToCart = async (e, meal) => {
     e.preventDefault();
     e.stopPropagation();
-    localStorage.getItem("token") ? addItem(meal) : navigate("/signup");
+
+    const token = localStorage.getItem("token");
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    if (!token || !user) {
+      navigate("/signup");
+      return;
+    }
+
+    setAddingId(meal.id);
+
+    await addItem(
+      {
+        id: meal.id,
+        name: meal.name,
+        price: meal.price,
+        quantity: 1,
+        image: meal.image,
+      },
+      user.id
+    );
+
+    setAddingId(null);
   };
 
   const handleImageError = (e) => {
@@ -50,6 +74,7 @@ export default function Menu() {
 
   const categories = ["All", ...new Set(meals.map((meal) => meal.category))];
 
+  // Filter meals by category and search query
   const filteredMeals = meals.filter(({ name, category }) => {
     const matchCategory =
       selectedCategory === "All" || category === selectedCategory;
@@ -57,6 +82,7 @@ export default function Menu() {
     return matchCategory && matchSearch;
   });
 
+  // Pagination
   const totalPages = Math.ceil(filteredMeals.length / mealsPerPage);
   const currentMeals = filteredMeals.slice(
     (currentPage - 1) * mealsPerPage,
@@ -67,6 +93,7 @@ export default function Menu() {
     <div className={`${styles["product-container"]} ${styles[theme]}`}>
       <h1 className={styles.title}>Menu</h1>
 
+      {/* Category Filter */}
       <div className={styles.categoryFilter}>
         {categories.map((cat) => (
           <button
@@ -81,6 +108,7 @@ export default function Menu() {
         ))}
       </div>
 
+      {/* Search Input */}
       <div className={styles.searchWrapper}>
         <FaSearch className={styles.searchIcon} />
         <input
@@ -99,6 +127,7 @@ export default function Menu() {
         )}
       </div>
 
+      {/* Meals List */}
       <ul className={styles["meals-list"]}>
         {isLoading ? (
           Array.from({ length: 8 }).map((_, index) => (
@@ -120,7 +149,7 @@ export default function Menu() {
             <Link
               to={`/meals/${meal.name}`}
               className={styles["meal-Link"]}
-              key={meal.name}
+              key={meal.id}
             >
               <li className={styles["meal-card"]}>
                 <img
@@ -132,8 +161,11 @@ export default function Menu() {
                 <p className={styles["meal-price"]}>{meal.description}</p>
                 <span>₹{meal.price}</span>
                 <OverallRating foodId={meal.id} />
-                <button onClick={(e) => handleAddToCart(e, meal)}>
-                  Add To Cart
+                <button
+                  onClick={(e) => handleAddToCart(e, meal)}
+                  disabled={addingId === meal.id}
+                >
+                  {addingId === meal.id ? "Adding..." : "Add To Cart"}
                 </button>
               </li>
             </Link>
@@ -142,6 +174,8 @@ export default function Menu() {
           <p className={styles["no-meals"]}>No meals found.</p>
         )}
       </ul>
+
+      {/* Pagination */}
       <Box
         sx={{
           mt: 8,
@@ -168,6 +202,7 @@ export default function Menu() {
           />
         )}
       </Box>
+
       <OpeningHours />
     </div>
   );

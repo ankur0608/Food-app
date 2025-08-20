@@ -1,4 +1,5 @@
-import { useContext, memo, useCallback } from "react";
+// AutoPlaySlider.jsx
+import { useContext, memo, useCallback, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Slider from "react-slick";
 import axios from "axios";
@@ -20,7 +21,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "./SliderModule.css";
 
-// Skeleton Card
+// Skeleton Card for loading
 const MealSkeleton = () => (
   <Card
     sx={{
@@ -36,12 +37,12 @@ const MealSkeleton = () => (
   </Card>
 );
 
-// Meal Card
-const MealCard = memo(({ meal, onAddToCart, isDark }) => (
+// Memoized Meal Card
+const MealCard = memo(({ meal, onAddToCart, isDark, isAdding }) => (
   <Link
     to={`/meals/${meal.name}`}
     style={{ textDecoration: "none" }}
-    key={meal.name}
+    key={meal.id}
   >
     <Card
       sx={{
@@ -53,7 +54,6 @@ const MealCard = memo(({ meal, onAddToCart, isDark }) => (
         transition: "all 0.3s ease",
         "&:hover": {
           transform: "translateY(-6px)",
-          // boxShadow: "0px 10px 28px rgba(0,0,0,0.2)",
         },
       }}
     >
@@ -118,8 +118,9 @@ const MealCard = memo(({ meal, onAddToCart, isDark }) => (
             e.preventDefault();
             onAddToCart(meal);
           }}
+          disabled={isAdding}
         >
-          Add to Cart
+          {isAdding ? "Adding..." : "Add to Cart"}
         </Button>
       </CardContent>
     </Card>
@@ -131,6 +132,7 @@ const AutoPlaySlider = () => {
   const { theme: customTheme } = useTheme();
   const muiTheme = useMuiTheme();
   const navigate = useNavigate();
+  const [addingId, setAddingId] = useState(null); // Track which meal is being added
 
   const {
     data: meals = [],
@@ -146,18 +148,28 @@ const AutoPlaySlider = () => {
   });
 
   const handleAddToCart = useCallback(
-    (meal) => {
+    async (meal) => {
       const token = localStorage.getItem("token");
-      if (token) {
-        addItem({
+      const user = JSON.parse(localStorage.getItem("user"));
+      if (!token || !user) {
+        navigate("/signup");
+        return;
+      }
+
+      setAddingId(meal.id);
+
+      await addItem(
+        {
           id: meal.id,
           name: meal.name,
           price: meal.price,
           quantity: 1,
-        });
-      } else {
-        navigate("/signup");
-      }
+          image: meal.image,
+        },
+        user.id
+      );
+
+      setAddingId(null);
     },
     [addItem, navigate]
   );
@@ -184,7 +196,7 @@ const AutoPlaySlider = () => {
       className={`slider-container ${isDark ? "dark-theme" : "light-theme"}`}
       sx={{
         py: 5,
-        background: isDark ? "" : "#fafafa",
+        background: isDark ? "#121212" : "#fafafa",
         borderRadius: 3,
       }}
     >
@@ -210,12 +222,8 @@ const AutoPlaySlider = () => {
           <Typography
             variant="body2"
             sx={{
-              fontSize: {
-                xs: "0.7rem",
-                sm: "0.7rem",
-                md: "1rem",
-                color: "grey",
-              },
+              fontSize: { xs: "0.7rem", sm: "0.7rem", md: "1rem" },
+              color: "grey",
             }}
           >
             Handpicked dishes just for you
@@ -248,11 +256,11 @@ const AutoPlaySlider = () => {
         <Slider {...sliderSettings}>
           {meals.map((meal) => (
             <Box key={meal.id} px={2} sx={{ pb: 2 }}>
-              {/* <-- spacing between cards */}
               <MealCard
                 meal={meal}
                 onAddToCart={handleAddToCart}
                 isDark={isDark}
+                isAdding={addingId === meal.id}
               />
             </Box>
           ))}

@@ -1,27 +1,37 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { CartContext } from "../Store/CartContext";
 import styles from "./Cart.module.css";
 
 export default function Cart() {
-  const { items, addItem, removeItem, clearCart, checkoutData } =
-    useContext(CartContext);
+  const {
+    items = [],
+    addItem,
+    removeItem,
+    clearCart,
+    loadCartFromSupabase,
+    checkoutData,
+  } = useContext(CartContext);
+
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    if (!localStorage.getItem("user")) {
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    if (!storedUser) {
       navigate("/signup");
+      return;
     }
-  }, [navigate]);
+    setUser(storedUser);
+    loadCartFromSupabase(storedUser.id);
+  }, [navigate, loadCartFromSupabase]);
 
-  const totalAmount = items.reduce(
+  if (!user) return null;
+
+  const totalAmount = (items || []).reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
   );
-
-  const handleContinueShopping = () => navigate("/meals");
-  const handleCheckout = () =>
-    navigate("/checkout", { state: { total: totalAmount.toFixed(2) } });
 
   return (
     <div className={styles.cartContainer}>
@@ -45,15 +55,17 @@ export default function Cart() {
               <tbody>
                 {items.map(({ id, name, price, quantity }) => (
                   <tr key={id}>
-                    <td data-label="Item">{name}</td>
-                    <td data-label="Price">${price}</td>
-                    <td data-label="Qty">{quantity}</td>
-                    <td data-label="Total">${(price * quantity).toFixed(2)}</td>
-                    <td data-label="Actions">
-                      <button onClick={() => removeItem(id)}>-</button>
+                    <td>{name}</td>
+                    <td>₹{price}</td>
+                    <td>{quantity}</td>
+                    <td>₹{(price * quantity).toFixed(2)}</td>
+                    <td>
+                      <button onClick={() => removeItem(id, user.id, 1)}>
+                        -
+                      </button>
                       <button
                         onClick={() =>
-                          addItem({ id, name, price, quantity: 1 })
+                          addItem({ id, name, price, quantity: 1 }, user.id)
                         }
                       >
                         +
@@ -65,32 +77,44 @@ export default function Cart() {
             </table>
           </div>
 
-          <h3 className={styles.total}>Total: ${totalAmount.toFixed(2)}</h3>
+          <h3 className={styles.total}>Total: ₹{totalAmount.toFixed(2)}</h3>
 
           {checkoutData && (
             <div className={styles.checkoutInfo}>
               <h4>Last Checkout Info:</h4>
               {["name", "email", "address"].map((field) => (
                 <p key={field}>
-                  <strong>
-                    {field.charAt(0).toUpperCase() + field.slice(1)}:
-                  </strong>{" "}
-                  {checkoutData[field]}
+                  <strong>{field}:</strong> {checkoutData[field]}
                 </p>
               ))}
               <p>
-                <strong>Total:</strong> $
+                <strong>Total:</strong> ₹
                 {parseFloat(checkoutData.total).toFixed(2)}
               </p>
             </div>
           )}
 
           <div className={styles.cartActions}>
-            <button onClick={handleContinueShopping}>Continue Shopping</button>
-            <button onClick={handleCheckout}>Checkout</button>
+            <button onClick={() => navigate("/meals")}>
+              Continue Shopping
+            </button>
+            <button
+              onClick={() =>
+                navigate("/checkout", {
+                  state: { total: totalAmount.toFixed(2) },
+                })
+              }
+            >
+              Checkout
+            </button>
           </div>
 
-          <button onClick={clearCart}>Clear Cart</button>
+          <button
+            className={styles.clearBtn}
+            onClick={() => clearCart(user.id)}
+          >
+            Clear Cart
+          </button>
         </>
       )}
     </div>
