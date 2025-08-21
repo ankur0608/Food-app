@@ -1,232 +1,97 @@
-/* Container & Theming */
 .cartContainer {
-  max-width: 1000px;
-  margin: 2rem auto 300px auto;
-  padding: 2rem;
-  border-radius: 12px;
-  transition: background-color 0.3s ease, color 0.3s ease;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-  background-color: var(--bg);
-  color: var(--text);
-}
-
-.cartContainer.light {
-  --bg: #ffffff;
-  --text: #222222;
-  --table-header-bg: #f0f0f0;
-  --table-row-hover-bg: #e6f0ff;
-  --button-bg: #eeeeee;
-  --button-hover-bg: #cccccc;
-  --button-text: #222;
-  --button-border: #ccc;
-}
-
-.cartContainer.dark {
-  --bg: #1a1a1a;
-  --text: #f1f1f1;
-  --table-header-bg: #2a2a2a;
-  --table-row-hover-bg: #3a3a5a;
-  --button-bg: #333;
-  --button-hover-bg: #555;
-  --button-text: #eee;
-  --button-border: #555;
-}
-
-/* Title */
-.title {
-  font-size: 2rem;
-  font-weight: bold;
-  margin-bottom: 2rem;
-  text-align: center;
-}
-
-/* Table wrapper for horizontal scroll on small screens */
-.cartTableWrapper {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch; /* smooth scrolling on iOS */
-  margin-bottom: 2rem;
-}
-
-/* Table Styling */
-.cartTable {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 1rem;
-  table-layout: fixed; /* ✅ prevents shifting when content changes */
-}
-
-.cartTable thead {
-  background-color: var(--table-header-bg);
-}
-
-.cartTable th,
-.cartTable td {
-  padding: 0.75rem 1rem;
-  text-align: center;
-  border-bottom: 1px solid #ddd;
-  vertical-align: middle; /* ✅ keeps content aligned */
-}
-
-.cartTable tbody tr {
-  height: 60px; /* ✅ fixed row height */
-}
-
-.cartTable tbody tr:hover {
-  background-color: var(--table-row-hover-bg);
-  transition: background-color 0.3s ease;
-}
-
-/* ✅ Fix widths for stable layout */
-.cartTable th:nth-child(2), /* Price */
-.cartTable td:nth-child(2) {
-  width: 100px;
-}
-
-.cartTable th:nth-child(3), /* Qty */
-.cartTable td:nth-child(3) {
-  width: 80px;
-}
-
-.cartTable th:nth-child(4), /* Total */
-.cartTable td:nth-child(4) {
-  width: 120px;
-}
-
-.cartTable th:nth-child(5), /* Actions */
-.cartTable td:nth-child(5) {
-  width: 120px;
-}
-
-/* Total */
-.total {
-  font-size: 1.5rem;
-  font-weight: bold;
-  text-align: right;
-  margin-top: 1rem;
-}
-
-/* Buttons (+ and -) */
-.button {
-  background-color: var(--button-bg);
-  color: var(--button-text);
-  border: 1.5px solid var(--button-border);
-  border-radius: 6px;
-  padding: 0.3rem 0.7rem;
-  margin: 0 0.2rem;
-  font-size: 1.2rem;
-  font-weight: 700;
-  cursor: pointer;
-  width: 36px;
-  height: 36px;
-  display: inline-flex;
+  max-width: 1300px; /* wider container */
+  margin: 0 auto;
+  min-height: 100vh;
+  display: flex;
+  gap: 25px;
+  padding: 20px;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
-  user-select: none;
+  box-sizing: border-box;
 }
 
-.button:hover,
-.button:focus {
-  background-color: var(--button-hover-bg);
-  border-color: #007bff;
-  outline: none;
+/* Table area (left side) */
+.cartTable {
+  flex: 2; /* take more space */
+  max-height: 600px;
+  width: 850px;
+  overflow-x: auto;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.05);
 }
-
-.button:focus-visible {
-  outline: 2px solid #005fcc;
-  outline-offset: 2px;
-}
-
-/* Cart Actions */
-.cartActions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-top: 2rem;
-}
-
-.continueBtn,
-.checkoutBtn,
-.clearBtn {
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  font-weight: 600;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  color: #fff;
-  white-space: nowrap;
-}
-
-.continueBtn {
-  background-color: #007bff;
-}
-
-.continueBtn:hover,
-.continueBtn:focus-visible {
-  background-color: #0056b3;
-}
-
-.checkoutBtn {
-  background-color: #28a745;
-}
-
-.checkoutBtn:hover,
-.checkoutBtn:focus-visible {
-  background-color: #218838;
-}
-
-.clearBtn {
-  background-color: #dc3545;
+/* Ensure table fits perfectly */
+.cartTable table {
   width: 100%;
-  margin-top: 1rem;
+  border-collapse: collapse; /* clean edges */
 }
 
-.clearBtn:hover,
-.clearBtn:focus-visible {
-  background-color: #c82333;
+.cartTable th {
+  background: #fafafa;
+  font-weight: 600;
+  font-size: 15px;
 }
 
-/* Disabled state example for checkout */
-.checkoutBtn:disabled {
-  background-color: #94d3a2;
-  cursor: not-allowed;
-  opacity: 0.6;
+/* Summary box (right side) */
+.summaryBox {
+  flex: 1.2; /* smaller than table */
+  min-height: 450px;
+  width: 300px;
+  border-radius: 12px;
+  background: #fff;
+  padding: 22px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.08);
+  position: sticky;
+  top: 20px;
+  height: fit-content;
 }
 
-/* Checkout Info */
-.checkoutInfo {
-  margin-top: 2rem;
-  padding: 1rem;
-  border-radius: 8px;
-  background-color: rgba(0, 0, 0, 0.05);
-  color: var(--text);
+/* Coupon input and button */
+.couponBox {
+  margin-top: 15px;
+}
+.btn {
+  display: flex;
+  justify-content: space-between;
 }
 
-.cartContainer.dark .checkoutInfo {
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
-.checkoutInfo p {
-  margin: 0.5rem 0;
-  font-size: 0.95rem;
-}
-
-/* Responsive tweaks (optional) */
-@media (max-width: 480px) {
-  .button {
-    width: 15px;
-    height: 20px;
-    font-size: 0.7rem;
+/* Responsive stacking */
+@media (max-width: 1024px) {
+  .cartContainer {
+    flex-direction: column;
+    gap: 15px;
+    padding: 10px;
   }
 
-  .cartTable th,
-  .cartTable td {
-    padding: 0.5rem 0.75rem;
-  }
   .cartTable {
-    font-size: 11px;
+    width: 100%;
+    max-height: none;
+    padding: 8px;
+  }
+
+  .summaryBox {
+    width: 100%;
+    position: static;
+    margin: 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .emptyCart {
+    padding: 1.5rem;
+    gap: 12px;
+  }
+
+  .cartTable {
+    padding: 10px;
+    width: 500px;
+  }
+
+  .summaryBox {
+    padding: 15px;
+    width: 320px;
+  }
+  .btn {
+    gap: 1rem;
   }
 }

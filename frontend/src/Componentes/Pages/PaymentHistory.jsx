@@ -108,7 +108,7 @@ export default function PaymentHistory() {
               <tr key={i}>
                 <td>{payment.date}</td>
                 <td>{payment.orderId}</td>
-                <td>${payment.amount}</td>
+                <td>₹{payment.amount}</td>
                 <td>
                   <span
                     className={`${styles.status} ${

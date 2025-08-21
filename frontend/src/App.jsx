@@ -12,8 +12,9 @@ import ResetPassword from "./Componentes/ResetPassword.jsx";
 import PaymentHistory from "./Componentes/Pages/PaymentHistory.jsx";
 import Profile from "./Componentes/Pages/Profile.jsx";
 import Verify from "./Componentes/Verify.jsx";
+import Home from "./Componentes/Pages/Home.jsx";
 // Lazy-loaded pages
-const Home = lazy(() => import("./Componentes/Pages/Home.jsx"));
+// const Home = lazy(() => import("./Componentes/Pages/Home.jsx"));
 const Meals = lazy(() => import("./Componentes/Pages/Meals.jsx"));
 const MealsDetail = lazy(() => import("./Componentes/Pages/MealsDetails.jsx"));
 const About = lazy(() => import("./Componentes/Pages/About.jsx"));
@@ -41,59 +42,31 @@ const router = createBrowserRouter([
     children: [
       {
         path: "home",
-        element: (
-          <Suspense fallback={<Loader />}>
-            <Home />
-          </Suspense>
-        ),
+        element: <Home />,
       },
       {
         path: "meals",
-        element: (
-          <Suspense fallback={<Loader />}>
-            <Meals />
-          </Suspense>
-        ),
+        element: <Meals />,
       },
       {
         path: "meals/:name",
-        element: (
-          <Suspense fallback={<Loader />}>
-            <MealsDetail />
-          </Suspense>
-        ),
+        element: <MealsDetail />,
       },
       {
         path: "about",
-        element: (
-          <Suspense fallback={<Loader />}>
-            <About />
-          </Suspense>
-        ),
+        element: <About />,
       },
       {
         path: "contact",
-        element: (
-          <Suspense fallback={<Loader />}>
-            <Contact />
-          </Suspense>
-        ),
+        element: <Contact />,
       },
       {
         path: "signup",
-        element: (
-          <Suspense fallback={<Loader />}>
-            <Signup />
-          </Suspense>
-        ),
+        element: <Signup />,
       },
       {
         path: "login",
-        element: (
-          <Suspense fallback={<Loader />}>
-            <Login />
-          </Suspense>
-        ),
+        element: <Login />,
       },
       {
         path: "forgotpassword",

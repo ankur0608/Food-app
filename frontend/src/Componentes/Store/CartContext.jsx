@@ -62,22 +62,39 @@ function cartReducer(state, action) {
 export function CartContextProvider({ children, userId }) {
   const [state, dispatch] = useReducer(cartReducer, initialState);
 
-  // Load cart from Supabase
+  // 🔥 Load cart from Supabase with JOIN foods
   useEffect(() => {
     if (!userId) return;
 
     const loadCart = async () => {
       const { data, error } = await supabase
         .from("cart")
-        .select("*")
+        .select(
+          `
+          food_id,
+          quantity,
+          foods (
+            id,
+            name,
+            price,
+            image
+          )
+        `
+        )
         .eq("user_id", userId);
 
-      if (!error && data) {
+      if (error) {
+        console.error("Error loading cart:", error.message);
+        return;
+      }
+
+      if (data) {
         const formatted = data.map((row) => ({
-          id: row.meal_id,
-          name: row.name,
-          price: row.price,
+          id: row.food_id,
+          name: row.foods?.name,
+          price: row.foods?.price,
           quantity: row.quantity,
+          image: row.foods?.image || null, // ✅ map to image
         }));
         dispatch({ type: "SET_ITEMS", payload: formatted });
       }
@@ -86,6 +103,7 @@ export function CartContextProvider({ children, userId }) {
     loadCart();
   }, [userId]);
 
+  // Add item
   const addItem = async (newItem, userId) => {
     dispatch({ type: "ADD_ITEM", payload: newItem });
 
@@ -93,25 +111,24 @@ export function CartContextProvider({ children, userId }) {
       await supabase.from("cart").upsert(
         {
           user_id: userId,
-          meal_id: newItem.id,
-          name: newItem.name,
-          price: newItem.price,
+          food_id: newItem.id,
           quantity: newItem.quantity,
         },
-        { onConflict: ["user_id", "meal_id"] }
+        { onConflict: ["user_id", "food_id"] }
       );
     }
   };
 
-  const removeItem = async (mealId, qty = 1, userId) => {
-    dispatch({ type: "REMOVE_ITEM", payload: { id: mealId, quantity: qty } });
+  // Remove item
+  const removeItem = async (foodId, qty = 1, userId) => {
+    dispatch({ type: "REMOVE_ITEM", payload: { id: foodId, quantity: qty } });
 
     if (userId) {
       const { data } = await supabase
         .from("cart")
         .select("quantity")
         .eq("user_id", userId)
-        .eq("meal_id", mealId)
+        .eq("food_id", foodId)
         .single();
 
       if (data && data.quantity > qty) {
@@ -119,17 +136,18 @@ export function CartContextProvider({ children, userId }) {
           .from("cart")
           .update({ quantity: data.quantity - qty })
           .eq("user_id", userId)
-          .eq("meal_id", mealId);
+          .eq("food_id", foodId);
       } else {
         await supabase
           .from("cart")
           .delete()
           .eq("user_id", userId)
-          .eq("meal_id", mealId);
+          .eq("food_id", foodId);
       }
     }
   };
 
+  // Clear cart
   const clearCart = async (userId) => {
     dispatch({ type: "CLEAR_CART" });
     if (userId) {

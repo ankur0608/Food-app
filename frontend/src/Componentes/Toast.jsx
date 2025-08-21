@@ -1,16 +1,36 @@
-// components/Toast.jsx
-import { useEffect } from "react";
-import styles from "./Toast.module.css";
+import { useEffect, useState } from "react";
+import "./Toast.css";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import ErrorIcon from "@mui/icons-material/Error";
+import InfoIcon from "@mui/icons-material/Info";
 
-export default function Toast({ message, type = "success", onClose }) {
+export default function Toast({
+  message,
+  type = "success",
+  duration = 5000,
+  onClose,
+}) {
+  const [hide, setHide] = useState(false);
+
   useEffect(() => {
-    const timer = setTimeout(() => onClose(), 3000);
-    return () => clearTimeout(timer);
-  }, [onClose]);
+    const timer = setTimeout(() => setHide(true), duration - 300);
+    const removeTimer = setTimeout(onClose, duration);
+    return () => {
+      clearTimeout(timer);
+      clearTimeout(removeTimer);
+    };
+  }, [duration, onClose]);
+
+  const renderIcon = () => {
+    if (type === "success") return <CheckCircleIcon className="toast-icon" />;
+    if (type === "error") return <ErrorIcon className="toast-icon" />;
+    if (type === "info") return <InfoIcon className="toast-icon" />;
+  };
 
   return (
-    <div className={`${styles.toast} ${styles[type]}`}>
-      <span>{message}</span>
+    <div className={`toast ${type} ${hide ? "hide" : ""}`}>
+      {renderIcon()}
+      <span className="toast-message">{message}</span>
     </div>
   );
 }

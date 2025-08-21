@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { IoMailOutline } from "react-icons/io5";
 import { TbLockPassword } from "react-icons/tb";
@@ -7,7 +7,7 @@ import { TbLockPassword } from "react-icons/tb";
 import styles from "./Login.module.css";
 import { useTheme } from "./Store/theme.jsx";
 import { supabase } from "../../supabaseClient.js";
-import Toast from "./Toast.jsx";
+import { useToast } from "./Store/ToastContext.jsx"; // ✅ global toast
 import googleLogo from "../assets/google.png";
 
 export default function Login() {
@@ -16,24 +16,19 @@ export default function Login() {
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm();
-
   const navigate = useNavigate();
   const location = useLocation();
   const { theme } = useTheme();
-
-  const [errorMsg, setErrorMsg] = useState("");
-  const [toast, setToast] = useState(null);
+  const { showToast } = useToast(); // ✅ use global toast
 
   useEffect(() => {
     const query = new URLSearchParams(location.search);
     if (query.get("verified") === "true") {
-      setToast({ message: "✅ Email verified successfully!", type: "success" });
+      showToast("Email verified successfully!", "success");
     }
-  }, [location.search]);
+  }, [location.search, showToast]);
 
   const onSubmit = async (data) => {
-    setErrorMsg("");
-
     try {
       const { data: sessionData, error } =
         await supabase.auth.signInWithPassword({
@@ -42,50 +37,36 @@ export default function Login() {
         });
 
       if (error) {
-        setErrorMsg(error.message || "Login failed");
+        showToast(`❌ ${error.message || "Login failed"}`, "error");
         return;
       }
 
       localStorage.setItem("user", JSON.stringify(sessionData.user));
-      navigate("/");
-    } catch (err) {
-      console.error("Login error:", err);
-      setErrorMsg("Something went wrong. Please try again.");
+      showToast("Login successful!", "success");
+
+      setTimeout(() => navigate("/"), 500);
+    } catch {
+      showToast("❌ Something went wrong. Please try again.", "error");
     }
   };
 
   const handleGoogleLogin = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/google-redirect`,
-      },
+      options: { redirectTo: `${window.location.origin}/google-redirect` },
     });
 
-    if (error) {
-      setToast({ message: "❌ Google login failed", type: "error" });
-    }
+    if (error) showToast("❌ Google login failed", "error");
   };
 
   return (
     <div className={`${styles.container} ${styles[theme]}`}>
       <h2 className={styles.heading}>Login</h2>
 
-      {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
-        />
-      )}
-
-      {errorMsg && <div className={styles.errorMsg}>{errorMsg}</div>}
-
       <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
         <div className={styles.inputGroup}>
           <label htmlFor="email" className={styles.label}>
-            <IoMailOutline className={styles.icon} />
-            Email
+            <IoMailOutline className={styles.icon} /> Email
           </label>
           <input
             className={styles.input}
@@ -101,8 +82,7 @@ export default function Login() {
 
         <div className={styles.inputGroup}>
           <label htmlFor="password" className={styles.label}>
-            <TbLockPassword className={styles.icon} />
-            Password
+            <TbLockPassword className={styles.icon} /> Password
           </label>
           <input
             className={styles.input}
@@ -124,8 +104,8 @@ export default function Login() {
       <div className={styles.divider}>or</div>
 
       <button
-        onClick={handleGoogleLogin}
         className={styles.googleButton}
+        onClick={handleGoogleLogin}
         type="button"
       >
         <img src={googleLogo} alt="Google logo" className={styles.googleIcon} />

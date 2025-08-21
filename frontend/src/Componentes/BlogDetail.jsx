@@ -9,9 +9,8 @@ import {
   Skeleton,
   Chip,
   useTheme,
-  IconButton,
-  Divider,
   Button,
+  Divider,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
@@ -33,7 +32,6 @@ export default function BlogDetail() {
       if (!error) setPost(data);
       setLoading(false);
     };
-
     fetchPost();
   }, [id]);
 
@@ -41,7 +39,11 @@ export default function BlogDetail() {
     return (
       <Container maxWidth="md" sx={{ mt: 4 }}>
         <Skeleton variant="text" width="60%" height={50} />
-        <Skeleton variant="rectangular" height={300} sx={{ my: 2 }} />
+        <Skeleton
+          variant="rectangular"
+          height={300}
+          sx={{ my: 2, borderRadius: 2 }}
+        />
         <Skeleton variant="text" />
         <Skeleton variant="text" width="90%" />
         <Skeleton variant="text" width="80%" />
@@ -51,12 +53,19 @@ export default function BlogDetail() {
 
   if (!post) return <Typography variant="h6">Post not found.</Typography>;
 
+  const imageUrl = post.image_url
+    ? post.image_url.startsWith("http")
+      ? post.image_url
+      : `https://food-app-d8r3.onrender.com/images/${post.image_url}`
+    : "/assets/default-blog.jpg";
+
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
       <Paper
         elevation={3}
         sx={{ p: { xs: 2, sm: 4 }, bgcolor: theme.palette.background.paper }}
       >
+        {/* Back Button */}
         <Box sx={{ mb: 3 }}>
           <Button
             onClick={() => navigate(-1)}
@@ -86,11 +95,6 @@ export default function BlogDetail() {
           {post.title}
         </Typography>
 
-        {/* Date */}
-        <Typography variant="caption" color="text.secondary" sx={{ mb: 2 }}>
-          Published on {new Date(post.created_at).toLocaleDateString()}
-        </Typography>
-
         {/* Tags */}
         {post.tags && (
           <Box sx={{ mt: 1, mb: 3, display: "flex", gap: 1, flexWrap: "wrap" }}>
@@ -101,22 +105,27 @@ export default function BlogDetail() {
         )}
 
         {/* Image */}
-        {post.image_url && (
-          <Box
-            component="img"
-            src={post.image_url}
-            alt={post.title}
-            sx={{
-              width: "100%",
-              borderRadius: 2,
-              objectFit: "cover",
-              maxHeight: 400,
-              mb: 3,
-            }}
-          />
-        )}
+        <Box
+          component="img"
+          src={imageUrl}
+          alt={post.title}
+          loading="lazy"
+          sx={{
+            width: "100%",
+            borderRadius: 2,
+            objectFit: "cover",
+            maxHeight: 400,
+            mb: 3,
+          }}
+          onError={(e) => (e.target.src = "/assets/default-blog.jpg")}
+        />
 
-        <Divider sx={{ mb: 3 }} />
+        <Divider sx={{ mb: 1 }} />
+        {/* Date */}
+        <Typography variant="caption" color="text.secondary" sx={{ mb: 3 }}>
+          Published on {new Date(post.created_at).toLocaleDateString()}
+        </Typography>
+
 
         {/* Content */}
         <Typography

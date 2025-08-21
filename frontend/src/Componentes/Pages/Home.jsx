@@ -1,17 +1,16 @@
 import { useNavigate } from "react-router-dom";
 import homeimage from "../../assets/bg (1).png";
-import Slider from "../Slider/ProductSlider.jsx";
+import { useCallback } from "react";
 import { useTheme } from "../Store/theme.jsx";
-import { FaLeaf, FaCarrot, FaAppleAlt, FaDrumstickBite } from "react-icons/fa";
-import SmallBlog from "../SmallBlog.jsx";
+import { lazy, Suspense } from "react";
+const Slider = lazy(() => import("../Slider/ProductSlider.jsx"));
+const SmallBlog = lazy(() => import("../SmallBlog.jsx"));
+import FeaturesSection from "../FeatureCard.jsx";
 
 import {
   Box,
-  Grid,
   Typography,
   Button,
-  Card,
-  CardContent,
   Container,
   useMediaQuery,
 } from "@mui/material";
@@ -21,8 +20,9 @@ function Home() {
   const isMobile = useMediaQuery("(max-width:600px)");
 
   const navigate = useNavigate();
-  const handleMenu = () => navigate("/meals");
-  const handleContact = () => navigate("/contact");
+  const handleMenu = useCallback(() => navigate("/meals"), [navigate]);
+  const handleContact = useCallback(() => navigate("/contact"), [navigate]);
+
   return (
     <>
       {/* HERO SECTION */}
@@ -134,102 +134,25 @@ function Home() {
           </Box>
         </Container>
       </Box>
-
-      {/* FEATURES SECTION */}
-      <Container>
-        <Typography
-          variant="h4"
-          fontWeight={700}
-          align="center"
-          marginTop={{ xs: 5, md: 8 }}
-          marginBottom={{ xs: 3, md: 5 }}
-          gutterBottom
-          sx={{ fontSize: { xs: "1.5rem", sm: "1.8rem", md: "2rem" } }}
-        >
-          Why Choose Us?
-        </Typography>
-
-        <Grid
-          container
-          spacing={{ xs: 2, sm: 3, md: 5 }}
-          justifyContent="center"
-        >
-          {[
-            {
-              icon: <FaLeaf size={32} color="#0bbf54" />,
-              title: "Premium Quality",
-              desc: "Only the finest ingredients curated for freshness and taste.",
-            },
-            {
-              icon: <FaCarrot size={32} color="#f7571e" />,
-              title: "Seasonal Vegetables",
-              desc: "Handpicked veggies sourced directly from local farmers.",
-            },
-            {
-              icon: <FaAppleAlt size={32} color="#ff3131" />,
-              title: "Fresh Fruit",
-              desc: "Juicy, organic fruits to make every bite healthy and tasty.",
-            },
-            {
-              icon: <FaDrumstickBite size={32} color="#7c5353" />,
-              title: "Non-Vegetarian Delights",
-              desc: "A wide range of fresh and delicious meat options for you.",
-            },
-          ].map((item, index) => (
-            <Grid item xs={6} sm={6} md={3} key={index}>
-              <Card
-                elevation={3}
-                sx={{
-                  borderRadius: 3,
-                  textAlign: "center",
-                  py: { xs: 2, sm: 3 }, // smaller padding in mobile
-                  px: { xs: 1, sm: 2 },
-                  transition: "all 0.3s",
-                  "&:hover": {
-                    transform: "translateY(-6px)",
-                    boxShadow: 6,
-                  },
-                }}
-              >
-                <CardContent sx={{ p: { xs: 1.5, sm: 2 } }}>
-                  {item.icon}
-                  <Typography
-                    variant="h6"
-                    fontWeight={600}
-                    mt={1}
-                    sx={{
-                      fontSize: { xs: "0.9rem", sm: "1rem", md: "1.1rem" },
-                    }}
-                  >
-                    {item.title}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{
-                      fontSize: { xs: "0.75rem", sm: "0.85rem", md: "0.9rem" },
-                    }}
-                  >
-                    {item.desc}
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
-      </Container>
+      <FeaturesSection />
 
       {/* SLIDER SECTION */}
       <Box sx={{ bgcolor: theme === "dark" ? "#1a1a1a" : "#fafafa" }}>
-        <Container maxWidth="lg">
+        <Suspense fallback={<div>Loading slider...</div>}>
           <Slider />
-        </Container>
+        </Suspense>
       </Box>
 
       {/* BLOG SECTION */}
-      <Container sx={{ py: 0 }}>
-        <SmallBlog />
-      </Container>
+      <div
+        style={{
+          paddingLeft: 90,
+        }}
+      >
+        <Suspense fallback={<div>Loading blog...</div>}>
+          <SmallBlog />
+        </Suspense>
+      </div>
     </>
   );
 }

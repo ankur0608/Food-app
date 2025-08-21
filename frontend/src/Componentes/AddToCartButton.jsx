@@ -3,12 +3,12 @@ import React, { useState, useContext } from "react";
 import { CartContext } from "../Store/CartContext";
 import { Button } from "@mui/material";
 
-export default function AddToCartButton({ meal }) {
+export default function AddToCartButton({ food }) {
   const { addItem } = useContext(CartContext);
   const [addingId, setAddingId] = useState(null);
 
-  const handleAddToCart = async (meal) => {
-    setAddingId(meal.id);
+  const handleAddToCart = async (food) => {
+    setAddingId(food.id);
 
     const user = JSON.parse(localStorage.getItem("user"));
     if (!user) {
@@ -17,10 +17,8 @@ export default function AddToCartButton({ meal }) {
       return;
     }
 
-    await addItem(
-      { id: meal.id, name: meal.name, price: meal.price, quantity: 1 },
-      user.id
-    );
+    // ✅ Only store food_id and user_id in cart
+    await addItem({ food_id: food.id, quantity: 1 }, user.id);
 
     setAddingId(null);
   };
@@ -29,10 +27,10 @@ export default function AddToCartButton({ meal }) {
     <Button
       variant="contained"
       color="primary"
-      onClick={() => handleAddToCart(meal)}
-      disabled={addingId === meal.id}
+      onClick={() => handleAddToCart(food)}
+      disabled={addingId === food.id}
     >
-      {addingId === meal.id ? "Adding..." : "Add To Cart"}
+      {addingId === food.id ? "Adding..." : "Add To Cart"}
     </Button>
   );
 }

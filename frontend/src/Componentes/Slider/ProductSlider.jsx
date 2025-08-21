@@ -1,5 +1,5 @@
 // AutoPlaySlider.jsx
-import { useContext, memo, useCallback, useState } from "react";
+import { useContext, memo, useCallback, useState, useMemo } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Slider from "react-slick";
 import axios from "axios";
@@ -12,8 +12,12 @@ import {
   Button,
   Skeleton,
   Box,
+  IconButton,
+  useMediaQuery,
   useTheme as useMuiTheme,
 } from "@mui/material";
+
+import { ArrowBackIos, ArrowForwardIos } from "@mui/icons-material";
 
 import { CartContext } from "../Store/CartContext";
 import { useTheme } from "../Store/theme";
@@ -21,8 +25,8 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "./SliderModule.css";
 
-// Skeleton Card for loading
-const MealSkeleton = () => (
+// ----------------- Memoized Skeleton -----------------
+const MealSkeleton = memo(() => (
   <Card
     sx={{
       p: 2,
@@ -35,9 +39,9 @@ const MealSkeleton = () => (
     <Skeleton variant="text" width="50%" />
     <Skeleton variant="rounded" sx={{ mt: 2 }} height={36} />
   </Card>
-);
+));
 
-// Memoized Meal Card
+// ----------------- Memoized MealCard -----------------
 const MealCard = memo(({ meal, onAddToCart, isDark, isAdding }) => (
   <Link
     to={`/meals/${meal.name}`}
@@ -48,6 +52,7 @@ const MealCard = memo(({ meal, onAddToCart, isDark, isAdding }) => (
       sx={{
         borderRadius: 3,
         p: 1.5,
+        m: 1,
         bgcolor: isDark ? "#1e1e24" : "background.paper",
         color: isDark ? "#fff" : "inherit",
         boxShadow: "0px 6px 18px rgba(0,0,0,0.12)",
@@ -59,16 +64,29 @@ const MealCard = memo(({ meal, onAddToCart, isDark, isAdding }) => (
     >
       <CardMedia
         component="img"
-        height="180"
+        alt={meal.name}
+        loading="lazy"
+        sx={{ borderRadius: 2 }}
         image={
           meal.image.startsWith("http")
             ? meal.image
             : `https://food-app-d8r3.onrender.com/images/${meal.image}`
         }
-        alt={meal.name}
-        onError={(e) => (e.target.src = "/assets/default-meal.jpg")}
-        sx={{ borderRadius: 2 }}
+        onError={(e) => {
+          e.target.src = "/assets/default-meal.jpg";
+        }}
+        srcSet={
+          meal.image.startsWith("http")
+            ? `${meal.image}?w=320 320w,
+         ${meal.image}?w=480 480w,
+         ${meal.image}?w=800 800w`
+            : `https://food-app-d8r3.onrender.com/images/${meal.image}?w=320 320w,
+         https://food-app-d8r3.onrender.com/images/${meal.image}?w=480 480w,
+         https://food-app-d8r3.onrender.com/images/${meal.image}?w=800 800w`
+        }
+        sizes="(max-width: 600px) 320px, (max-width: 960px) 480px, 800px"
       />
+
       <CardContent sx={{ px: 1.5, py: 2 }}>
         <Typography
           gutterBottom
@@ -127,12 +145,47 @@ const MealCard = memo(({ meal, onAddToCart, isDark, isAdding }) => (
   </Link>
 ));
 
+// ----------------- Memoized Custom Arrows -----------------
+const NextArrow = memo(({ onClick }) => (
+  <IconButton
+    onClick={onClick}
+    sx={{
+      position: "absolute",
+      right: -15,
+      top: "40%",
+      zIndex: 10,
+      bgcolor: "background.paper",
+      "&:hover": { bgcolor: "grey.300" },
+    }}
+  >
+    <ArrowForwardIos fontSize="small" />
+  </IconButton>
+));
+
+const PrevArrow = memo(({ onClick }) => (
+  <IconButton
+    onClick={onClick}
+    sx={{
+      position: "absolute",
+      left: -15,
+      top: "40%",
+      zIndex: 10,
+      bgcolor: "background.paper",
+      "&:hover": { bgcolor: "grey.300" },
+    }}
+  >
+    <ArrowBackIos fontSize="small" />
+  </IconButton>
+));
+
+// ----------------- Main Slider Component -----------------
 const AutoPlaySlider = () => {
   const { addItem } = useContext(CartContext);
   const { theme: customTheme } = useTheme();
   const muiTheme = useMuiTheme();
   const navigate = useNavigate();
-  const [addingId, setAddingId] = useState(null); // Track which meal is being added
+  const [addingId, setAddingId] = useState(null);
+  const isMobile = useMediaQuery("(max-width:600px)");
 
   const {
     data: meals = [],
@@ -147,6 +200,7 @@ const AutoPlaySlider = () => {
     },
   });
 
+  // ----------------- Add to Cart -----------------
   const handleAddToCart = useCallback(
     async (meal) => {
       const token = localStorage.getItem("token");
@@ -174,20 +228,27 @@ const AutoPlaySlider = () => {
     [addItem, navigate]
   );
 
-  const sliderSettings = {
-    infinite: true,
-    slidesToShow: 4,
-    slidesToScroll: 1,
-    autoplay: true,
-    speed: 1200,
-    autoplaySpeed: 2500,
-    cssEase: "ease-in-out",
-    responsive: [
-      { breakpoint: 1280, settings: { slidesToShow: 3 } },
-      { breakpoint: 960, settings: { slidesToShow: 2 } },
-      { breakpoint: 600, settings: { slidesToShow: 1 } },
-    ],
-  };
+  // ----------------- Slider Settings -----------------
+  const sliderSettings = useMemo(
+    () => ({
+      infinite: true,
+      slidesToShow: isMobile ? 1 : 4,
+      slidesToScroll: 1,
+      autoplay: true,
+      speed: 1200,
+      autoplaySpeed: 2500,
+      cssEase: "ease-in-out",
+      lazyLoad: "ondemand",
+      nextArrow: <NextArrow />,
+      prevArrow: <PrevArrow />,
+      responsive: [
+        { breakpoint: 1280, settings: { slidesToShow: 3 } },
+        { breakpoint: 960, settings: { slidesToShow: 2 } },
+        { breakpoint: 600, settings: { slidesToShow: 1 } },
+      ],
+    }),
+    [isMobile]
+  );
 
   const isDark = customTheme === "dark";
 
@@ -200,74 +261,75 @@ const AutoPlaySlider = () => {
         borderRadius: 3,
       }}
     >
-      {/* Header */}
-      <Box
-        display="flex"
-        justifyContent="space-between"
-        alignItems="center"
-        mb={4}
-      >
-        <Box>
-          <Typography variant="h4" fontWeight="bold">
-            <span
-              style={{
-                textDecoration: "none",
-                fontWeight: "600",
-                color: muiTheme.palette.primary.main,
+      <Box sx={{ px: 3 }}>
+        {/* Header */}
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          mb={4}
+        >
+          <Box>
+            <Typography variant="h4" fontWeight="bold">
+              <span
+                style={{
+                  fontWeight: 600,
+                  color: muiTheme.palette.primary.main,
+                }}
+              >
+                Meals
+              </span>
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{
+                fontSize: { xs: "0.7rem", sm: "0.7rem", md: "1rem" },
+                color: "grey",
               }}
             >
-              Meals
-            </span>
-          </Typography>
-          <Typography
-            variant="body2"
-            sx={{
-              fontSize: { xs: "0.7rem", sm: "0.7rem", md: "1rem" },
-              color: "grey",
+              Handpicked dishes just for you
+            </Typography>
+          </Box>
+          <Link
+            to="/meals"
+            style={{
+              textDecoration: "none",
+              fontWeight: "600",
+              color: muiTheme.palette.primary.main,
             }}
           >
-            Handpicked dishes just for you
-          </Typography>
+            View All
+          </Link>
         </Box>
-        <Link
-          to="/meals"
-          style={{
-            textDecoration: "none",
-            fontWeight: "600",
-            color: muiTheme.palette.primary.main,
-          }}
-        >
-          View All
-        </Link>
-      </Box>
 
-      {/* Slider */}
-      {isError ? (
-        <Typography color="error">{error.message}</Typography>
-      ) : isLoading ? (
-        <Slider {...sliderSettings}>
-          {Array.from({ length: 4 }).map((_, idx) => (
-            <Box key={idx} px={2}>
-              <MealSkeleton />
-            </Box>
-          ))}
-        </Slider>
-      ) : meals.length > 0 ? (
-        <Slider {...sliderSettings}>
-          {meals.map((meal) => (
-            <Box key={meal.id} px={2} sx={{ pb: 2 }}>
-              <MealCard
-                meal={meal}
-                onAddToCart={handleAddToCart}
-                isDark={isDark}
-                isAdding={addingId === meal.id}
-              />
-            </Box>
-          ))}
-        </Slider>
-      ) : (
-        <Typography>No meals available.</Typography>
-      )}
+        {/* Slider */}
+        {isError ? (
+          <Typography color="error">{error.message}</Typography>
+        ) : isLoading ? (
+          <Slider {...sliderSettings}>
+            {Array.from({ length: isMobile ? 1 : 4 }).map((_, idx) => (
+              <Box key={idx} px={2}>
+                <MealSkeleton />
+              </Box>
+            ))}
+          </Slider>
+        ) : meals.length > 0 ? (
+          <Slider {...sliderSettings}>
+            {meals.map((meal) => (
+              <Box key={meal.id} px={2} sx={{ pb: 2 }}>
+                <MealCard
+                  meal={meal}
+                  onAddToCart={handleAddToCart}
+                  isDark={isDark}
+                  isAdding={addingId === meal.id}
+                />
+              </Box>
+            ))}
+          </Slider>
+        ) : (
+          <Typography>No meals available.</Typography>
+        )}
+      </Box>
     </Box>
   );
 };
