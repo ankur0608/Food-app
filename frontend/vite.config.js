@@ -12,17 +12,9 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           if (id.includes("node_modules")) {
-            // Split React & React DOM
-            if (id.includes("react") || id.includes("react-dom"))
-              return "react-vendor";
-
-            // Split Material-UI into separate chunk
             if (id.includes("@mui")) return "mui";
-
-            // Split react-icons
-            if (id.includes("react-icons")) return "react-icons";
-
-            // All other node_modules into vendor
+            if (id.includes("react")) return "react-vendor";
+            if (id.includes("@tanstack/react-query")) return "react-query";
             return "vendor";
           }
         },
