@@ -26,7 +26,7 @@ const PrivacyPolicy = lazy(() => import("./Componentes/PrivacyPolicy.jsx"));
 const Cart = lazy(() => import("./Componentes/Pages/Cart.jsx"));
 const BlogList = lazy(() => import("./Componentes/BlogList.jsx"));
 const BlogDetail = lazy(() => import("./Componentes/BlogDetail.jsx"));
-
+const Wishlist = lazy(() => import("./Componentes/Pages/Wishlist.jsx"));
 // Simple fallback loader
 const Loader = () => (
   <div style={{ textAlign: "center", padding: "2rem" }}>
@@ -75,6 +75,10 @@ const router = createBrowserRouter([
             <ForgotPassword />
           </Suspense>
         ),
+      },
+      {
+        path: "wishlist",
+        element: <Wishlist />,
       },
       {
         path: "privacypolicy",

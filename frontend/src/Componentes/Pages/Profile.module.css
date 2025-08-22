@@ -1,7 +1,8 @@
 /* Theme-specific base styles using class from body or container */
 .container {
   max-width: 600px;
-  margin: 2rem auto;
+  margin: 7rem auto;
+  margin-bottom: 20rem;
   padding: 1.5rem;
   border-radius: 12px;
   background-color: var(--bg);

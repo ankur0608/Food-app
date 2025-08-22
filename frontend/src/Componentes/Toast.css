@@ -1,6 +1,6 @@
 .toast-container {
   position: fixed;
-  top: 70px; /* below navbar */
+  top: 80px; /* below navbar */
   right: 20px;
   display: flex;
   flex-direction: column;

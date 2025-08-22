@@ -88,7 +88,11 @@ export default function MealCard({ meal, addingId, handleAddToCart }) {
               {meal.description}
             </Typography>
           </Link>
-          <OverallRating foodId={meal.id} />
+          <OverallRating
+            itemId={meal.id}
+            tableName="food_reviews"
+            foreignKey="food_id"
+          />
           <Typography sx={{ fontWeight: "bold", color: "#1d1d1db0" }}>
             ₹{meal.price}
           </Typography>

@@ -10,27 +10,35 @@ import {
   CardContent,
   Box,
   Skeleton,
+  IconButton,
 } from "@mui/material";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useTheme } from "../Store/theme.jsx";
-import ReviewForm from "../../Componentes/ReviewForm.jsx";
-import ReviewList from "../../Componentes/ReviewsList.jsx";
+import ReviewsSection from "../../Componentes/ReviewsSection.jsx";
+import AddToCartButton from "../AddToCartButton.jsx";
+import { useToast } from "../../Componentes/Store/ToastContext.jsx"; // Import toast
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
   import.meta.env.VITE_SUPABASE_ANON_KEY
 );
 
-export default function MealsDetail() {
+export default function MealDetail() {
   const [meal, setMeal] = useState(null);
   const [imageUrl, setImageUrl] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [reviews, setReviews] = useState([]);
+  const [wishlisted, setWishlisted] = useState(false);
   const { name } = useParams();
   const navigate = useNavigate();
   const { theme } = useTheme();
+  const { showToast } = useToast(); // Toast context
 
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  // Load meal and check wishlist
   useEffect(() => {
     const fetchMeal = async () => {
       try {
@@ -39,7 +47,6 @@ export default function MealsDetail() {
           .select("*")
           .eq("name", decodeURIComponent(name))
           .single();
-
         if (error) throw error;
         setMeal(data);
 
@@ -47,18 +54,20 @@ export default function MealsDetail() {
           const { data: imgData, error: imgError } = supabase.storage
             .from("meal-images")
             .getPublicUrl(data.image);
-
           if (imgError) throw imgError;
           setImageUrl(imgData.publicUrl);
         }
 
-        const { data: reviewData, error: reviewError } = await supabase
-          .from("food_reviews")
-          .select("id, rating, comment, created_at, user_id")
-          .eq("food_id", data.id)
-          .order("created_at", { ascending: false });
-
-        if (!reviewError) setReviews(reviewData);
+        // Check if meal is wishlisted
+        if (user) {
+          const { data: wishlistData } = await supabase
+            .from("wishlists")
+            .select("*")
+            .eq("user_id", user.id)
+            .eq("food_id", data.id)
+            .single();
+          if (wishlistData) setWishlisted(true);
+        }
       } catch (err) {
         console.error(err.message);
         setError("Meal not found or failed to load.");
@@ -66,22 +75,43 @@ export default function MealsDetail() {
         setLoading(false);
       }
     };
-
     fetchMeal();
-  }, [name]);
+  }, [name, user]);
 
-  const handleImageError = (e) => {
-    e.target.src = "/assets/default-meal.jpg";
-  };
+  const handleWishlist = async () => {
+    if (!user) {
+      showToast("Please login first", "error");
+      return;
+    }
 
-  const handleReviewSubmit = (newReview) => {
-    setReviews((prev) => [newReview, ...prev]);
+    try {
+      if (!wishlisted) {
+        const { error } = await supabase
+          .from("wishlists")
+          .insert([{ user_id: user.id, food_id: meal.id }]);
+        if (error) throw error;
+        setWishlisted(true);
+        showToast("Added to wishlist", "success");
+      } else {
+        const { error } = await supabase
+          .from("wishlists")
+          .delete()
+          .eq("user_id", user.id)
+          .eq("food_id", meal.id);
+        if (error) throw error;
+        setWishlisted(false); // Only set false if deletion succeeds
+        showToast("Removed from wishlist", "info");
+      }
+    } catch (err) {
+      console.error("Wishlist error:", err.message);
+      showToast("Failed to update wishlist", "error");
+    }
   };
 
   if (loading) {
     return (
-      <Container sx={{ mt: 4 }}>
-        <Skeleton variant="rectangular" width="100%" height={300} />
+      <Container sx={{ mt: 4, height: 800 }}>
+        <Skeleton variant="rectangular" width="100%" height={350} />
         <Skeleton variant="text" width="60%" />
         <Skeleton variant="text" width="40%" />
         <Skeleton variant="text" width="80%" />
@@ -97,14 +127,6 @@ export default function MealsDetail() {
     );
   }
 
-  if (!meal) {
-    return (
-      <Container sx={{ mt: 4 }}>
-        <Typography>Meal not found.</Typography>
-      </Container>
-    );
-  }
-
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
       <Button
@@ -115,6 +137,7 @@ export default function MealsDetail() {
       >
         Back
       </Button>
+
       <Card
         sx={{
           mb: 4,
@@ -127,6 +150,7 @@ export default function MealsDetail() {
               ? "0 2px 12px rgba(0,0,0,0.6)"
               : "0 2px 12px rgba(0,0,0,0.1)",
           transition: "all 0.3s ease",
+          position: "relative",
         }}
       >
         <CardMedia
@@ -134,62 +158,63 @@ export default function MealsDetail() {
           height="400"
           image={meal.image.startsWith("http") ? meal.image : imageUrl}
           alt={meal.name}
-          onError={handleImageError}
+          onError={(e) => (e.target.src = "/assets/default-meal.jpg")}
           sx={{
             objectFit: "cover",
             filter: theme === "dark" ? "brightness(0.85)" : "none",
           }}
         />
+
+        <IconButton
+          onClick={handleWishlist}
+          sx={{
+            position: "absolute",
+            top: 16,
+            right: 16,
+            bgcolor: "rgba(255,255,255,0.8)",
+            "&:hover": {
+              transform: "scale(1.2)",
+              bgcolor: "rgba(255,255,255,1)",
+            },
+            transition: "all 0.3s",
+            fontSize: 30,
+          }}
+        >
+          {wishlisted ? <FavoriteIcon color="error" /> : <FavoriteBorderIcon />}
+        </IconButton>
+
         <CardContent>
-          <Typography
-            variant="h4"
-            gutterBottom
-            sx={{
-              fontWeight: "bold",
-              fontSize: { xs: "1.8rem", md: "2.2rem" },
-            }}
-          >
+          <Typography variant="h4" gutterBottom sx={{ fontWeight: "bold" }}>
             {meal.name}
           </Typography>
-
-          <Typography
-            variant="body1"
-            gutterBottom
-            sx={{ fontSize: { xs: "1rem", md: "1.1rem" }, mb: 2 }}
-          >
+          <Typography variant="body1" gutterBottom sx={{ mb: 2 }}>
             {meal.description}
           </Typography>
-
           <Typography
             variant="h6"
             color="primary"
             sx={{
               fontWeight: "600",
-              fontSize: "1.2rem",
-              backgroundColor:
-                theme === "dark" ? "rgba(255,255,255,0.05)" : "#f0f0f0",
-              display: "inline-block",
               px: 2,
               py: 1,
               borderRadius: 2,
+              backgroundColor:
+                theme === "dark" ? "rgba(255,255,255,0.05)" : "#f0f0f0",
             }}
           >
             ₹{meal.price}
           </Typography>
+
+          <Box sx={{ mt: 3 }}>
+            <AddToCartButton food={meal} />
+          </Box>
         </CardContent>
       </Card>
 
-      {/* Review form */}
-      <Box sx={{ mb: 4 }}>
-        <ReviewForm foodId={meal.id} onReviewSubmit={handleReviewSubmit} />
-      </Box>
-
-      {/* Review list */}
-      <ReviewList
-        reviews={reviews}
-        setReviews={setReviews}
-        foodId={meal.id}
-        centerDelete
+      <ReviewsSection
+        itemId={meal.id}
+        tableName="food_reviews"
+        foreignKey="food_id"
       />
     </Container>
   );

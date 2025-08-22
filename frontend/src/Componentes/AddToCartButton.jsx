@@ -1,6 +1,6 @@
 // src/Componentes/Pages/AddToCartButton.jsx
 import React, { useState, useContext } from "react";
-import { CartContext } from "../Store/CartContext";
+import { CartContext } from "../Componentes/Store/CartContext";
 import { Button } from "@mui/material";
 
 export default function AddToCartButton({ food }) {

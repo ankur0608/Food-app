@@ -11,6 +11,11 @@ import {
   ListItemText,
   Box,
   Typography,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
 } from "@mui/material";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import HistoryIcon from "@mui/icons-material/History";
@@ -18,11 +23,13 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import userLogo from "../assets/user.png";
 import { useTheme } from "./Store/theme";
 import { supabase } from "../../supabaseClient";
+import FavoriteIcon from "@mui/icons-material/Favorite"; // import heart icon
 
 export default function AvatarDropdown({ onLogout }) {
   const [anchorEl, setAnchorEl] = useState(null);
   const [avatar, setAvatar] = useState(userLogo);
   const [userMetadata, setUserMetadata] = useState({});
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const open = Boolean(anchorEl);
   const navigate = useNavigate();
   const { theme } = useTheme();
@@ -35,13 +42,8 @@ export default function AvatarDropdown({ onLogout }) {
       .toUpperCase();
   };
 
-  const handleOpenMenu = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleCloseMenu = () => {
-    setAnchorEl(null);
-  };
+  const handleOpenMenu = (event) => setAnchorEl(event.currentTarget);
+  const handleCloseMenu = () => setAnchorEl(null);
 
   const handleLogout = async () => {
     localStorage.clear();
@@ -51,12 +53,13 @@ export default function AvatarDropdown({ onLogout }) {
     window.location.reload();
   };
 
+  const openLogoutDialog = () => setLogoutDialogOpen(true);
+  const closeLogoutDialog = () => setLogoutDialogOpen(false);
+
   useEffect(() => {
     const loadAvatar = async () => {
       const cachedImage = localStorage.getItem("image");
-      if (cachedImage) {
-        setAvatar(cachedImage);
-      }
+      if (cachedImage) setAvatar(cachedImage);
 
       let name = "User";
       let avatarUrl = null;
@@ -75,17 +78,13 @@ export default function AvatarDropdown({ onLogout }) {
 
       if (!meta) {
         const { data, error } = await supabase.auth.getUser();
-        if (error) {
-          console.error("Supabase getUser failed:", error.message);
-          return;
-        }
+        if (error) return console.error(error.message);
         meta = data.user?.user_metadata;
         localStorage.setItem("user", JSON.stringify(data.user));
       }
 
       name =
         meta?.name || meta?.full_name || meta?.email?.split("@")[0] || "User";
-
       avatarUrl =
         meta?.avatar_url || meta?.picture || meta?.full_picture || null;
 
@@ -190,15 +189,43 @@ export default function AvatarDropdown({ onLogout }) {
           <ListItemText primary="Payment History" />
         </MenuItem>
 
+        {/* Wishlist menu item */}
+        <MenuItem component={Link} to="/wishlist">
+          <ListItemIcon>
+            <FavoriteIcon fontSize="small" sx={{ color: iconColor }} />
+          </ListItemIcon>
+          <ListItemText primary="Wishlist" />
+        </MenuItem>
+
         <Divider />
 
-        <MenuItem onClick={handleLogout}>
+        <MenuItem onClick={openLogoutDialog}>
           <ListItemIcon>
             <LogoutIcon fontSize="small" sx={{ color: iconColor }} />
           </ListItemIcon>
           <ListItemText primary="Logout" />
         </MenuItem>
       </Menu>
+
+      {/* Logout Confirmation Dialog */}
+      <Dialog open={logoutDialogOpen} onClose={closeLogoutDialog}>
+        <DialogTitle>Confirm Logout</DialogTitle>
+        <DialogContent>Are you sure you want to log out?</DialogContent>
+        <DialogActions>
+          <Button onClick={closeLogoutDialog} color="primary">
+            Cancel
+          </Button>
+          <Button
+            onClick={() => {
+              handleLogout();
+              closeLogoutDialog();
+            }}
+            color="error"
+          >
+            Logout
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 }

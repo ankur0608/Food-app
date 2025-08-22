@@ -7,12 +7,14 @@ import { useTheme } from "../Store/theme";
 import OpeningHours from "../OpeningHours.jsx";
 import CategoryFilter from "../CategoryFilter.jsx";
 import MealsGrid from "../MealsGrid.jsx";
+import { useToast } from "../Store/ToastContext.jsx";
 
 export default function Meals() {
   const [currentPage, setCurrentPage] = useState(1);
   const [addingId, setAddingId] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const mealsPerPage = 8;
+  const { showToast } = useToast();
 
   const { addItem } = useContext(CartContext);
   const { theme } = useTheme();
@@ -37,21 +39,33 @@ export default function Meals() {
   );
 
   const handleAddToCart = async (meal) => {
+    const user = JSON.parse(localStorage.getItem("user"));
     if (!user) return navigate("/signup");
-    setAddingId(meal.id);
-    await addItem(
-      {
-        id: meal.id,
-        name: meal.name,
-        price: meal.price,
-        quantity: 1,
-        image: meal.image,
-      },
-      user.id
-    );
-    setAddingId(null);
-  };
 
+    setAddingId(meal.id);
+
+    try {
+      await addItem(
+        {
+          id: meal.id,
+          name: meal.name,
+          price: meal.price,
+          quantity: 1,
+          image: meal.image,
+        },
+        user.id
+      );
+
+      // Show success toast
+      showToast(`${meal.name} added to cart!`, "success");
+    } catch (err) {
+      console.error(err);
+      // Show error toast
+      showToast(`Failed to add ${meal.name} to cart.`, "error");
+    } finally {
+      setAddingId(null);
+    }
+  };
   return (
     <Box sx={{ py: 2, px: { xs: 2, md: 1 } }}>
       <Typography

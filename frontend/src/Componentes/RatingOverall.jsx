@@ -4,7 +4,11 @@ import { Box, Typography, Rating, Skeleton, useTheme } from "@mui/material";
 import StarIcon from "@mui/icons-material/Star";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
 
-export default function OverallRating({ foodId }) {
+export default function OverallRating({
+  itemId, // id of the food or blog post
+  tableName, // 'food_reviews' or 'post_reviews'
+  foreignKey, // 'food_id' or 'post_id'
+}) {
   const theme = useTheme();
   const [average, setAverage] = useState(null);
   const [count, setCount] = useState(0);
@@ -13,15 +17,15 @@ export default function OverallRating({ foodId }) {
   useEffect(() => {
     const fetchAverageRating = async () => {
       setLoading(true);
+
       const { data, error } = await supabase
-        .from("food_reviews")
+        .from(tableName)
         .select("rating")
-        .eq("food_id", foodId);
+        .eq(foreignKey, itemId);
 
       if (!error && data.length > 0) {
         const total = data.reduce((sum, r) => sum + r.rating, 0);
-        const avg = total / data.length;
-        setAverage(avg);
+        setAverage(total / data.length);
         setCount(data.length);
       } else {
         setAverage(null);
@@ -32,7 +36,7 @@ export default function OverallRating({ foodId }) {
     };
 
     fetchAverageRating();
-  }, [foodId]);
+  }, [itemId, tableName, foreignKey]);
 
   if (loading) {
     return (
@@ -58,13 +62,7 @@ export default function OverallRating({ foodId }) {
   }
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        alignItems: "center",
-        gap: 0.5, // small gap between elements
-      }}
-    >
+    <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
       <Typography
         variant="body1"
         sx={{ fontWeight: 600, color: theme.palette.primary.main }}

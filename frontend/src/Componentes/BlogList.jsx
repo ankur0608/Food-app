@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { supabase } from "../../supabaseClient";
 import styles from "./BlogList.module.css";
 import { useTheme } from "../Componentes/Store/theme";
-
+import OverallRating from "./RatingOverall";
 // Memoized BlogCard
 const BlogCard = memo(({ blog }) => {
   const imageUrl = blog.image_url
@@ -35,6 +35,12 @@ const BlogCard = memo(({ blog }) => {
             ? blog.title.slice(0, 60) + "..."
             : blog.title}
         </h3>
+        <OverallRating
+          itemId={blog.id}
+          tableName="post_reviews"
+          foreignKey="post_id"
+        />
+
         <p className={styles.date}>
           {new Date(blog.created_at).toDateString()}
         </p>

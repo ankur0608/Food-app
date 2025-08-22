@@ -13,6 +13,7 @@ import {
   Divider,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import ReviewsSection from "./ReviewsSection.jsx"; // <-- updated
 
 export default function BlogDetail() {
   const { id } = useParams();
@@ -126,7 +127,6 @@ export default function BlogDetail() {
           Published on {new Date(post.created_at).toLocaleDateString()}
         </Typography>
 
-
         {/* Content */}
         <Typography
           variant="body1"
@@ -140,6 +140,13 @@ export default function BlogDetail() {
           {post.content}
         </Typography>
       </Paper>
+
+      {/* Generic Reviews Section */}
+      <ReviewsSection
+        itemId={id}
+        tableName="post_reviews"
+        foreignKey="post_id"
+      />
     </Container>
   );
 }
