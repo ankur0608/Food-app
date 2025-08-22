@@ -35,9 +35,7 @@ function Home() {
           justifyContent: "center",
           textAlign: "center",
           color: "#fff",
-          background: isMobile
-            ? "" // solid background on mobile
-            : `url("${homeimage}") center/cover no-repeat`,
+          background: "#faf3f3d7",
         }}
       >
         {/* Semi-transparent overlay */}

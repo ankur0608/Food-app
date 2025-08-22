@@ -53,7 +53,7 @@ export default function Meals() {
   };
 
   return (
-    <Box sx={{ py: 2, px: { xs: 2, md: 6 } }}>
+    <Box sx={{ py: 2, px: { xs: 2, md: 1 } }}>
       <Typography
         variant="h4"
         fontWeight="bold"
@@ -73,9 +73,8 @@ export default function Meals() {
       />
 
       <MealsGrid
-        meals={meals}
+        meals={currentMeals}
         isLoading={isLoading}
-        currentMeals={currentMeals}
         addingId={addingId}
         handleAddToCart={handleAddToCart}
         mealsPerPage={mealsPerPage}

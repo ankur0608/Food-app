@@ -4,7 +4,6 @@ import MealCard from "./MealCard.jsx";
 export default function MealsGrid({
   meals,
   isLoading,
-  currentMeals,
   addingId,
   handleAddToCart,
   mealsPerPage,
@@ -53,7 +52,7 @@ export default function MealsGrid({
     );
   }
 
-  if (!currentMeals.length) {
+  if (!meals || meals.length === 0) {
     return (
       <Typography variant="h6" align="center" sx={{ width: "100%", mt: 4 }}>
         No meals found.
@@ -62,9 +61,9 @@ export default function MealsGrid({
   }
 
   return (
-    <Grid container spacing={{ xs: 2, sm: 3 }}>
-      {currentMeals.map((meal) => (
-        <Grid item key={meal.id} xs={6} sm={6} md={4} lg={3}>
+    <Grid container spacing={{ xs: 2, sm: 2 }}>
+      {meals.map((meal) => (
+        <Grid item key={meal.id} xs={16} sm={6} md={4} lg={3}>
           <MealCard
             meal={meal}
             addingId={addingId}
