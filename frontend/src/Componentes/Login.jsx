@@ -53,7 +53,9 @@ export default function Login() {
   const handleGoogleLogin = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}/google-redirect` },
+      options: {
+        redirectTo: "https://food-app-five-mu.vercel.app/google-redirect",
+      },
     });
 
     if (error) showToast("❌ Google login failed", "error");
