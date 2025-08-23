@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Avatar,
@@ -20,92 +20,106 @@ import {
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import HistoryIcon from "@mui/icons-material/History";
 import LogoutIcon from "@mui/icons-material/Logout";
+import FavoriteIcon from "@mui/icons-material/Favorite"; // heart icon if needed
 import userLogo from "../assets/user.png";
 import { useTheme } from "./Store/theme";
 import { supabase } from "../../supabaseClient";
-import FavoriteIcon from "@mui/icons-material/Favorite"; // import heart icon
 
 export default function AvatarDropdown({ onLogout }) {
   const [anchorEl, setAnchorEl] = useState(null);
   const [avatar, setAvatar] = useState(userLogo);
-  const [userMetadata, setUserMetadata] = useState({});
+  const [userMetadata, setUserMetadata] = useState({
+    name: "User",
+    email: "email@example.com",
+  });
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
-  const open = Boolean(anchorEl);
   const navigate = useNavigate();
   const { theme } = useTheme();
+  const open = Boolean(anchorEl);
 
-  const stringToInitials = (name) => {
+  const stringToInitials = useCallback((name) => {
     return name
       .split(" ")
       .map((word) => word[0])
       .join("")
       .toUpperCase();
-  };
+  }, []);
+
+  const loadUserData = useCallback(async () => {
+    try {
+      // Get cached data
+      const cachedUser = localStorage.getItem("user");
+      const cachedImage = localStorage.getItem("image");
+
+      if (cachedUser) {
+        const parsed = JSON.parse(cachedUser);
+        const meta = parsed.user_metadata || {};
+        const name = meta.name || meta.full_name || parsed.email.split("@")[0];
+        const avatarUrl = meta.avatar_url || meta.picture || null;
+
+        setUserMetadata({ name, email: parsed.email });
+        setAvatar(
+          avatarUrl ||
+            cachedImage ||
+            `https://ui-avatars.com/api/?name=${stringToInitials(
+              name
+            )}&background=random&color=fff&bold=true&size=128`
+        );
+        return;
+      }
+
+      // Fetch user from Supabase
+      const { data, error } = await supabase.auth.getUser();
+      if (error) throw error;
+
+      const user = data.user;
+      const meta = user.user_metadata || {};
+      const name = meta.name || meta.full_name || user.email.split("@")[0];
+      const avatarUrl = meta.avatar_url || meta.picture || null;
+
+      setUserMetadata({ name, email: user.email });
+      const finalAvatar =
+        avatarUrl ||
+        `https://ui-avatars.com/api/?name=${stringToInitials(
+          name
+        )}&background=random&color=fff&bold=true&size=128`;
+      setAvatar(finalAvatar);
+
+      // Cache data
+      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("image", finalAvatar);
+    } catch (err) {
+      console.error("Failed to load user data:", err.message);
+      setAvatar(userLogo);
+    }
+  }, [stringToInitials]);
+
+  // Listen to auth state changes
+  useEffect(() => {
+    loadUserData();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        loadUserData();
+      }
+    );
+
+    return () => authListener.subscription.unsubscribe();
+  }, [loadUserData]);
 
   const handleOpenMenu = (event) => setAnchorEl(event.currentTarget);
   const handleCloseMenu = () => setAnchorEl(null);
 
   const handleLogout = async () => {
-    localStorage.clear();
-    await supabase.auth.signOut();
-    if (onLogout) onLogout();
-    navigate("/signup");
-    window.location.reload();
+    try {
+      localStorage.clear();
+      await supabase.auth.signOut();
+      if (onLogout) onLogout();
+      navigate("/signup");
+    } catch (err) {
+      console.error("Logout failed:", err.message);
+    }
   };
-
-  const openLogoutDialog = () => setLogoutDialogOpen(true);
-  const closeLogoutDialog = () => setLogoutDialogOpen(false);
-
-  useEffect(() => {
-    const loadAvatar = async () => {
-      const cachedImage = localStorage.getItem("image");
-      if (cachedImage) setAvatar(cachedImage);
-
-      let name = "User";
-      let avatarUrl = null;
-
-      const localUser = localStorage.getItem("user");
-      let meta = null;
-
-      if (localUser) {
-        try {
-          const parsed = JSON.parse(localUser);
-          meta = parsed?.user_metadata;
-        } catch (err) {
-          console.warn("Error parsing user from localStorage:", err);
-        }
-      }
-
-      if (!meta) {
-        const { data, error } = await supabase.auth.getUser();
-        if (error) return console.error(error.message);
-        meta = data.user?.user_metadata;
-        localStorage.setItem("user", JSON.stringify(data.user));
-      }
-
-      name =
-        meta?.name || meta?.full_name || meta?.email?.split("@")[0] || "User";
-      avatarUrl =
-        meta?.avatar_url || meta?.picture || meta?.full_picture || null;
-
-      if (avatarUrl?.startsWith("http")) {
-        setAvatar(avatarUrl);
-        localStorage.setItem("image", avatarUrl);
-      } else {
-        const initials = stringToInitials(name);
-        const initialsAvatar = `https://ui-avatars.com/api/?name=${initials}&background=random&color=fff&bold=true&size=128`;
-        setAvatar(initialsAvatar);
-        localStorage.setItem("image", initialsAvatar);
-      }
-
-      setUserMetadata({
-        name,
-        email: meta?.email || "email@example.com",
-      });
-    };
-
-    loadAvatar();
-  }, []);
 
   const iconColor = theme === "light" ? "#686666ff" : "#fff";
 
@@ -117,10 +131,7 @@ export default function AvatarDropdown({ onLogout }) {
             src={avatar}
             alt="User Avatar"
             sx={{ width: 37, height: 37 }}
-            onError={() => {
-              setAvatar(userLogo);
-              localStorage.removeItem("image");
-            }}
+            onError={() => setAvatar(userLogo)}
           />
         </IconButton>
       </Tooltip>
@@ -129,7 +140,6 @@ export default function AvatarDropdown({ onLogout }) {
         anchorEl={anchorEl}
         open={open}
         onClose={handleCloseMenu}
-        onClick={handleCloseMenu}
         transformOrigin={{ horizontal: "right", vertical: "top" }}
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
         PaperProps={{
@@ -159,12 +169,8 @@ export default function AvatarDropdown({ onLogout }) {
             sx={{ width: 44, height: 44 }}
           />
           <Box>
-            <Typography
-              variant="subtitle1"
-              fontWeight="bold"
-              sx={{ color: theme === "dark" ? "#fff" : "#000" }}
-            >
-              {userMetadata.name || "User"}
+            <Typography variant="subtitle1" fontWeight="bold">
+              {userMetadata.name}
             </Typography>
             <Typography
               variant="body2"
@@ -191,7 +197,7 @@ export default function AvatarDropdown({ onLogout }) {
 
         <Divider />
 
-        <MenuItem onClick={openLogoutDialog}>
+        <MenuItem onClick={() => setLogoutDialogOpen(true)}>
           <ListItemIcon>
             <LogoutIcon fontSize="small" sx={{ color: iconColor }} />
           </ListItemIcon>
@@ -199,18 +205,21 @@ export default function AvatarDropdown({ onLogout }) {
         </MenuItem>
       </Menu>
 
-      {/* Logout Confirmation Dialog */}
-      <Dialog open={logoutDialogOpen} onClose={closeLogoutDialog}>
+      {/* Logout Dialog */}
+      <Dialog
+        open={logoutDialogOpen}
+        onClose={() => setLogoutDialogOpen(false)}
+      >
         <DialogTitle>Confirm Logout</DialogTitle>
         <DialogContent>Are you sure you want to log out?</DialogContent>
         <DialogActions>
-          <Button onClick={closeLogoutDialog} color="primary">
+          <Button onClick={() => setLogoutDialogOpen(false)} color="primary">
             Cancel
           </Button>
           <Button
             onClick={() => {
               handleLogout();
-              closeLogoutDialog();
+              setLogoutDialogOpen(false);
             }}
             color="error"
           >

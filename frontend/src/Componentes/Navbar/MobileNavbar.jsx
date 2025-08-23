@@ -1,4 +1,4 @@
-// components/Navbar/MobileNavbar.jsx
+import { useState, useEffect, useCallback } from "react";
 import {
   AppBar,
   Toolbar,
@@ -20,6 +20,10 @@ import { Link, useNavigate } from "react-router-dom";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import HistoryIcon from "@mui/icons-material/History";
+import LogoutIcon from "@mui/icons-material/Logout";
 import {
   FaHome,
   FaMapMarkedAlt,
@@ -27,12 +31,8 @@ import {
   FaEnvelope,
   FaBlog,
 } from "react-icons/fa";
-import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import HistoryIcon from "@mui/icons-material/History";
-import LogoutIcon from "@mui/icons-material/Logout";
-import { useState, useEffect } from "react";
 import { supabase } from "../../../supabaseClient";
+import userLogo from "../../assets/user.png";
 
 const navLinks = [
   { text: "Home", icon: <FaHome />, path: "/home" },
@@ -44,37 +44,73 @@ const navLinks = [
 
 export default function MobileNavbar({ iconColor, navbarBgColor, totalItems }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [userMetadata, setUserMetadata] = useState(null);
-  const [avatar, setAvatar] = useState(null);
-
+  const [userMetadata, setUserMetadata] = useState({
+    name: "User",
+    email: "email@example.com",
+  });
+  const [avatar, setAvatar] = useState(userLogo);
   const navigate = useNavigate();
-  const isAuthenticated = !!localStorage.getItem("user");
+
+  const stringToInitials = useCallback((name) => {
+    return name
+      .split(" ")
+      .map((word) => word[0])
+      .join("")
+      .toUpperCase();
+  }, []);
+
+  const loadUser = useCallback(async () => {
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
+    if (error) return console.error(error.message);
+
+    if (user) {
+      const meta = user.user_metadata || {};
+      const name = meta.name || meta.full_name || user.email.split("@")[0];
+      const avatarUrl = meta.avatar_url || meta.picture || null;
+
+      setUserMetadata({ name, email: user.email });
+      setAvatar(
+        avatarUrl?.startsWith("http")
+          ? avatarUrl
+          : `https://ui-avatars.com/api/?name=${stringToInitials(
+              name
+            )}&background=random&color=fff&bold=true&size=128`
+      );
+
+      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("image", avatarUrl);
+    } else {
+      localStorage.removeItem("user");
+      localStorage.removeItem("image");
+      setAvatar(userLogo);
+      setUserMetadata({ name: "User", email: "email@example.com" });
+    }
+  }, [stringToInitials]);
 
   useEffect(() => {
-    const loadUser = async () => {
-      if (!isAuthenticated) return;
-
-      const localUser = JSON.parse(localStorage.getItem("user"));
-      const meta = localUser?.user_metadata || {};
-
-      const name =
-        meta?.name || meta?.full_name || meta?.email?.split("@")[0] || "User";
-      const avatarUrl = meta?.avatar_url || meta?.picture || null;
-
-      if (avatarUrl?.startsWith("http")) setAvatar(avatarUrl);
-
-      setUserMetadata({ name, email: meta?.email || "email@example.com" });
-    };
-
     loadUser();
-  }, [isAuthenticated]);
+
+    const { data: authListener } = supabase.auth.onAuthStateChange(() => {
+      loadUser();
+    });
+
+    return () => authListener.subscription.unsubscribe();
+  }, [loadUser]);
 
   const handleLogout = async () => {
-    localStorage.clear();
-    await supabase.auth.signOut();
-    navigate("/signup");
-    window.location.reload();
+    try {
+      await supabase.auth.signOut();
+      localStorage.clear();
+      navigate("/signup");
+    } catch (err) {
+      console.error("Logout failed:", err.message);
+    }
   };
+
+  const isAuthenticated = !!localStorage.getItem("user");
 
   return (
     <AppBar
@@ -85,12 +121,10 @@ export default function MobileNavbar({ iconColor, navbarBgColor, totalItems }) {
       }}
     >
       <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
-        {/* Menu button */}
         <IconButton color="inherit" onClick={() => setDrawerOpen(true)}>
           <MenuIcon sx={{ color: iconColor }} />
         </IconButton>
 
-        {/* Logo */}
         <Typography
           variant="h6"
           component={Link}
@@ -105,7 +139,6 @@ export default function MobileNavbar({ iconColor, navbarBgColor, totalItems }) {
           My <span style={{ color: "#3678f4ff" }}>Food</span> App
         </Typography>
 
-        {/* Cart */}
         <IconButton color="inherit" component={Link} to="/cart">
           <Badge badgeContent={totalItems} color="error">
             <ShoppingCartOutlinedIcon sx={{ color: iconColor }} />
@@ -119,7 +152,6 @@ export default function MobileNavbar({ iconColor, navbarBgColor, totalItems }) {
         onClose={() => setDrawerOpen(false)}
       >
         <Box sx={{ width: 270, p: 2 }}>
-          {/* Drawer header */}
           <Box
             sx={{
               display: "flex",
@@ -136,6 +168,7 @@ export default function MobileNavbar({ iconColor, navbarBgColor, totalItems }) {
             </IconButton>
           </Box>
           <Divider />
+
           {isAuthenticated && (
             <Box
               sx={{
@@ -148,19 +181,19 @@ export default function MobileNavbar({ iconColor, navbarBgColor, totalItems }) {
             >
               <Avatar
                 src={avatar}
-                alt={userMetadata?.name}
+                alt={userMetadata.name}
                 sx={{ width: 56, height: 56 }}
               />
               <Box>
-                <Typography fontWeight="600">{userMetadata?.name}</Typography>
+                <Typography fontWeight="600">{userMetadata.name}</Typography>
                 <Typography fontSize="0.8rem" color="text.secondary">
-                  {userMetadata?.email}
+                  {userMetadata.email}
                 </Typography>
               </Box>
             </Box>
           )}
           <Divider />
-          {/* Nav Links */}
+
           <List>
             {navLinks.map((item) => (
               <ListItem key={item.text} disablePadding>
@@ -177,7 +210,6 @@ export default function MobileNavbar({ iconColor, navbarBgColor, totalItems }) {
           </List>
           <Divider sx={{ my: 1 }} />
 
-          {/* Authenticated User Section */}
           {isAuthenticated ? (
             <>
               <List>
@@ -193,7 +225,6 @@ export default function MobileNavbar({ iconColor, navbarBgColor, totalItems }) {
                     <ListItemText primary="Profile" />
                   </ListItemButton>
                 </ListItem>
-
                 <ListItem disablePadding>
                   <ListItemButton
                     component={Link}
