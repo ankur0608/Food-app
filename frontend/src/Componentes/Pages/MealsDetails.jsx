@@ -10,15 +10,16 @@ import {
   CardContent,
   Box,
   Skeleton,
-  IconButton,
+  // IconButton,
 } from "@mui/material";
-import FavoriteIcon from "@mui/icons-material/Favorite";
-import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+// import FavoriteIcon from "@mui/icons-material/Favorite";
+// import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useTheme } from "../Store/theme.jsx";
 import ReviewsSection from "../../Componentes/ReviewsSection.jsx";
 import AddToCartButton from "../AddToCartButton.jsx";
-import { useToast } from "../../Componentes/Store/ToastContext.jsx"; // Import toast
+// import { useToast } from "../../Componentes/Store/ToastContext.jsx";
+// import useUserWishlist from "../../hooks/useUserWishlist.jsx";
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
@@ -30,43 +31,41 @@ export default function MealDetail() {
   const [imageUrl, setImageUrl] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [wishlisted, setWishlisted] = useState(false);
+
   const { name } = useParams();
   const navigate = useNavigate();
   const { theme } = useTheme();
-  const { showToast } = useToast(); // Toast context
+  // const { showToast } = useToast();
 
-  const user = JSON.parse(localStorage.getItem("user"));
+  // const user = JSON.parse(localStorage.getItem("user"));
+  // const {
+  //   isWishlisted,
+  //   toggleWishlist,
+  //   loading: wishlistLoading,
+  // } = useUserWishlist(user?.id);
 
-  // Load meal and check wishlist
   useEffect(() => {
     const fetchMeal = async () => {
+      setLoading(true);
       try {
-        const { data, error } = await supabase
+        // Fetch meal details
+        const { data: mealData, error: mealError } = await supabase
           .from("foods")
           .select("*")
           .eq("name", decodeURIComponent(name))
           .single();
-        if (error) throw error;
-        setMeal(data);
 
-        if (data.image) {
+        if (mealError) throw mealError;
+        setMeal(mealData);
+
+        // Fetch meal image
+        if (mealData.image) {
           const { data: imgData, error: imgError } = supabase.storage
             .from("meal-images")
-            .getPublicUrl(data.image);
+            .getPublicUrl(mealData.image);
+
           if (imgError) throw imgError;
           setImageUrl(imgData.publicUrl);
-        }
-
-        // Check if meal is wishlisted
-        if (user) {
-          const { data: wishlistData } = await supabase
-            .from("wishlists")
-            .select("*")
-            .eq("user_id", user.id)
-            .eq("food_id", data.id)
-            .single();
-          if (wishlistData) setWishlisted(true);
         }
       } catch (err) {
         console.error(err.message);
@@ -75,40 +74,27 @@ export default function MealDetail() {
         setLoading(false);
       }
     };
+
     fetchMeal();
-  }, [name, user]);
+  }, [name]);
 
-  const handleWishlist = async () => {
-    if (!user) {
-      showToast("Please login first", "error");
-      return;
-    }
+  // const handleWishlist = async () => {
+  //   if (!user) {
+  //     showToast("Please login first", "error");
+  //     return;
+  //   }
 
-    try {
-      if (!wishlisted) {
-        const { error } = await supabase
-          .from("wishlists")
-          .insert([{ user_id: user.id, food_id: meal.id }]);
-        if (error) throw error;
-        setWishlisted(true);
-        showToast("Added to wishlist", "success");
-      } else {
-        const { error } = await supabase
-          .from("wishlists")
-          .delete()
-          .eq("user_id", user.id)
-          .eq("food_id", meal.id);
-        if (error) throw error;
-        setWishlisted(false); // Only set false if deletion succeeds
-        showToast("Removed from wishlist", "info");
-      }
-    } catch (err) {
-      console.error("Wishlist error:", err.message);
-      showToast("Failed to update wishlist", "error");
-    }
-  };
+  //   if (!meal) return;
 
-  if (loading) {
+  //   await toggleWishlist(meal.id);
+
+  //   showToast(
+  //     isWishlisted(meal.id) ? "Removed from wishlist" : "Added to wishlist",
+  //     isWishlisted(meal.id) ? "info" : "success"
+  //   );
+  // };
+
+  if (loading /* || wishlistLoading */) {
     return (
       <Container sx={{ mt: 4, height: 800 }}>
         <Skeleton variant="rectangular" width="100%" height={350} />
@@ -165,23 +151,7 @@ export default function MealDetail() {
           }}
         />
 
-        <IconButton
-          onClick={handleWishlist}
-          sx={{
-            position: "absolute",
-            top: 16,
-            right: 16,
-            bgcolor: "rgba(255,255,255,0.8)",
-            "&:hover": {
-              transform: "scale(1.2)",
-              bgcolor: "rgba(255,255,255,1)",
-            },
-            transition: "all 0.3s",
-            fontSize: 30,
-          }}
-        >
-          {wishlisted ? <FavoriteIcon color="error" /> : <FavoriteBorderIcon />}
-        </IconButton>
+        {/* Wishlist Button removed */}
 
         <CardContent>
           <Typography variant="h4" gutterBottom sx={{ fontWeight: "bold" }}>

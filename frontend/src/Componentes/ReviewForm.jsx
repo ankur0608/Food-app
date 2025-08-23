@@ -1,159 +1,118 @@
-import { useState, useEffect } from "react";
-import { supabase } from "../../supabaseClient";
+import { useState } from "react";
 import {
   Box,
-  TextField,
   Button,
-  Rating,
+  TextField,
   Typography,
+  Rating,
   Paper,
-  Divider,
-  Skeleton,
+  FormHelperText,
 } from "@mui/material";
-import toast from "react-hot-toast";
-import { useTheme } from "@mui/material/styles";
+import { supabase } from "../../supabaseClient";
+import { useToast } from "../Componentes/Store/ToastContext";
 
 export default function ReviewForm({
-  itemId,
-  tableName,
-  foreignKey,
-  onReviewSubmit,
+  itemId, // id of the meal or food
+  tableName, // "food_reviews" or "meal_reviews"
+  foreignKey, // "food_id" or "meal_id"
+  onReviewAdded,
 }) {
-  const [rating, setRating] = useState(0);
+  const [rating, setRating] = useState(null);
   const [comment, setComment] = useState("");
   const [loading, setLoading] = useState(false);
-  const [userLoading, setUserLoading] = useState(true); // For skeleton while checking user
-  const theme = useTheme();
+  const [errors, setErrors] = useState({});
+  const { showToast } = useToast();
 
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    // Simulate fetching user
-    const fetchUser = async () => {
-      try {
-        const {
-          data: { user },
-          error,
-        } = await supabase.auth.getUser();
-        if (error) throw error;
-        setUser(user);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setUserLoading(false);
-      }
-    };
-    fetchUser();
-  }, []);
+  const validate = () => {
+    const newErrors = {};
+    if (!rating) newErrors.rating = "Please select a rating.";
+    if (!comment.trim()) newErrors.comment = "Please enter your review.";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (rating === 0) {
-      return toast.error("⭐ Please select a rating");
-    }
-    if (!user) {
-      return toast.error("🔐 You must be logged in to leave a review");
-    }
-
+    if (!validate()) return;
     setLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from(tableName)
-        .insert({
-          [foreignKey]: itemId,
-          user_id: user.id,
-          rating,
-          comment,
-        })
-        .select()
-        .single();
 
-      if (error) {
-        console.error(error);
-        toast.error("❌ Failed to submit review");
-      } else {
-        toast.success("Review submitted!");
-        setRating(0);
-        setComment("");
-        onReviewSubmit(data);
+    try {
+      const {
+        data: { session },
+        error: authError,
+      } = await supabase.auth.getSession();
+      if (authError || !session?.user) {
+        showToast("You must be logged in to leave a review.", "error");
+        setLoading(false);
+        return;
       }
+
+      const user = session.user;
+
+      const payload = {
+        [foreignKey]: itemId,
+        rating,
+        comment,
+        user_id: user.id,
+        user_name: user.user_metadata.full_name || "Anonymous",
+        user_avatar_url: user.user_metadata.avatar_url || "",
+      };
+
+      // Insert review
+      const { data, error: insertError } = await supabase
+        .from(tableName)
+        .insert([payload])
+        .select();
+
+      if (insertError) throw insertError;
+
+      showToast("Review submitted successfully!", "success");
+      setRating(null);
+      setComment("");
+      setErrors({});
+      if (onReviewAdded) onReviewAdded();
     } catch (err) {
-      console.error(err);
-      toast.error("❌ Failed to submit review");
+      console.error("Insert failed:", err.message);
+      showToast("Failed to submit review. Try again.", "error");
     } finally {
       setLoading(false);
     }
   };
 
-  // Show skeleton while user info is loading
-  if (userLoading) {
-    return (
-      <Paper
-        elevation={3}
-        sx={{
-          p: 3,
-          borderRadius: 2,
-          mt: 4,
-          backgroundColor:
-            theme.palette.mode === "dark" ? "#121212" : "#fefefe",
-        }}
-      >
-        <Skeleton variant="text" width="40%" height={30} />
-        <Divider sx={{ my: 2 }} />
-        <Skeleton
-          variant="rectangular"
-          width="100%"
-          height={50}
-          sx={{ mb: 2 }}
-        />
-        <Skeleton
-          variant="rectangular"
-          width="100%"
-          height={100}
-          sx={{ mb: 2 }}
-        />
-        <Skeleton variant="rectangular" width="30%" height={50} />
-      </Paper>
-    );
-  }
-
   return (
-    <Paper
-      elevation={3}
-      sx={{
-        p: 3,
-        borderRadius: 2,
-        mt: 4,
-        backgroundColor: theme.palette.mode === "dark" ? "#121212" : "#fefefe",
-      }}
-    >
+    <Paper elevation={3} sx={{ p: 3, mt: 3, borderRadius: 2 }}>
       <Typography variant="h6" gutterBottom>
-        Leave a Review
+        Write a Review
       </Typography>
-      <Divider sx={{ mb: 2 }} />
+
       <Box component="form" onSubmit={handleSubmit}>
         <Rating
           value={rating}
           onChange={(e, newValue) => setRating(newValue)}
-          precision={0.5}
-          size="large"
+          precision={1}
         />
+        {errors.rating && (
+          <FormHelperText error>{errors.rating}</FormHelperText>
+        )}
+
         <TextField
           fullWidth
+          label="Your Review"
           multiline
-          minRows={3}
-          label="Write your comment"
+          rows={3}
           value={comment}
           onChange={(e) => setComment(e.target.value)}
-          sx={{ my: 2 }}
+          sx={{ mt: 2 }}
+          error={!!errors.comment}
+          helperText={errors.comment}
         />
+
         <Button
           type="submit"
           variant="contained"
-          color="primary"
           disabled={loading}
-          sx={{ borderRadius: 2 }}
-          size="large"
+          fullWidth
+          sx={{ mt: 2 }}
         >
           {loading ? "Submitting..." : "Submit Review"}
         </Button>

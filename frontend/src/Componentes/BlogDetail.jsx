@@ -143,9 +143,9 @@ export default function BlogDetail() {
 
       {/* Generic Reviews Section */}
       <ReviewsSection
-        itemId={id}
-        tableName="post_reviews"
-        foreignKey="post_id"
+        itemId={post.id} // ✅ correct primary key from posts table
+        tableName="post_reviews" // ✅ match table name in Supabase
+        foreignKey="post_id" // ✅ matches schema
       />
     </Container>
   );

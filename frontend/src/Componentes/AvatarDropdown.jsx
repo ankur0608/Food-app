@@ -107,7 +107,7 @@ export default function AvatarDropdown({ onLogout }) {
     loadAvatar();
   }, []);
 
-  const iconColor = theme === "light" ? "#333" : "#fff";
+  const iconColor = theme === "light" ? "#686666ff" : "#fff";
 
   return (
     <>
@@ -135,7 +135,7 @@ export default function AvatarDropdown({ onLogout }) {
         PaperProps={{
           elevation: 4,
           sx: {
-            mt: 1.8,
+            mt: 2.5,
             minWidth: 240,
             borderRadius: 2,
             bgcolor: theme === "dark" ? "#2d2d2d" : "#fff",
@@ -187,14 +187,6 @@ export default function AvatarDropdown({ onLogout }) {
             <HistoryIcon fontSize="small" sx={{ color: iconColor }} />
           </ListItemIcon>
           <ListItemText primary="Payment History" />
-        </MenuItem>
-
-        {/* Wishlist menu item */}
-        <MenuItem component={Link} to="/wishlist">
-          <ListItemIcon>
-            <FavoriteIcon fontSize="small" sx={{ color: iconColor }} />
-          </ListItemIcon>
-          <ListItemText primary="Wishlist" />
         </MenuItem>
 
         <Divider />

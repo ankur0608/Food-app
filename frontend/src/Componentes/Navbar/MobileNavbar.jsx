@@ -19,6 +19,7 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import {
   FaHome,
   FaMapMarkedAlt,
@@ -192,6 +193,7 @@ export default function MobileNavbar({ iconColor, navbarBgColor, totalItems }) {
                     <ListItemText primary="Profile" />
                   </ListItemButton>
                 </ListItem>
+
                 <ListItem disablePadding>
                   <ListItemButton
                     component={Link}

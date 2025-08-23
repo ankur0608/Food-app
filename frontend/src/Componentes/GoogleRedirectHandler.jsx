@@ -11,41 +11,28 @@ export default function GoogleRedirectHandler() {
   useEffect(() => {
     const handleOAuthLogin = async () => {
       try {
-        const { data, error } = await supabase.auth.getSession();
+        // Get current session
+        const {
+          data: { session },
+          error,
+        } = await supabase.auth.getSession();
 
-        if (error || !data.session) {
+        if (error || !session) {
           console.error("OAuth session error:", error);
           alert("Failed to log in with Google");
           navigate("/login");
           return;
         }
 
-        const { user, access_token } = data.session;
+        const { user, access_token } = session;
 
-        // Save token and user info
+        // Save token and user info locally
         localStorage.setItem("token", access_token);
         localStorage.setItem("user_email", user.email);
         localStorage.setItem("justSignedUp", "true");
 
-        // Check if user exists in 'users' table
-        const { data: existingUser } = await supabase
-          .from("users")
-          .select("id")
-          .eq("email", user.email)
-          .single();
-
-        // Insert user only if not exists
-        if (!existingUser) {
-          const { error: insertError } = await supabase.from("users").insert([
-            {
-              email: user.email,
-              name: user.user_metadata.full_name || user.email,
-              password: null,
-            },
-          ]);
-
-          if (insertError) console.error("Failed to insert user:", insertError);
-        }
+        // You can also access user's metadata if needed
+        // Example: user.user_metadata.full_name
 
         // Redirect to home after successful login
         navigate("/home");
