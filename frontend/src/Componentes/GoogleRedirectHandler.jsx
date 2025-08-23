@@ -1,4 +1,3 @@
-// src/pages/GoogleRedirectHandler.jsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../../supabaseClient";
@@ -11,34 +10,29 @@ export default function GoogleRedirectHandler() {
   useEffect(() => {
     const handleOAuthLogin = async () => {
       try {
-        // Get current session
-        const {
-          data: { session },
-          error,
-        } = await supabase.auth.getSession();
+        // Get the session after redirect
+        const { data, error } = await supabase.auth.getSession();
 
-        if (error || !session) {
+        if (error || !data.session) {
           console.error("OAuth session error:", error);
-          alert("Failed to log in with Google");
+          alert("Google login failed. Please try again.");
           navigate("/login");
           return;
         }
 
-        const { user, access_token } = session;
+        const session = data.session;
+        const user = session.user;
 
         // Save token and user info locally
-        localStorage.setItem("token", access_token);
+        localStorage.setItem("token", session.access_token);
         localStorage.setItem("user_email", user.email);
         localStorage.setItem("justSignedUp", "true");
-
-        // You can also access user's metadata if needed
-        // Example: user.user_metadata.full_name
 
         // Redirect to home after successful login
         navigate("/home");
       } catch (err) {
         console.error("Google login failed:", err);
-        alert("Failed to log in with Google");
+        alert("Google login failed. Please try again.");
         navigate("/login");
       } finally {
         setLoading(false);
