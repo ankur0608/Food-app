@@ -72,9 +72,16 @@ export default function MealsGrid({
   }
 
   return (
-    <Grid container spacing={{ xs: 2, sm: 1.5 }}>
+    <Grid container spacing={{ xs: 2, sm: 1.5 }} justifyContent="center">
       {meals.map((meal) => (
-        <Grid item key={meal.id} xs={16} sm={6} md={4} lg={3}>
+        <Grid
+          item
+          key={meal.id}
+          xs={12} // full width on mobile
+          sm={6} // 2 per row on small screens
+          md={4} // 3 per row on medium screens
+          lg={3} // 4 per row on large screens
+        >
           <MealCard
             meal={meal}
             addingId={addingId}
