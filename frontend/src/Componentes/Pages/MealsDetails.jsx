@@ -114,7 +114,7 @@ export default function MealDetail() {
   }
 
   return (
-    <Container maxWidth="md" sx={{ mt: 4 }}>
+    <Container maxWidth="md" sx={{ pt: 12 }}>
       <Button
         variant="outlined"
         startIcon={<ArrowBackIcon />}

@@ -142,7 +142,11 @@ function Home() {
       </Box>
 
       {/* BLOG SECTION */}
-      <div>
+      <div
+        style={{
+          padding: 35,
+        }}
+      >
         <Suspense fallback={<div>Loading blog...</div>}>
           <SmallBlog />
         </Suspense>

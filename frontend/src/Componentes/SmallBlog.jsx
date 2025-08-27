@@ -155,7 +155,7 @@ export default function BlogList() {
         </Button>
       </Box>
 
-      <Grid container spacing={4}>
+      <Grid container spacing={7}>
         {/* Featured Blog */}
         <Grid item xs={12} md={7}>
           {loading ? (

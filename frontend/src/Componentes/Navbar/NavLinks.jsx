@@ -11,20 +11,33 @@ import MobileNavbar from "./MobileNavbar";
 import DesktopNavbar from "./DesktopNavbar";
 
 export default function Navbar() {
+  // MUI theme and breakpoints
   const muiTheme = useMuiTheme();
   const isMobile = useMediaQuery(muiTheme.breakpoints.down("md"));
 
-  const { theme: currentTheme, toggleTheme, theme } = useCustomTheme();
+  // Custom theme context
+  const { theme: currentTheme, toggleTheme } = useCustomTheme();
+
+  // Cart context
   const { items } = useContext(CartContext);
   const navigate = useNavigate();
 
+  // State for auth
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Calculate total items in cart
   const totalItems = items.reduce((acc, item) => acc + item.quantity, 0);
 
+  // Fetch session and listen for auth changes
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    const checkSession = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       setIsAuthenticated(!!session?.user);
-    });
+    };
+
+    checkSession();
 
     const { data: listener } = supabase.auth.onAuthStateChange(
       (_event, session) => setIsAuthenticated(!!session?.user)
@@ -33,25 +46,40 @@ export default function Navbar() {
     return () => listener?.subscription?.unsubscribe?.();
   }, []);
 
+  // Theme-based styles
   const navbarBgColor = currentTheme === "dark" ? "#0d1117" : "#ffffff";
-  const iconColor = theme === "light" ? "#333" : "#fff";
+  const iconColor = currentTheme === "light" ? "#333" : "#fff";
 
-  return isMobile ? (
-    <MobileNavbar
-      iconColor={iconColor}
-      navbarBgColor={navbarBgColor}
-      isAuthenticated={isAuthenticated}
-      totalItems={totalItems}
-    />
-  ) : (
-    <DesktopNavbar
-      currentTheme={currentTheme}
-      theme={theme}
-      toggleTheme={toggleTheme}
-      iconColor={iconColor}
-      isAuthenticated={isAuthenticated}
-      totalItems={totalItems}
-      navbarBgColor={navbarBgColor}
-    />
+  // Layout selection: Mobile or Desktop
+  return (
+    <header
+      style={{
+        backgroundColor: navbarBgColor,
+        position: "sticky",
+        top: 0,
+        zIndex: 1000,
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+      }}
+    >
+      {isMobile ? (
+        <MobileNavbar
+          iconColor={iconColor}
+          navbarBgColor={navbarBgColor}
+          isAuthenticated={isAuthenticated}
+          totalItems={totalItems}
+          onNavigate={navigate}
+        />
+      ) : (
+        <DesktopNavbar
+          currentTheme={currentTheme}
+          toggleTheme={toggleTheme}
+          iconColor={iconColor}
+          isAuthenticated={isAuthenticated}
+          totalItems={totalItems}
+          navbarBgColor={navbarBgColor}
+          onNavigate={navigate}
+        />
+      )}
+    </header>
   );
 }

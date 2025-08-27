@@ -66,7 +66,12 @@ const MealCard = memo(({ meal, onAddToCart, isDark, isAdding }) => (
         component="img"
         alt={meal.name}
         loading="lazy"
-        sx={{ borderRadius: 2 }}
+        sx={{
+          borderRadius: 2,
+          height: 180, // Fixed height
+          width: "100%",
+          objectFit: "cover", // Crop to fit without stretching
+        }}
         image={
           meal.image.startsWith("http")
             ? meal.image
@@ -75,16 +80,6 @@ const MealCard = memo(({ meal, onAddToCart, isDark, isAdding }) => (
         onError={(e) => {
           e.target.src = "/assets/default-meal.jpg";
         }}
-        srcSet={
-          meal.image.startsWith("http")
-            ? `${meal.image}?w=320 320w,
-         ${meal.image}?w=480 480w,
-         ${meal.image}?w=800 800w`
-            : `https://food-app-d8r3.onrender.com/images/${meal.image}?w=320 320w,
-         https://food-app-d8r3.onrender.com/images/${meal.image}?w=480 480w,
-         https://food-app-d8r3.onrender.com/images/${meal.image}?w=800 800w`
-        }
-        sizes="(max-width: 600px) 320px, (max-width: 960px) 480px, 800px"
       />
 
       <CardContent sx={{ px: 1.5, py: 2 }}>

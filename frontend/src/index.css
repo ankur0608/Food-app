@@ -27,3 +27,6 @@ html,
   color: #f5f5f5;
   transition: background-color 0.3s, color 0.3s;
 }
+main {
+  overflow: visible; /* no scroll container interfering */
+}

@@ -74,7 +74,7 @@ export default function Meals() {
         align="center"
         gutterBottom
         color="primary"
-        mt={3}
+        mt={10}
       >
         Explore Our Menu
       </Typography>

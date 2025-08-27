@@ -72,7 +72,7 @@ export default function MealsGrid({
   }
 
   return (
-    <Grid container spacing={{ xs: 2, sm: 2 }}>
+    <Grid container spacing={{ xs: 2, sm: 1.5 }}>
       {meals.map((meal) => (
         <Grid item key={meal.id} xs={16} sm={6} md={4} lg={3}>
           <MealCard

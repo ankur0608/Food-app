@@ -38,7 +38,7 @@ export default function BlogDetail() {
 
   if (loading) {
     return (
-      <Container maxWidth="md" sx={{ mt: 4 }}>
+      <Container maxWidth="md" sx={{ mt: 10 }}>
         <Skeleton variant="text" width="60%" height={50} />
         <Skeleton
           variant="rectangular"
@@ -61,7 +61,7 @@ export default function BlogDetail() {
     : "/assets/default-blog.jpg";
 
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
+    <Container maxWidth="md" sx={{ py: 4, mt: 9 }}>
       <Paper
         elevation={3}
         sx={{ p: { xs: 2, sm: 4 }, bgcolor: theme.palette.background.paper }}

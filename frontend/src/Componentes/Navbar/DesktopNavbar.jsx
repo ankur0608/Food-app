@@ -33,11 +33,12 @@ export default function DesktopNavbar({
 
   return (
     <AppBar
-      position="sticky"
+      position="fixed"
       sx={{
+        top: 0,
+        zIndex: (theme) => theme.zIndex.drawer + 1,
         backgroundColor: navbarBgColor,
-        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-        px: { xs: 2, md: 4 },
+        boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
       }}
     >
       <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
@@ -53,7 +54,7 @@ export default function DesktopNavbar({
             color: iconColor,
           }}
         >
-          My <span style={{ color: "#3678f4ff" }}>Food</span> App
+          <span style={{ color: "#3678f4ff" }}>Food</span> App
         </Typography>
 
         {/* Nav links */}

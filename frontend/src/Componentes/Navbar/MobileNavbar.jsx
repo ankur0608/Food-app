@@ -19,7 +19,6 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
-import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import HistoryIcon from "@mui/icons-material/History";
@@ -42,7 +41,11 @@ const navLinks = [
   { text: "Blog", icon: <FaBlog />, path: "/blog" },
 ];
 
-export default function MobileNavbar({ iconColor, navbarBgColor, totalItems }) {
+export default function MobileNavbar({
+  iconColor = "#fff",
+  navbarBgColor = "#1976d2",
+  totalItems = 0,
+}) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [userMetadata, setUserMetadata] = useState({
     name: "User",
@@ -92,11 +95,9 @@ export default function MobileNavbar({ iconColor, navbarBgColor, totalItems }) {
 
   useEffect(() => {
     loadUser();
-
     const { data: authListener } = supabase.auth.onAuthStateChange(() => {
       loadUser();
     });
-
     return () => authListener.subscription.unsubscribe();
   }, [loadUser]);
 
@@ -114,17 +115,22 @@ export default function MobileNavbar({ iconColor, navbarBgColor, totalItems }) {
 
   return (
     <AppBar
-      position="sticky"
+      position="fixed"
       sx={{
+        top: 0,
+        zIndex: (theme) => theme.zIndex.drawer + 1,
         backgroundColor: navbarBgColor,
         boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
       }}
     >
-      <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
-        <IconButton color="inherit" onClick={() => setDrawerOpen(true)}>
-          <MenuIcon sx={{ color: iconColor }} />
-        </IconButton>
-
+      <Toolbar
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        {/* Left: App Name */}
         <Typography
           variant="h6"
           component={Link}
@@ -136,22 +142,31 @@ export default function MobileNavbar({ iconColor, navbarBgColor, totalItems }) {
             color: iconColor,
           }}
         >
-          My <span style={{ color: "#3678f4ff" }}>Food</span> App
+          <span style={{ color: "#3678f4ff" }}>Food</span> App
         </Typography>
 
-        <IconButton color="inherit" component={Link} to="/cart">
-          <Badge badgeContent={totalItems} color="error">
-            <ShoppingCartOutlinedIcon sx={{ color: iconColor }} />
-          </Badge>
-        </IconButton>
+        {/* Right: Cart + Menu */}
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <IconButton color="inherit" component={Link} to="/cart">
+            <Badge badgeContent={totalItems} color="error">
+              <ShoppingCartOutlinedIcon sx={{ color: iconColor }} />
+            </Badge>
+          </IconButton>
+
+          <IconButton color="inherit" onClick={() => setDrawerOpen(true)}>
+            <MenuIcon sx={{ color: iconColor }} />
+          </IconButton>
+        </Box>
       </Toolbar>
 
+      {/* Drawer */}
       <Drawer
         anchor="left"
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
+        PaperProps={{ sx: { width: { xs: 270, sm: 320 }, height: "100%" } }}
       >
-        <Box sx={{ width: 270, p: 2 }}>
+        <Box sx={{ width: "100%", p: 1, overflowY: "auto" }}>
           <Box
             sx={{
               display: "flex",
@@ -160,7 +175,7 @@ export default function MobileNavbar({ iconColor, navbarBgColor, totalItems }) {
               mb: 2,
             }}
           >
-            <Typography variant="h5" fontWeight="bold">
+            <Typography variant="h5" fontWeight="650">
               Menu
             </Typography>
             <IconButton onClick={() => setDrawerOpen(false)}>
@@ -208,6 +223,7 @@ export default function MobileNavbar({ iconColor, navbarBgColor, totalItems }) {
               </ListItem>
             ))}
           </List>
+
           <Divider sx={{ my: 1 }} />
 
           {isAuthenticated ? (

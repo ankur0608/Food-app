@@ -1,4 +1,13 @@
-import styles from "./Footer.module.css";
+import {
+  Box,
+  Container,
+  Grid,
+  Typography,
+  Link as MuiLink,
+  IconButton,
+  Button,
+  Divider,
+} from "@mui/material";
 import {
   FaFacebook,
   FaInstagram,
@@ -11,7 +20,7 @@ import {
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
-function Footer() {
+export default function Footer() {
   const handleScrollTop = () => {
     const root = document.getElementById("root");
     const target = root?.scrollTop > 0 ? root : window;
@@ -23,17 +32,11 @@ function Footer() {
       icon: <FaMapMarkerAlt />,
       text: "ul. Opolska 100, 31-323 Kraków, Poland",
     },
-    {
-      icon: <FaPhoneAlt />,
-      text: <a href="tel:+91783871783">+91 783 871 783</a>,
-    },
+    { icon: <FaPhoneAlt />, text: "+91 783 871 783", href: "tel:+91783871783" },
     {
       icon: <FaEnvelope />,
-      text: (
-        <a href="mailto:contact@pragmaticcoders.com">
-          contact@pragmaticcoders.com
-        </a>
-      ),
+      text: "contact@pragmaticcoders.com",
+      href: "mailto:contact@pragmaticcoders.com",
     },
   ];
 
@@ -51,21 +54,13 @@ function Footer() {
   ];
 
   const socialLinks = [
-    {
-      href: "https://facebook.com",
-      icon: <FaFacebook />,
-      label: "Facebook",
-    },
+    { href: "https://facebook.com", icon: <FaFacebook />, label: "Facebook" },
     {
       href: "https://instagram.com",
       icon: <FaInstagram />,
       label: "Instagram",
     },
-    {
-      href: "https://twitter.com",
-      icon: <FaTwitter />,
-      label: "Twitter",
-    },
+    { href: "https://twitter.com", icon: <FaTwitter />, label: "Twitter" },
     {
       href: "https://www.linkedin.com/in/ankur-patel-86b65a35a",
       icon: <FaLinkedin />,
@@ -74,67 +69,169 @@ function Footer() {
   ];
 
   return (
-    <footer className={styles.footer}>
-      <div className={styles.grid}>
-        <address className={styles.column}>
-          <h2>Pragmatic Coders</h2>
-          <p>Empowering your ideas through software.</p>
-          {contactInfo.map(({ icon, text }, i) => (
-            <p key={i}>
-              {icon} <span className={styles.contactText}>{text}</span>
-            </p>
-          ))}
-        </address>
+    <Box
+      component="footer"
+      sx={{
+        bgcolor: "background.paper",
+        color: "text.primary",
+        py: 6,
+        mt: 8,
+        borderTop: "1px solid",
+        borderColor: "divider",
+      }}
+    >
+      <Container maxWidth="lg">
+        {/* Top Section */}
+        <Grid container spacing={28}>
+          {/* Company Info */}
+          <Grid item xs={12} md={4}>
+            <Typography
+              variant="h6"
+              fontWeight="bold"
+              gutterBottom
+              sx={{ mb: 2 }}
+            >
+              Pragmatic Coders
+            </Typography>
+            <Typography variant="body2" mb={3} color="text.secondary">
+              Empowering your ideas through software.
+            </Typography>
+            {contactInfo.map(({ icon, text, href }, i) => (
+              <Box
+                key={i}
+                display="flex"
+                alignItems="center"
+                mb={1.5}
+                sx={{ fontSize: 14 }}
+              >
+                <Box sx={{ mr: 1.5, fontSize: 18, color: "primary.main" }}>
+                  {icon}
+                </Box>
+                {href ? (
+                  <MuiLink
+                    href={href}
+                    underline="hover"
+                    color="inherit"
+                    sx={{ fontSize: 14 }}
+                  >
+                    {text}
+                  </MuiLink>
+                ) : (
+                  <Typography variant="body2">{text}</Typography>
+                )}
+              </Box>
+            ))}
+          </Grid>
 
-        <nav className={styles.column} aria-label="Quick Links">
-          <h3>Quick Links</h3>
-          {quickLinks.map(({ to, label }) => (
-            <Link key={to} to={to}>
-              {label}
-            </Link>
-          ))}
-        </nav>
+          {/* Quick Links */}
+          <Grid item xs={6} md={4}>
+            <Typography
+              variant="h6"
+              fontWeight="bold"
+              gutterBottom
+              sx={{ mb: 2 }}
+            >
+              Quick Links
+            </Typography>
+            <Divider sx={{ mb: 2, width: 60, borderBottomWidth: 2 }} />
+            {quickLinks.map(({ to, label }) => (
+              <Typography key={to} variant="body2" mb={1.5}>
+                <MuiLink
+                  component={Link}
+                  to={to}
+                  underline="hover"
+                  color="text.secondary"
+                  sx={{ "&:hover": { color: "primary.main" } }}
+                >
+                  {label}
+                </MuiLink>
+              </Typography>
+            ))}
+          </Grid>
 
-        <nav className={styles.column} aria-label="Useful Links">
-          <h3>Useful Links</h3>
-          {usefulLinks.map(({ to, label }) => (
-            <Link key={to} to={to}>
-              {label}
-            </Link>
-          ))}
-        </nav>
-      </div>
+          {/* Useful Links */}
+          <Grid item xs={6} md={4}>
+            <Typography
+              variant="h6"
+              fontWeight="bold"
+              gutterBottom
+              sx={{ mb: 2 }}
+            >
+              Useful Links
+            </Typography>
+            <Divider sx={{ mb: 2, width: 60, borderBottomWidth: 2 }} />
+            {usefulLinks.map(({ to, label }) => (
+              <Typography key={to} variant="body2" mb={1.5}>
+                <MuiLink
+                  component={Link}
+                  to={to}
+                  underline="hover"
+                  color="text.secondary"
+                  sx={{ "&:hover": { color: "primary.main" } }}
+                >
+                  {label}
+                </MuiLink>
+              </Typography>
+            ))}
+          </Grid>
+        </Grid>
 
-      <section className={styles.socialSection} aria-label="Social Media">
-        <h3>Follow Us</h3>
-        <div className={styles.social}>
+        <Divider sx={{ my: 4 }} />
+
+        {/* Social Media Section */}
+        <Box textAlign="center" mb={3}>
+          <Typography
+            variant="subtitle1"
+            gutterBottom
+            sx={{ fontWeight: 600, mb: 2 }}
+          >
+            Follow Us
+          </Typography>
           {socialLinks.map(({ href, icon, label }) => (
-            <a
+            <IconButton
               key={label}
+              component="a"
               href={href}
               target="_blank"
               rel="noreferrer"
               aria-label={label}
+              sx={{
+                mx: 1,
+                color: "text.secondary",
+                bgcolor: "background.default",
+                border: "1px solid",
+                borderColor: "divider",
+                "&:hover": {
+                  bgcolor: "primary.main",
+                  color: "#fff",
+                },
+              }}
             >
               {icon}
-            </a>
+            </IconButton>
           ))}
-        </div>
-      </section>
+        </Box>
 
-      <div className={styles.bottom}>
-        <p>© 2025 Pragmatic Coders. All rights reserved.</p>
-      </div>
-
-      <button
-        className={styles.scrollButton}
-        onClick={handleScrollTop}
-        aria-label="Back to Top"
-      >
-        <FaArrowUp /> Back to Top
-      </button>
-    </footer>
+        <Divider sx={{ mb: 3 }} />
+        <Button
+          variant="contained"
+          startIcon={<FaArrowUp />}
+          onClick={handleScrollTop}
+          sx={{ borderRadius: 8 }}
+        >
+          Back to Top
+        </Button>
+        {/* Bottom Section */}
+        <Box
+          flexDirection={{ xs: "column", sm: "row" }}
+          alignItems="center"
+          // mt={4}
+        >
+          <Typography variant="body2" color="text.secondary" textAlign="center">
+            © {new Date().getFullYear()} Pragmatic Coders. All rights reserved.
+          </Typography>
+        </Box>
+      </Container>
+    </Box>
   );
 }
-
-export default Footer;
