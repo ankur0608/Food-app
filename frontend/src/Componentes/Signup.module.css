@@ -1,8 +1,8 @@
 /* Container styling */
 .container {
   max-width: 500px;
-  margin: 1.5rem auto;
-  padding: 0.9rem 1.9rem 1.9rem 1.9rem;
+  margin: 4rem auto;
+  padding: 2rem 1.9rem 1.9rem 1.9rem;
   border-radius: 1.2rem;
   backdrop-filter: blur(15px);
   background-color: rgba(255, 255, 255, 0.9);

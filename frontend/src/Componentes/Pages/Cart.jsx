@@ -58,7 +58,7 @@ export default function Cart() {
       <Typography
         variant="h4"
         fontWeight="bold"
-        sx={{ textAlign: "center", color: "primary.main", mb: 2, mt: 5 }}
+        sx={{ textAlign: "center", color: "primary.main", mb: 2, mt: 10 }}
       >
         <ShoppingCart sx={{ fontSize: 32, mr: 1, verticalAlign: "middle" }} />
         Shopping Cart
