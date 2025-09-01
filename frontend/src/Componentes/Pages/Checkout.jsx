@@ -1,24 +1,38 @@
-import { useForm } from "react-hook-form";
+// src/Componentes/Pages/CheckoutForm.jsx
+"use client";
+
+import { useForm, Controller } from "react-hook-form";
 import { useEffect, useState, useContext } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import styles from "./Checkout.module.css";
 import { CartContext } from "../Store/CartContext.jsx";
 import { FaPhone, FaRegUser, FaRegAddressBook } from "react-icons/fa6";
 import { IoMailOutline } from "react-icons/io5";
 import axios from "axios";
 import logo from "../../assets/main-logo.png";
 
+// MUI imports
+import {
+  Paper,
+  Typography,
+  Stack,
+  TextField,
+  InputAdornment,
+  Button,
+  Alert,
+} from "@mui/material";
+
 const CheckoutForm = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { clearCart } = useContext(CartContext);
+  const { items, clearCart } = useContext(CartContext);
   const total = location.state?.total || 0;
 
   const [showPaymentToast, setShowPaymentToast] = useState(false);
 
-  const savedData = JSON.parse(localStorage.getItem("signupData")) || {};
+  const savedData = JSON.parse(localStorage.getItem("user")) || {};
+
   const {
-    register,
+    control,
     handleSubmit,
     formState: { errors },
   } = useForm({
@@ -51,16 +65,14 @@ const CheckoutForm = () => {
         currency: "INR",
         name: "Meal Checkout",
         description: "Thank you for your purchase!",
-        image: { logo },
+        image: logo,
         order_id: order.id,
         handler: async function (response) {
           const saveRes = await fetch(
             "https://food-app-d8r3.onrender.com/save-payment",
             {
               method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
+              headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
                 razorpay_order_id: order.id,
                 razorpay_payment_id: response.razorpay_payment_id,
@@ -71,38 +83,17 @@ const CheckoutForm = () => {
                 email: formData.email,
                 mobile: formData.mobile,
                 address: formData.address,
-                items:
-                  JSON.parse(localStorage.getItem("cartItems"))?.items || [],
+                items,
+                user_id: savedData.id,
               }),
             }
           );
 
           if (!saveRes.ok) {
-            console.error("❌ Failed to save payment");
             return alert("Payment completed but failed to save!");
           }
 
-          localStorage.removeItem("cartItems");
           clearCart();
-
-          const orderDetails = {
-            razorpay_order_id: order.id,
-            razorpay_payment_id: response.razorpay_payment_id,
-            razorpay_signature: response.razorpay_signature,
-            amount: order.amount / 100,
-            currency: order.currency,
-            buyer: {
-              name: formData.name,
-              email: formData.email,
-              mobile: formData.mobile,
-              address: formData.address,
-            },
-            date: new Date().toLocaleString(),
-          };
-
-          localStorage.setItem("orderDetails", JSON.stringify(orderDetails));
-
-          // ✅ Show success toast before navigating
           setShowPaymentToast(true);
           setTimeout(() => {
             setShowPaymentToast(false);
@@ -114,9 +105,7 @@ const CheckoutForm = () => {
           email: formData.email,
           contact: formData.mobile,
         },
-        theme: {
-          color: "#0f172a",
-        },
+        theme: { color: "#0f172a" },
         method: {
           netbanking: true,
           card: true,
@@ -136,93 +125,153 @@ const CheckoutForm = () => {
   };
 
   return (
-    <>
+    <Paper
+      elevation={6}
+      sx={{
+        maxWidth: 500,
+        mx: "auto",
+        mt: 15,
+        mb: 15,
+        p: 4,
+        borderRadius: 3,
+      }}
+    >
       {showPaymentToast && (
-        <div className={styles.toast}>
-          Payment completed successfully. Redirecting to summary...
-        </div>
+        <Alert severity="success" sx={{ mb: 2 }}>
+          Payment completed successfully. Redirecting...
+        </Alert>
       )}
 
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className={styles.checkoutForm}
-        noValidate
+      <Typography variant="h5" fontWeight={600} textAlign="center" mb={2}>
+        Checkout
+      </Typography>
+
+      <Typography
+        variant="subtitle1"
+        fontWeight={500}
+        textAlign="center"
+        mb={3}
       >
-        <h2 className={styles.heading}>Checkout</h2>
+        Total Amount: ₹{parseFloat(total).toFixed(2)}
+      </Typography>
 
-        <p className={styles.totalAmount}>
-          Total Amount: ${parseFloat(total).toFixed(2)}
-        </p>
-
-        <div className={styles.inputGroup}>
-          <FaRegUser className={styles.inputIcon} />
-          <input
-            {...register("name", { required: "Full Name is required" })}
-            placeholder="Full Name"
-            className={styles.formInput}
+      <form onSubmit={handleSubmit(onSubmit)} noValidate>
+        <Stack spacing={2}>
+          <Controller
+            name="name"
+            control={control}
+            rules={{ required: "Full Name is required" }}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                label="Full Name"
+                variant="outlined"
+                error={!!errors.name}
+                helperText={errors.name?.message}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <FaRegUser />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            )}
           />
-          {errors.name && (
-            <span className={styles.error}>{errors.name.message}</span>
-          )}
-        </div>
 
-        <div className={styles.inputGroup}>
-          <IoMailOutline className={styles.inputIcon} />
-          <input
-            {...register("email", {
+          <Controller
+            name="email"
+            control={control}
+            rules={{
               required: "Email is required",
               pattern: {
                 value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
                 message: "Invalid email address",
               },
-            })}
-            type="email"
-            placeholder="Email"
-            className={styles.formInput}
+            }}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                label="Email"
+                variant="outlined"
+                type="email"
+                error={!!errors.email}
+                helperText={errors.email?.message}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <IoMailOutline />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            )}
           />
-          {errors.email && (
-            <span className={styles.error}>{errors.email.message}</span>
-          )}
-        </div>
 
-        <div className={styles.inputGroup}>
-          <FaPhone className={styles.inputIcon} />
-          <input
-            {...register("mobile", {
+          <Controller
+            name="mobile"
+            control={control}
+            rules={{
               required: "Mobile Number is required",
               pattern: {
                 value: /^[0-9]{10,15}$/,
                 message: "Please enter a valid mobile number",
               },
-            })}
-            placeholder="Mobile Number"
-            className={styles.formInput}
-            type="tel"
+            }}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                label="Mobile Number"
+                variant="outlined"
+                type="tel"
+                error={!!errors.mobile}
+                helperText={errors.mobile?.message}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <FaPhone />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            )}
           />
-          {errors.mobile && (
-            <span className={styles.error}>{errors.mobile.message}</span>
-          )}
-        </div>
 
-        <div className={styles.inputGroup}>
-          <FaRegAddressBook className={styles.inputIcon} />
-          <input
-            {...register("address", {
-              required: "Shipping Address is required",
-            })}
-            placeholder="Shipping Address"
-            className={styles.formInput}
+          <Controller
+            name="address"
+            control={control}
+            rules={{ required: "Shipping Address is required" }}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                label="Shipping Address"
+                variant="outlined"
+                multiline
+                rows={2}
+                error={!!errors.address}
+                helperText={errors.address?.message}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <FaRegAddressBook />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            )}
           />
-          {errors.address && (
-            <span className={styles.error}>{errors.address.message}</span>
-          )}
-        </div>
 
-        <button type="submit" className={styles.formButton}>
-          Proceed to Pay
-        </button>
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            size="large"
+          >
+            Proceed to Pay
+          </Button>
+        </Stack>
       </form>
-    </>
+    </Paper>
   );
 };
 

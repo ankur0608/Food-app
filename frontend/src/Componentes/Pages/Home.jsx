@@ -1,8 +1,8 @@
 import { useNavigate } from "react-router-dom";
-import homeimage from "../../assets/bg (1).png";
+// import homeimage from "../../assets/bg (1).png";
 import { useCallback } from "react";
 import { useTheme } from "../Store/theme.jsx";
-import { lazy, Suspense } from "react";
+import { lazy } from "react";
 const Slider = lazy(() => import("../Slider/ProductSlider.jsx"));
 const SmallBlog = lazy(() => import("../SmallBlog.jsx"));
 import FeaturesSection from "../FeatureCard.jsx";
@@ -136,9 +136,7 @@ function Home() {
 
       {/* SLIDER SECTION */}
       <Box sx={{ bgcolor: theme === "dark" ? "#1a1a1a" : "#fafafa" }}>
-        <Suspense fallback={<div>Loading slider...</div>}>
-          <Slider />
-        </Suspense>
+        <Slider />
       </Box>
 
       {/* BLOG SECTION */}
@@ -147,9 +145,7 @@ function Home() {
           padding: 35,
         }}
       >
-        <Suspense fallback={<div>Loading blog...</div>}>
-          <SmallBlog />
-        </Suspense>
+        <SmallBlog />
       </div>
     </>
   );

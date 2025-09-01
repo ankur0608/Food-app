@@ -15,7 +15,7 @@ html,
 .light,
 .light body,
 .light #root {
-  background-color: #faf3f3d7;
+  background-color: #fff;
   color: #181818;
   transition: background-color 0.3s, color 0.3s;
 }

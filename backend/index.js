@@ -112,29 +112,74 @@ app.post("/save-payment", async (req, res) => {
   }
 });
 
-app.get("/payment-history", authenticateToken, async (req, res) => {
+app.post("/save-payment", async (req, res) => {
+  const {
+    razorpay_order_id,
+    razorpay_payment_id,
+    razorpay_signature,
+    amount,
+    currency,
+    name,
+    email,
+    mobile,
+    address,
+    items,
+    user_id, // Make sure frontend sends user_id
+  } = req.body;
+
+  console.log("💳 Payment request received:");
+  console.log({
+    razorpay_order_id,
+    razorpay_payment_id,
+    razorpay_signature,
+    amount,
+    currency,
+    name,
+    email,
+    mobile,
+    address,
+    items,
+    user_id,
+  });
+
+  // Validation
+  if (!items || !Array.isArray(items) || items.length === 0) {
+    console.error("❌ Cart items missing or invalid");
+    return res.status(400).json({ error: "Cart items are required" });
+  }
+
+  if (!user_id) {
+    console.error("❌ user_id missing");
+    return res.status(400).json({ error: "user_id is required" });
+  }
+
   try {
-    const userId = req.user.id;
-    const { data, error } = await supabase
-      .from("orders")
-      .select("*")
-      .eq("user_id", userId)
-      .order("created_at", { ascending: false });
+    const { data, error } = await supabase.from("orders").insert([
+      {
+        order_id: razorpay_order_id,
+        payment_id: razorpay_payment_id,
+        signature: razorpay_signature,
+        amount,
+        currency,
+        name,
+        email,
+        mobile,
+        address,
+        items,
+        user_id,
+      },
+    ]);
 
     if (error) throw error;
 
-    const result = data.map((p) => ({
-      date: new Date(p.created_at).toLocaleDateString(),
-      orderId: p.order_id,
-      amount: p.amount,
-      status: p.status,
-    }));
-
-    res.json(result);
+    console.log("✅ Payment saved successfully:", data);
+    res.status(201).json({ message: "Payment saved successfully", data });
   } catch (err) {
-    res.status(500).json({ error: "Failed to fetch payment history" });
+    console.error("❌ Failed to save payment:", err.message);
+    res.status(500).json({ error: "Failed to save payment" });
   }
 });
+
 
 app.post("/create-order", async (req, res) => {
   const { amount, currency } = req.body;
