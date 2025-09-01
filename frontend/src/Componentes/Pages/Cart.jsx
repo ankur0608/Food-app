@@ -58,7 +58,7 @@ export default function Cart() {
       <Typography
         variant="h4"
         fontWeight="bold"
-        sx={{ textAlign: "center", color: "primary.main", mb: 2, mt: 10 }}
+        sx={{ textAlign: "center", color: "primary.main", mb: 0, mt: 0, pt: 12 }}
       >
         <ShoppingCart sx={{ fontSize: 32, mr: 1, verticalAlign: "middle" }} />
         Shopping Cart
@@ -74,6 +74,7 @@ export default function Cart() {
             elevation={3}
             sx={{
               p: 4,
+              mb: 20,
               textAlign: "center",
               borderRadius: 3,
               background: "linear-gradient(135deg, #f9fafc, #ffffff)",
@@ -83,7 +84,7 @@ export default function Cart() {
             <Box
               sx={{
                 fontSize: "3rem",
-                mb: 2,
+                mb: 5,
               }}
             >
               🛒

@@ -23,7 +23,7 @@ import { Link } from "react-router-dom";
 export default function Footer() {
   const handleScrollTop = () => {
     const root = document.getElementById("root");
-    const target = root?.scrollTop > 0 ? root : window;
+    const target = root?.scrollTop && root.scrollTop > 0 ? root : window;
     target.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -74,23 +74,18 @@ export default function Footer() {
       sx={{
         bgcolor: "background.paper",
         color: "text.primary",
-        py: 6,
-        mt: 8,
-        borderTop: "1px solid",
+        py: { xs: 4, md: 8 },
+        // mt: 8,
+        // borderTop: "1px solid",
         borderColor: "divider",
       }}
     >
       <Container maxWidth="lg">
         {/* Top Section */}
-        <Grid container spacing={28}>
+        <Grid container spacing={{ xs: 6, md: 15, lg: 35 }}>
           {/* Company Info */}
           <Grid item xs={12} md={4}>
-            <Typography
-              variant="h6"
-              fontWeight="bold"
-              gutterBottom
-              sx={{ mb: 2 }}
-            >
+            <Typography variant="h6" fontWeight="bold" gutterBottom>
               Pragmatic Coders
             </Typography>
             <Typography variant="body2" mb={3} color="text.secondary">
@@ -125,12 +120,7 @@ export default function Footer() {
 
           {/* Quick Links */}
           <Grid item xs={6} md={4}>
-            <Typography
-              variant="h6"
-              fontWeight="bold"
-              gutterBottom
-              sx={{ mb: 2 }}
-            >
+            <Typography variant="h6" fontWeight="bold" gutterBottom>
               Quick Links
             </Typography>
             <Divider sx={{ mb: 2, width: 60, borderBottomWidth: 2 }} />
@@ -151,12 +141,7 @@ export default function Footer() {
 
           {/* Useful Links */}
           <Grid item xs={6} md={4}>
-            <Typography
-              variant="h6"
-              fontWeight="bold"
-              gutterBottom
-              sx={{ mb: 2 }}
-            >
+            <Typography variant="h6" fontWeight="bold" gutterBottom>
               Useful Links
             </Typography>
             <Divider sx={{ mb: 2, width: 60, borderBottomWidth: 2 }} />
@@ -176,6 +161,7 @@ export default function Footer() {
           </Grid>
         </Grid>
 
+        {/* Divider */}
         <Divider sx={{ my: 4 }} />
 
         {/* Social Media Section */}
@@ -198,7 +184,6 @@ export default function Footer() {
               sx={{
                 mx: 1,
                 color: "text.secondary",
-                bgcolor: "background.default",
                 border: "1px solid",
                 borderColor: "divider",
                 "&:hover": {
@@ -213,23 +198,23 @@ export default function Footer() {
         </Box>
 
         <Divider sx={{ mb: 3 }} />
-        <Button
-          variant="contained"
-          startIcon={<FaArrowUp />}
-          onClick={handleScrollTop}
-          sx={{ borderRadius: 8 }}
-        >
-          Back to Top
-        </Button>
+
         {/* Bottom Section */}
-        <Box
-          flexDirection={{ xs: "column", sm: "row" }}
-          alignItems="center"
-          // mt={4}
-        >
-          <Typography variant="body2" color="text.secondary" textAlign="center">
+        <Box textAlign="center"mt={5}>
+          <Typography variant="body2" color="text.secondary">
             © {new Date().getFullYear()} Pragmatic Coders. All rights reserved.
           </Typography>
+        </Box>
+        {/* Back to Top */}
+        <Box textAlign="" >
+          <Button
+            variant="contained"
+            startIcon={<FaArrowUp />}
+            onClick={handleScrollTop}
+            sx={{ borderRadius: 8 }}
+          >
+            Back to Top
+          </Button>
         </Box>
       </Container>
     </Box>
