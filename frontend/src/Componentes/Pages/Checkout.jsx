@@ -5,12 +5,13 @@ import { useForm, Controller } from "react-hook-form";
 import { useEffect, useState, useContext } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { CartContext } from "../Store/CartContext.jsx";
-import { FaPhone, FaRegUser, FaRegAddressBook } from "react-icons/fa6";
+import { FaPhone, FaRegUser } from "react-icons/fa6";
 import { IoMailOutline } from "react-icons/io5";
+import { FaRegAddressBook } from "react-icons/fa6";
 import axios from "axios";
 import logo from "../../assets/main-logo.png";
 
-// MUI imports
+// MUI
 import {
   Paper,
   Typography,
@@ -19,7 +20,21 @@ import {
   InputAdornment,
   Button,
   Alert,
+  Grid,
+  Stepper,
+  Step,
+  StepLabel,
+  Box,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
 } from "@mui/material";
+
+const steps = ["User Details", "Address", "Payment"];
+
+const STORAGE_KEY = "checkout-progress";
 
 const CheckoutForm = () => {
   const navigate = useNavigate();
@@ -28,21 +43,50 @@ const CheckoutForm = () => {
   const total = location.state?.total || 0;
 
   const [showPaymentToast, setShowPaymentToast] = useState(false);
+  const [activeStep, setActiveStep] = useState(0);
 
-  const savedData = JSON.parse(localStorage.getItem("user")) || {};
+  const savedUser = JSON.parse(localStorage.getItem("user")) || {};
+  const savedProgress = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
 
   const {
     control,
     handleSubmit,
+    trigger,
+    getValues,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm({
     defaultValues: {
-      name: savedData.username || "",
-      email: savedData.email || "",
+      name: savedUser.username || "",
+      email: savedUser.email || "",
       mobile: "",
-      address: "",
+      addressLine: "",
+      city: "",
+      state: "",
+      pincode: "",
+      country: "India",
+      ...savedProgress.values, // restore previous form values
     },
   });
+
+  useEffect(() => {
+    // Restore active step
+    if (savedProgress.step) {
+      setActiveStep(savedProgress.step);
+    }
+  }, []);
+
+  // Save progress on form change
+  useEffect(() => {
+    const subscription = watch((values) => {
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({ step: activeStep, values })
+      );
+    });
+    return () => subscription.unsubscribe();
+  }, [watch, activeStep]);
 
   useEffect(() => {
     const script = document.createElement("script");
@@ -51,7 +95,8 @@ const CheckoutForm = () => {
     document.body.appendChild(script);
   }, []);
 
-  const onSubmit = async (formData) => {
+  // Razorpay
+  const handlePayment = async (formData) => {
     try {
       const res = await axios.post(
         "https://food-app-d8r3.onrender.com/create-order",
@@ -79,12 +124,9 @@ const CheckoutForm = () => {
                 razorpay_signature: response.razorpay_signature,
                 amount: order.amount / 100,
                 currency: order.currency,
-                name: formData.name,
-                email: formData.email,
-                mobile: formData.mobile,
-                address: formData.address,
+                ...formData,
                 items,
-                user_id: savedData.id,
+                user_id: savedUser.id,
               }),
             }
           );
@@ -94,6 +136,7 @@ const CheckoutForm = () => {
           }
 
           clearCart();
+          localStorage.removeItem(STORAGE_KEY); // clear progress after success
           setShowPaymentToast(true);
           setTimeout(() => {
             setShowPaymentToast(false);
@@ -106,14 +149,6 @@ const CheckoutForm = () => {
           contact: formData.mobile,
         },
         theme: { color: "#0f172a" },
-        method: {
-          netbanking: true,
-          card: true,
-          upi: true,
-          wallet: true,
-          emi: false,
-          paylater: false,
-        },
       };
 
       const rzp = new window.Razorpay(options);
@@ -124,17 +159,28 @@ const CheckoutForm = () => {
     }
   };
 
+  // Step navigation
+  const handleNext = async () => {
+    const valid = await trigger(
+      activeStep === 0
+        ? ["name", "email", "mobile"]
+        : ["addressLine", "city", "state", "pincode", "country"]
+    );
+    if (valid) setActiveStep((prev) => prev + 1);
+  };
+
+  const handleBack = () => setActiveStep((prev) => prev - 1);
+
+  const onSubmit = (data) => {
+    if (activeStep === steps.length - 1) {
+      handlePayment(data);
+    }
+  };
+
   return (
     <Paper
       elevation={6}
-      sx={{
-        maxWidth: 500,
-        mx: "auto",
-        mt: 15,
-        mb: 15,
-        p: 4,
-        borderRadius: 3,
-      }}
+      sx={{ maxWidth: 650, mx: "auto", mt: 12, mb: 10, p: 4, borderRadius: 3 }}
     >
       {showPaymentToast && (
         <Alert severity="success" sx={{ mb: 2 }}>
@@ -142,7 +188,7 @@ const CheckoutForm = () => {
         </Alert>
       )}
 
-      <Typography variant="h5" fontWeight={600} textAlign="center" mb={2}>
+      <Typography variant="h5" fontWeight={600} textAlign="center" mb={3}>
         Checkout
       </Typography>
 
@@ -155,120 +201,273 @@ const CheckoutForm = () => {
         Total Amount: ₹{parseFloat(total).toFixed(2)}
       </Typography>
 
+      <Stepper activeStep={activeStep} alternativeLabel sx={{ mb: 4 }}>
+        {steps.map((label) => (
+          <Step key={label}>
+            <StepLabel>{label}</StepLabel>
+          </Step>
+        ))}
+      </Stepper>
+
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
-        <Stack spacing={2}>
-          <Controller
-            name="name"
-            control={control}
-            rules={{ required: "Full Name is required" }}
-            render={({ field }) => (
-              <TextField
-                {...field}
-                label="Full Name"
-                variant="outlined"
-                error={!!errors.name}
-                helperText={errors.name?.message}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <FaRegUser />
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            )}
-          />
+        {/* Step 1: User details */}
+        {activeStep === 0 && (
+          <Stack spacing={2}>
+            <Controller
+              name="name"
+              control={control}
+              rules={{ required: "Full Name is required" }}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label="Full Name"
+                  error={!!errors.name}
+                  helperText={errors.name?.message}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <FaRegUser />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              )}
+            />
+            <Controller
+              name="email"
+              control={control}
+              rules={{
+                required: "Email is required",
+                pattern: {
+                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                  message: "Invalid email address",
+                },
+              }}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label="Email"
+                  type="email"
+                  error={!!errors.email}
+                  helperText={errors.email?.message}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <IoMailOutline />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              )}
+            />
+            <Controller
+              name="mobile"
+              control={control}
+              rules={{
+                required: "Mobile Number is required",
+                pattern: {
+                  value: /^[0-9]{10,15}$/,
+                  message: "Enter valid mobile number",
+                },
+              }}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label="Mobile Number"
+                  type="tel"
+                  error={!!errors.mobile}
+                  helperText={errors.mobile?.message}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <FaPhone />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              )}
+            />
+          </Stack>
+        )}
 
-          <Controller
-            name="email"
-            control={control}
-            rules={{
-              required: "Email is required",
-              pattern: {
-                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                message: "Invalid email address",
-              },
-            }}
-            render={({ field }) => (
-              <TextField
-                {...field}
-                label="Email"
-                variant="outlined"
-                type="email"
-                error={!!errors.email}
-                helperText={errors.email?.message}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <IoMailOutline />
-                    </InputAdornment>
-                  ),
-                }}
+        {/* Step 2: Address */}
+        {activeStep === 1 && (
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <Controller
+                name="addressLine"
+                control={control}
+                rules={{ required: "Address Line is required" }}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    label="Address Line"
+                    error={!!errors.addressLine}
+                    helperText={errors.addressLine?.message}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <FaRegAddressBook />
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                )}
               />
-            )}
-          />
-
-          <Controller
-            name="mobile"
-            control={control}
-            rules={{
-              required: "Mobile Number is required",
-              pattern: {
-                value: /^[0-9]{10,15}$/,
-                message: "Please enter a valid mobile number",
-              },
-            }}
-            render={({ field }) => (
-              <TextField
-                {...field}
-                label="Mobile Number"
-                variant="outlined"
-                type="tel"
-                error={!!errors.mobile}
-                helperText={errors.mobile?.message}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <FaPhone />
-                    </InputAdornment>
-                  ),
-                }}
+            </Grid>
+            <Grid item xs={6}>
+              <Controller
+                name="city"
+                control={control}
+                rules={{ required: "City is required" }}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    label="City"
+                    error={!!errors.city}
+                    helperText={errors.city?.message}
+                  />
+                )}
               />
-            )}
-          />
-
-          <Controller
-            name="address"
-            control={control}
-            rules={{ required: "Shipping Address is required" }}
-            render={({ field }) => (
-              <TextField
-                {...field}
-                label="Shipping Address"
-                variant="outlined"
-                multiline
-                rows={2}
-                error={!!errors.address}
-                helperText={errors.address?.message}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <FaRegAddressBook />
-                    </InputAdornment>
-                  ),
+            </Grid>
+            <Grid item xs={6}>
+              <Controller
+                name="pincode"
+                control={control}
+                rules={{
+                  required: "Pincode is required",
+                  pattern: {
+                    value: /^[0-9]{5,6}$/,
+                    message: "Enter valid pincode",
+                  },
                 }}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    label="Pincode"
+                    error={!!errors.pincode}
+                    helperText={errors.pincode?.message}
+                  />
+                )}
               />
-            )}
-          />
+            </Grid>
+            <Grid item xs={6}>
+              <Controller
+                name="state"
+                control={control}
+                rules={{ required: "State is required" }}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    label="State"
+                    error={!!errors.state}
+                    helperText={errors.state?.message}
+                  />
+                )}
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <Controller
+                name="country"
+                control={control}
+                rules={{ required: "Country is required" }}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    label="Country"
+                    error={!!errors.country}
+                    helperText={errors.country?.message}
+                  />
+                )}
+              />
+            </Grid>
+          </Grid>
+        )}
 
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-            size="large"
-          >
-            Proceed to Pay
-          </Button>
+        {/* Step 3: Payment */}
+        {/* Step 3: Payment */}
+        {activeStep === 2 && (
+          <Stack spacing={3}>
+            <Typography variant="h6" fontWeight={600}>
+              Review Your Cart
+            </Typography>
+
+            {items.length > 0 ? (
+              <Paper variant="outlined">
+                <Table sx={{ minWidth: 400 }}>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Product</TableCell>
+                      <TableCell align="center">Quantity</TableCell>
+                      <TableCell align="right">Price</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {items.map((item) => (
+                      <TableRow key={item.id}>
+                        <TableCell>
+                          <Stack
+                            direction="row"
+                            spacing={2}
+                            alignItems="center"
+                          >
+                            <Box
+                              component="img"
+                              src={item.image}
+                              alt={item.name}
+                              sx={{
+                                width: 50,
+                                height: 50,
+                                borderRadius: 1,
+                                objectFit: "cover",
+                              }}
+                            />
+                            <Typography>{item.name}</Typography>
+                          </Stack>
+                        </TableCell>
+                        <TableCell align="center">{item.quantity}</TableCell>
+                        <TableCell align="right">
+                          ₹{(item.price * item.quantity).toFixed(2)}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    <TableRow>
+                      <TableCell colSpan={2} align="right" fontWeight={700}>
+                        Total
+                      </TableCell>
+                      <TableCell align="right" fontWeight={700}>
+                        ₹{parseFloat(total).toFixed(2)}
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </Paper>
+            ) : (
+              <Typography color="text.secondary">Your cart is empty</Typography>
+            )}
+
+            <Typography variant="body1" textAlign="center" mt={2}>
+              Click below to complete your payment securely.
+            </Typography>
+          </Stack>
+        )}
+
+        {/* Navigation buttons */}
+        <Stack direction="row" justifyContent="space-between" mt={4}>
+          {activeStep > 0 && (
+            <Button onClick={handleBack} variant="outlined">
+              Back
+            </Button>
+          )}
+          {activeStep < steps.length - 1 ? (
+            <Button variant="contained" onClick={handleNext}>
+              Next
+            </Button>
+          ) : (
+            <Button type="submit" variant="contained" color="primary">
+              Proceed to Pay
+            </Button>
+          )}
         </Stack>
       </form>
     </Paper>
