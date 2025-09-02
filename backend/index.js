@@ -46,12 +46,36 @@ const razorpay = new Razorpay({
 // });
 
 // Routes
+// GET /meals?limit=8&page=1&category=Plush
 app.get("/meals", async (req, res) => {
   try {
-    const { data: meals, error } = await supabase.from("foods").select("*");
+    let { limit, page, category } = req.query;
+    limit = parseInt(limit) || 8;
+    page = parseInt(page) || 1;
+
+    let query = supabase.from("foods").select("*", { count: "exact" });
+
+    if (category && category !== "All") {
+      query = query.eq("category", category);
+    }
+
+    const start = (page - 1) * limit;
+    const end = start + limit - 1;
+    console.log("Pagination debug:", { limit, page, start, end });
+
+    query = query.range(start, end);
+
+    const { data: meals, error, count } = await query;
     if (error) throw error;
-    res.json(meals);
+
+    res.json({
+      items: meals,
+      totalPages: Math.ceil(count / limit),
+      totalItems: count,
+      currentPage: page,
+    });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: "Failed to fetch meals from DB" });
   }
 });
@@ -179,7 +203,6 @@ app.post("/save-payment", async (req, res) => {
     res.status(500).json({ error: "Failed to save payment" });
   }
 });
-
 
 app.post("/create-order", async (req, res) => {
   const { amount, currency } = req.body;

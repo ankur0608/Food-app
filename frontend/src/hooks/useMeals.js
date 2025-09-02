@@ -2,15 +2,22 @@
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 
-export const useMeals = () => {
+// Accepts page, limit, and category as params
+export const useMeals = (page = 1, limit = 8, category = "All") => {
   return useQuery({
-    queryKey: ["meals"],
+    queryKey: ["meals", page, limit, category],
     queryFn: async () => {
-      const res = await axios.get("https://food-app-d8r3.onrender.com/meals");
-      return res.data;
+      const res = await axios.get(
+        import.meta.env.VITE_API_URL || "http://localhost:5000/meals",
+        {
+          params: { page, limit, category },
+        }
+      );
+      return res.data; // { items, totalPages, totalItems, currentPage }
     },
-    staleTime: 1000 * 60 * 5, // 5 minutes cache
+    keepPreviousData: true, // keep old data while fetching new
+    staleTime: 1000 * 60 * 5, // cache fresh for 5 minutes
     cacheTime: 1000 * 60 * 30, // keep in cache for 30 minutes
-    refetchOnWindowFocus: false, // don't refetch every time window is focused
+    refetchOnWindowFocus: false, // don't refetch on window focus
   });
 };

@@ -21,21 +21,20 @@ export default function Meals() {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user"));
 
-  const { data: meals = [], isLoading } = useMeals();
+  // fetch meals from server with pagination + category
+  const { data, isLoading } = useMeals(
+    currentPage,
+    mealsPerPage,
+    selectedCategory
+  );
 
+  const meals = data?.items || [];
+  const totalPages = data?.totalPages || 1;
+
+  // build categories list from returned meals (if backend doesn’t provide it)
   const categories = useMemo(
-    () => ["All", ...new Set(meals.map((meal) => meal.category))],
-    [meals]
-  );
-
-  const filteredMeals = meals.filter(
-    (meal) => selectedCategory === "All" || meal.category === selectedCategory
-  );
-
-  const totalPages = Math.ceil(filteredMeals.length / mealsPerPage);
-  const currentMeals = filteredMeals.slice(
-    (currentPage - 1) * mealsPerPage,
-    currentPage * mealsPerPage
+    () => ["All", ...new Set((data?.items || []).map((meal) => meal.category))],
+    [data]
   );
 
   const handleAddToCart = async (meal) => {
@@ -55,17 +54,15 @@ export default function Meals() {
         },
         user.id
       );
-
-      // Show success toast
       showToast(`${meal.name} added to cart!`, "success");
     } catch (err) {
       console.error(err);
-      // Show error toast
       showToast(`Failed to add ${meal.name} to cart.`, "error");
     } finally {
       setAddingId(null);
     }
   };
+
   return (
     <Box sx={{ py: 2, px: { xs: 2, md: 1 } }}>
       <Typography
@@ -82,12 +79,15 @@ export default function Meals() {
       <CategoryFilter
         categories={categories}
         selectedCategory={selectedCategory}
-        setSelectedCategory={setSelectedCategory}
+        setSelectedCategory={(cat) => {
+          setSelectedCategory(cat);
+          setCurrentPage(1); // reset to first page when category changes
+        }}
         setCurrentPage={setCurrentPage}
       />
 
       <MealsGrid
-        meals={currentMeals}
+        meals={meals}
         isLoading={isLoading}
         addingId={addingId}
         handleAddToCart={handleAddToCart}
