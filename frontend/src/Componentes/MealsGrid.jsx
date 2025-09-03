@@ -13,11 +13,7 @@ export default function MealsGrid({
       <Grid container spacing={{ xs: 2, sm: 3 }}>
         {Array.from({ length: mealsPerPage }).map((_, index) => (
           <Grid item xs={12} sm={5} md={4} lg={3} key={index}>
-            <div
-              style={{
-                paddingLeft: 10,
-              }}
-            >
+            <div>
               <Card
                 sx={{
                   height: { xs: 430, sm: 430, md: 430 },

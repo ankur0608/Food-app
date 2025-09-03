@@ -200,18 +200,18 @@ export default function Footer() {
         <Divider sx={{ mb: 3 }} />
 
         {/* Bottom Section */}
-        <Box textAlign="center"mt={5}>
+        <Box textAlign="center" mt={5}>
           <Typography variant="body2" color="text.secondary">
             © {new Date().getFullYear()} Pragmatic Coders. All rights reserved.
           </Typography>
         </Box>
         {/* Back to Top */}
-        <Box textAlign="" >
+        <Box textAlign="">
           <Button
             variant="contained"
             startIcon={<FaArrowUp />}
             onClick={handleScrollTop}
-            sx={{ borderRadius: 8 }}
+            sx={{ borderRadius: 8, mt: 2 }}
           >
             Back to Top
           </Button>
