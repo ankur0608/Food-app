@@ -1,5 +1,5 @@
 // AutoPlaySlider.jsx
-import { useContext, memo, useCallback, useState, useMemo } from "react";
+import { useContext, useCallback, useState, useMemo } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Slider from "react-slick";
 import axios from "axios";
@@ -145,8 +145,15 @@ const AutoPlaySlider = () => {
         ) : isLoading ? (
           <Slider {...sliderSettings}>
             {Array.from({ length: isMobile ? 1 : 4 }).map((_, idx) => (
-              <Box key={idx} px={2}>
-                <MealSkeleton />
+              <Box
+                key={idx}
+                px={2}
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                minHeight={250}
+              >
+                {isMobile ? null : <MealSkeleton />}
               </Box>
             ))}
           </Slider>

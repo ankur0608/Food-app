@@ -4,6 +4,8 @@ import { supabase } from "../../supabaseClient";
 import styles from "./BlogList.module.css";
 import { useTheme } from "../Componentes/Store/theme";
 import OverallRating from "./RatingOverall";
+import { Skeleton, Card } from "@mui/material";
+
 // Memoized BlogCard
 const BlogCard = memo(({ blog }) => {
   const imageUrl = blog.image_url
@@ -40,7 +42,6 @@ const BlogCard = memo(({ blog }) => {
           tableName="post_reviews"
           foreignKey="post_id"
         />
-
         <p className={styles.date}>
           {new Date(blog.created_at).toDateString()}
         </p>
@@ -49,17 +50,35 @@ const BlogCard = memo(({ blog }) => {
   );
 });
 
+// Skeleton card for loading state
+const BlogSkeletonCard = memo(() => (
+  <Card
+    sx={{
+      p: 2,
+      borderRadius: 3,
+      boxShadow: "0px 6px 20px rgba(0,0,0,0.1)",
+    }}
+  >
+    <Skeleton variant="rectangular" height={160} sx={{ borderRadius: 2 }} />
+    <Skeleton variant="text" sx={{ mt: 2, width: "70%" }} />
+    <Skeleton variant="text" width="50%" />
+  </Card>
+));
+
 const BlogList = () => {
   const [blogs, setBlogs] = useState([]);
+  const [loading, setLoading] = useState(true);
   const { theme } = useTheme();
 
   useEffect(() => {
     const fetchPosts = async () => {
+      setLoading(true);
       const { data, error } = await supabase
         .from("posts")
         .select("*")
         .order("created_at", { ascending: false });
       if (!error) setBlogs(data || []);
+      setLoading(false);
     };
     fetchPosts();
   }, []);
@@ -72,9 +91,11 @@ const BlogList = () => {
     >
       <h2 className={styles.heading}>Latest Blog Posts</h2>
       <div className={styles.grid}>
-        {blogs.map((blog) => (
-          <BlogCard key={blog.id} blog={blog} />
-        ))}
+        {loading
+          ? Array.from({ length: 8 }).map((_, idx) => (
+              <BlogSkeletonCard key={idx} />
+            ))
+          : blogs.map((blog) => <BlogCard key={blog.id} blog={blog} />)}
       </div>
     </div>
   );

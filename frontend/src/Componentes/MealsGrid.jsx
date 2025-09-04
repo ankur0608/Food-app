@@ -10,9 +10,9 @@ export default function MealsGrid({
 }) {
   if (isLoading) {
     return (
-      <Grid container spacing={{ xs: 2, sm: 3 }}>
+      <Grid container spacing={{ xs: 2, sm: 1.5 }} justifyContent="center">
         {Array.from({ length: mealsPerPage }).map((_, index) => (
-          <Grid item xs={12} sm={5} md={4} lg={3} key={index}>
+          <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
             <div>
               <Card
                 sx={{
