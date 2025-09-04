@@ -5,175 +5,22 @@ import Slider from "react-slick";
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import {
-  Card,
-  CardMedia,
-  CardContent,
-  Typography,
-  Button,
-  Skeleton,
   Box,
-  IconButton,
+  Typography,
   useMediaQuery,
   useTheme as useMuiTheme,
 } from "@mui/material";
 
-import { ArrowBackIos, ArrowForwardIos } from "@mui/icons-material";
-
 import { CartContext } from "../Store/CartContext";
 import { useTheme } from "../Store/theme";
+import MealCard from "./MealCard";
+import MealSkeleton from "./MealSkeleton";
+import { NextArrow, PrevArrow } from "./CustomArrows";
+
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "./SliderModule.css";
 
-// ----------------- Memoized Skeleton -----------------
-const MealSkeleton = memo(() => (
-  <Card
-    sx={{
-      p: 2,
-      borderRadius: 3,
-      boxShadow: "0px 6px 20px rgba(0,0,0,0.1)",
-    }}
-  >
-    <Skeleton variant="rectangular" height={160} sx={{ borderRadius: 2 }} />
-    <Skeleton variant="text" sx={{ mt: 2, width: "70%" }} />
-    <Skeleton variant="text" width="50%" />
-    <Skeleton variant="rounded" sx={{ mt: 2 }} height={36} />
-  </Card>
-));
-
-// ----------------- Memoized MealCard -----------------
-const MealCard = memo(({ meal, onAddToCart, isDark, isAdding }) => (
-  <Link
-    to={`/meals/${meal.name}`}
-    style={{ textDecoration: "none" }}
-    key={meal.id}
-  >
-    <Card
-      sx={{
-        borderRadius: 3,
-        p: 1.5,
-        m: 1,
-        bgcolor: isDark ? "#1e1e24" : "background.paper",
-        color: isDark ? "#fff" : "inherit",
-        boxShadow: "0px 6px 18px rgba(0,0,0,0.12)",
-        transition: "all 0.3s ease",
-        "&:hover": {
-          transform: "translateY(-6px)",
-        },
-      }}
-    >
-      <CardMedia
-        component="img"
-        alt={meal.name}
-        loading="lazy"
-        sx={{
-          borderRadius: 2,
-          height: 180, // Fixed height
-          width: "100%",
-          objectFit: "cover", // Crop to fit without stretching
-        }}
-        image={
-          meal.image.startsWith("http")
-            ? meal.image
-            : `https://food-app-d8r3.onrender.com/images/${meal.image}`
-        }
-        onError={(e) => {
-          e.target.src = "/assets/default-meal.jpg";
-        }}
-      />
-
-      <CardContent sx={{ px: 1.5, py: 2 }}>
-        <Typography
-          gutterBottom
-          variant="h6"
-          fontWeight="700"
-          sx={{
-            color: isDark ? "#f5f5f5" : "text.primary",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-            fontSize: "1.1rem",
-          }}
-        >
-          {meal.name}
-        </Typography>
-        <Typography
-          variant="body2"
-          color={isDark ? "#aaa" : "text.secondary"}
-          sx={{
-            mb: 1.5,
-            overflow: "hidden",
-            display: "-webkit-box",
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: "vertical",
-            fontSize: "0.9rem",
-            lineHeight: 1.4,
-          }}
-        >
-          {meal.description}
-        </Typography>
-        <Typography variant="subtitle1" fontWeight="600" sx={{ mb: 1 }}>
-          Price: ₹{meal.price}
-        </Typography>
-        <Button
-          variant="contained"
-          fullWidth
-          size="medium"
-          sx={{
-            mt: 1,
-            borderRadius: 2,
-            fontWeight: 600,
-            py: 1.2,
-            background: "linear-gradient(90deg, #ff6600 0%, #ff8533 100%)",
-            textTransform: "none",
-          }}
-          onClick={(e) => {
-            e.preventDefault();
-            onAddToCart(meal);
-          }}
-          disabled={isAdding}
-        >
-          {isAdding ? "Adding..." : "Add to Cart"}
-        </Button>
-      </CardContent>
-    </Card>
-  </Link>
-));
-
-// ----------------- Memoized Custom Arrows -----------------
-const NextArrow = memo(({ onClick }) => (
-  <IconButton
-    onClick={onClick}
-    sx={{
-      position: "absolute",
-      right: -15,
-      top: "40%",
-      zIndex: 10,
-      bgcolor: "background.paper",
-      "&:hover": { bgcolor: "grey.300" },
-    }}
-  >
-    <ArrowForwardIos fontSize="small" />
-  </IconButton>
-));
-
-const PrevArrow = memo(({ onClick }) => (
-  <IconButton
-    onClick={onClick}
-    sx={{
-      position: "absolute",
-      left: -15,
-      top: "40%",
-      zIndex: 10,
-      bgcolor: "background.paper",
-      "&:hover": { bgcolor: "grey.300" },
-    }}
-  >
-    <ArrowBackIos fontSize="small" />
-  </IconButton>
-));
-
-// ----------------- Main Slider Component -----------------
 const AutoPlaySlider = () => {
   const { addItem } = useContext(CartContext);
   const { theme: customTheme } = useTheme();
@@ -195,7 +42,6 @@ const AutoPlaySlider = () => {
     },
   });
 
-  // ----------------- Add to Cart -----------------
   const handleAddToCart = useCallback(
     async (meal) => {
       const token = localStorage.getItem("token");
@@ -204,9 +50,7 @@ const AutoPlaySlider = () => {
         navigate("/signup");
         return;
       }
-
       setAddingId(meal.id);
-
       await addItem(
         {
           id: meal.id,
@@ -217,13 +61,11 @@ const AutoPlaySlider = () => {
         },
         user.id
       );
-
       setAddingId(null);
     },
     [addItem, navigate]
   );
 
-  // ----------------- Slider Settings -----------------
   const sliderSettings = useMemo(
     () => ({
       infinite: true,
