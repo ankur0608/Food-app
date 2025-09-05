@@ -114,7 +114,7 @@ export default function DesktopNavbar({
           ) : (
             <Button
               component={NavLink}
-              to="/signup"
+              to="/login"
               sx={{ color: iconColor }}
               aria-label="Login"
             >
