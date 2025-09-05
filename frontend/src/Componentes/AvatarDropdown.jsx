@@ -20,7 +20,7 @@ import {
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import HistoryIcon from "@mui/icons-material/History";
 import LogoutIcon from "@mui/icons-material/Logout";
-import FavoriteIcon from "@mui/icons-material/Favorite"; // heart icon if needed
+// import FavoriteIcon from "@mui/icons-material/Favorite"; // heart icon if needed
 import userLogo from "../assets/user.png";
 import { useTheme } from "./Store/theme";
 import { supabase } from "../../supabaseClient";

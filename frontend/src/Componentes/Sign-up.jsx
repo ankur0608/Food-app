@@ -96,6 +96,7 @@ function Signup() {
           <input
             type="text"
             id="name"
+            aria-label="Name"
             placeholder="Enter your name"
             className={styles.input}
             {...register("name", {
@@ -119,6 +120,7 @@ function Signup() {
           </label>
           <input
             type="email"
+            aria-label="Email"
             id="email"
             placeholder="Enter your Gmail address"
             className={styles.input}
@@ -144,6 +146,7 @@ function Signup() {
           <input
             type="password"
             id="password"
+            aria-label="Password"
             placeholder="Enter a strong password"
             className={styles.input}
             {...register("password", {
@@ -161,18 +164,31 @@ function Signup() {
           <small className={styles.small}>{errors.password.message}</small>
         )}
 
-        <Link to="/login" className={styles.Link}>
+        <Link
+          to="/login"
+          className={styles.Link}
+          aria-label="Navigate to login page"
+        >
           Already have an account?
         </Link>
 
-        <button type="submit" className={styles.button} disabled={isSubmitting}>
+        <button
+          type="submit"
+          className={styles.button}
+          disabled={isSubmitting}
+          aria-label="Sign up"
+        >
           {isSubmitting ? "Submitting..." : "Signup"}
         </button>
       </form>
 
       <div className={styles.divider}>OR</div>
 
-      <button onClick={handleGoogleLogin} className={styles.googleButton}>
+      <button
+        onClick={handleGoogleLogin}
+        className={styles.googleButton}
+        aria-label="Continue with Google"
+      >
         <img src={googleLogo} alt="Google logo" className={styles.googleIcon} />
         Continue with Google
       </button>

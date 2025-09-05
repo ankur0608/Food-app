@@ -2,6 +2,7 @@
 .container {
   max-width: 450px;
   margin: 4rem auto;
+  margin-top: 100px;
   padding: 2.5rem;
   border-radius: 1.2rem;
   backdrop-filter: blur(15px);
@@ -226,6 +227,7 @@
   .container {
     padding: 1.5rem 1rem;
     margin: 2rem 1rem;
+    margin-top: 100px;
   }
 
   .heading {

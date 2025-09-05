@@ -71,6 +71,7 @@ export default function Login() {
             <IoMailOutline className={styles.icon} /> Email
           </label>
           <input
+            aria-label="Email"
             className={styles.input}
             type="email"
             placeholder="Email"
@@ -87,6 +88,7 @@ export default function Login() {
             <TbLockPassword className={styles.icon} /> Password
           </label>
           <input
+            aria-label="Password"
             className={styles.input}
             type="password"
             placeholder="Password"
@@ -98,7 +100,12 @@ export default function Login() {
           )}
         </div>
 
-        <button className={styles.button} type="submit" disabled={isSubmitting}>
+        <button
+          className={styles.button}
+          type="submit"
+          disabled={isSubmitting}
+          aria-label="Login"
+        >
           {isSubmitting ? "Logging in..." : "Login"}
         </button>
       </form>
@@ -110,13 +117,22 @@ export default function Login() {
         onClick={handleGoogleLogin}
         type="button"
       >
-        <img src={googleLogo} alt="Google logo" className={styles.googleIcon} />
+        <img
+          src={googleLogo}
+          alt="Google logo"
+          className={styles.googleIcon}
+          aria-label="Continue with Google"
+        />
         Continue with Google
       </button>
 
       <div className={styles.accountPrompt}>
         <span className={styles.text}>Don't have an account? </span>
-        <Link to="/signup" className={styles.Link}>
+        <Link
+          to="/signup"
+          className={styles.Link}
+          aria-label="Navigate to signup page"
+        >
           Sign up
         </Link>
       </div>

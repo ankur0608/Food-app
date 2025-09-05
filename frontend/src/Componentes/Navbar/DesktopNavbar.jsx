@@ -13,7 +13,7 @@ import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import SearchBar from "../SearchBar";
 import AvatarDropdown from "../AvatarDropdown";
 import { useState } from "react";
-// import MiniCartDrawer from "../MiniCartDrawer";
+
 const navLinks = [
   { text: "Home", path: "/home" },
   { text: "Menu", path: "/meals" },
@@ -122,7 +122,6 @@ export default function DesktopNavbar({
             </Button>
           )}
         </Box>
-        {/* <MiniCartDrawer open={open} onClose={() => setOpen(false)} /> */}
       </Toolbar>
     </AppBar>
   );

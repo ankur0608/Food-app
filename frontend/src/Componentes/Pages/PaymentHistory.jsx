@@ -1,11 +1,12 @@
-// PaymentHistory.jsx
-import { useState } from "react";
+import { useState, Suspense, lazy } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTheme } from "../Store/theme";
 import { fetchPaymentHistory } from "../fetchPaymentHistory";
-import PaymentTable from "../PaymentTable";
-import PaymentModal from "../PaymentModal";
 import styles from "./PaymentHistory.module.css";
+
+// 🔥 Lazy load heavy components
+const PaymentTable = lazy(() => import("../PaymentTable"));
+const PaymentModal = lazy(() => import("../PaymentModal"));
 
 export default function PaymentHistory() {
   const { theme } = useTheme();
@@ -23,11 +24,20 @@ export default function PaymentHistory() {
   return (
     <div className={`${styles.container} ${styles[theme]}`}>
       <h2 className={styles.title}>Payment History</h2>
-      <PaymentTable data={data} onView={setSelectedPayment} />
-      <PaymentModal
-        payment={selectedPayment}
-        onClose={() => setSelectedPayment(null)}
-      />
+
+      {/* Suspense ensures fallback UI while loading */}
+      <Suspense fallback={<div>Loading payment history...</div>}>
+        <PaymentTable data={data} onView={setSelectedPayment} />
+      </Suspense>
+
+      <Suspense fallback={null}>
+        {selectedPayment && (
+          <PaymentModal
+            payment={selectedPayment}
+            onClose={() => setSelectedPayment(null)}
+          />
+        )}
+      </Suspense>
     </div>
   );
 }

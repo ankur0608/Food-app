@@ -21,6 +21,7 @@ export default function FooterLinks({ title, links }: FooterLinksProps) {
             underline="hover"
             color="text.secondary"
             sx={{ "&:hover": { color: "primary.main" } }}
+            aria-label={label}
           >
             {label}
           </MuiLink>

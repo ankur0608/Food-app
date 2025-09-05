@@ -6,7 +6,7 @@ import {
 } from "react-router-dom";
 
 import Layout from "./Componentes/Navbar/Layout.jsx";
-import Checkout from "./Componentes/Pages/Checkout.jsx";
+import Checkout from "./Componentes/Pages/Checkout/steps/Checkout.jsx";
 import GoogleRedirectHandler from "./Componentes/GoogleRedirectHandler.jsx";
 import ResetPassword from "./Componentes/ResetPassword.jsx";
 import PaymentHistory from "./Componentes/Pages/PaymentHistory.jsx";
