@@ -100,8 +100,16 @@
   color: #007bff;
   font-size: 0.9rem;
   text-decoration: none;
+  margin-right: 7.2rem;
 }
-
+.Link2 {
+  display: inline-block;
+  margin: 0.5rem 0 1.5rem 0;
+  color: #007bff;
+  font-size: 0.9rem;
+  text-decoration: none;
+  /* margin-right: 4.05rem; */
+}
 .Link:hover {
   text-decoration: underline;
 }

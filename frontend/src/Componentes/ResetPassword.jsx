@@ -1,53 +1,62 @@
-import { useEffect, useState } from "react";
-import { supabase } from "../../supabaseClient";
+import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "../../supabaseClient.js";
+import { useToast } from "./Store/ToastContext.jsx";
+import styles from "./ResetPassword.module.css";
 
 export default function ResetPassword() {
-  const [accessToken, setAccessToken] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [message, setMessage] = useState("");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm();
+  const { showToast } = useToast();
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    const hash = window.location.hash;
-    const tokenMatch = hash.match(/access_token=([^&]+)/);
-    if (tokenMatch) {
-      setAccessToken(tokenMatch[1]);
-    }
-  }, []);
+  const onSubmit = async ({ password }) => {
+    try {
+      const { data, error } = await supabase.auth.updateUser({ password });
 
-  const handlePasswordReset = async (e) => {
-    e.preventDefault();
+      if (error) {
+        showToast(error.message || "Password reset failed", "error");
+        return;
+      }
 
-    const { data, error } = await supabase.auth.updateUser(
-      { password: newPassword },
-      { accessToken }
-    );
-
-    if (error) {
-      setMessage("❌ Failed to reset password: " + error.message);
-    } else {
-      setMessage("✅ Password updated successfully! Redirecting to login...");
-      setTimeout(() => {
-        window.location.href = "/login";
-      }, 3000);
+      showToast("✅ Password reset successful! Please login.", "success");
+      setTimeout(() => navigate("/login"), 1000);
+    } catch {
+      showToast("❌ Something went wrong. Try again.", "error");
     }
   };
 
   return (
-    <div style={{ padding: "2rem" }}>
-      <h2>🔐 Reset Your Password</h2>
-      <form onSubmit={handlePasswordReset}>
-        <input
-          type="password"
-          placeholder="New Password"
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
-          required
-        />
-        <button type="submit" disabled={!accessToken || !newPassword}>
-          Reset Password
+    <div className={styles.container}>
+      <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
+        <h1 className={styles.heading}>Reset Password</h1>
+
+        <div className={styles.inputGroup}>
+          <label htmlFor="password" className={styles.label}>
+            New Password
+          </label>
+          <input
+            id="password"
+            type="password"
+            className={styles.input}
+            placeholder="Enter new password"
+            {...register("password", {
+              required: "Password is required",
+              minLength: { value: 8, message: "At least 8 characters" },
+            })}
+          />
+          {errors.password && (
+            <small className={styles.small}>{errors.password.message}</small>
+          )}
+        </div>
+
+        <button type="submit" className={styles.button} disabled={isSubmitting}>
+          {isSubmitting ? "Updating..." : "Update Password"}
         </button>
       </form>
-      {message && <p>{message}</p>}
     </div>
   );
 }

@@ -1,79 +1,63 @@
 import { useForm } from "react-hook-form";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { supabase } from "../../supabaseClient.js";
+import { useToast } from "./Store/ToastContext.jsx";
 import styles from "./ForgotPassword.module.css";
-import { IoMailOutline } from "react-icons/io5";
-import { useTheme } from "./Store/theme";
-import { supabase } from "../../supabaseClient";
 
 export default function ForgotPassword() {
-  const [message, setMessage] = useState("");
-  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm();
-  const { theme } = useTheme();
-  async function onSubmit(data) {
+  const { showToast } = useToast();
+
+  const onSubmit = async ({ email }) => {
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(data.email, {
-        redirectTo: "https://food-app-five-mu.vercel.app/reset-password",
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
       });
 
       if (error) {
-        setMessage("Failed to send reset link: " + error.message);
-      } else {
-        setMessage("A password reset link has been sent to your email.");
-        // Optional: delay before redirecting
-        setTimeout(() => navigate("/login"), 4000);
+        showToast(error.message || "Failed to send reset link", "error");
+        return;
       }
-    } catch (err) {
-      console.error("Unexpected error:", err);
-      setMessage("Something went wrong. Please try again later.");
+
+      showToast("📧 Password reset link sent! Check your email.", "success");
+    } catch {
+      showToast("❌ Something went wrong. Please try again.", "error");
     }
-  }
+  };
 
   return (
-    <div className={`${styles.container} ${styles[theme]}`}>
-      <h1 className={styles.heading}>Forgot Password</h1>
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        noValidate
-        className={styles.form}
-      >
+    <div className={styles.container}>
+      <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
+        <h1 className={styles.heading}>Forgot Password</h1>
+
         <div className={styles.inputGroup}>
-          <IoMailOutline className={styles.icon} />
+          <label htmlFor="email" className={styles.label}>
+            Email
+          </label>
           <input
-            className={styles.input}
+            id="email"
             type="email"
-            placeholder="Your Email"
-            {...register("email", {
-              required: "Email is required",
-              pattern: {
-                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                message: "Please enter a valid email address",
-              },
-            })}
+            className={styles.input}
+            placeholder="Enter your email"
+            {...register("email", { required: "Email is required" })}
           />
           {errors.email && (
             <small className={styles.small}>{errors.email.message}</small>
           )}
         </div>
 
-        <div>
-          <button
-            type="submit"
-            className={styles.button}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? "Sending Reset Link..." : "Send Reset Link"}
-          </button>
-        </div>
-      </form>
+        <button type="submit" className={styles.button} disabled={isSubmitting}>
+          {isSubmitting ? "Sending..." : "Send reset link"}
+        </button>
 
-      {/* Success message */}
-      {message && <div className={styles.successMessage}>{message}</div>}
+        <Link to="/login" className={styles.Link}>
+          Back to login
+        </Link>
+      </form>
     </div>
   );
 }

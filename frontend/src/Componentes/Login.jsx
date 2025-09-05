@@ -115,8 +115,10 @@ export default function Login() {
               <small className={styles.small}>{errors.password.message}</small>
             )}
           </div>
-
-          <Link to="/signup" className={styles.Link}>
+          <Link to="/forgotpassword" className={styles.Link}>
+            Forgot password?
+          </Link>
+          <Link to="/signup" className={styles.Link2}>
             Don’t have an account?
           </Link>
 
