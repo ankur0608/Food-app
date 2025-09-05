@@ -147,14 +147,19 @@ export default function MobileNavbar({
 
         {/* Right: Cart + Menu */}
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <IconButton color="inherit" component={Link} to="/cart">
+          <IconButton
+            color="inherit"
+            component={Link}
+            to="/cart"
+            aria-label="Cart"
+          >
             <Badge badgeContent={totalItems} color="error">
               <ShoppingCartOutlinedIcon sx={{ color: iconColor }} />
             </Badge>
           </IconButton>
 
           <IconButton color="inherit" onClick={() => setDrawerOpen(true)}>
-            <MenuIcon sx={{ color: iconColor }} />
+            <MenuIcon sx={{ color: iconColor }} aria-label="Open Menu" />
           </IconButton>
         </Box>
       </Toolbar>
@@ -214,6 +219,7 @@ export default function MobileNavbar({
               <ListItem key={item.text} disablePadding>
                 <ListItemButton
                   component={Link}
+                  aria-label={item.text}
                   to={item.path}
                   onClick={() => setDrawerOpen(false)}
                 >

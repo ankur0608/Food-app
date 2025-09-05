@@ -1,6 +1,12 @@
 // MealCard.jsx
 import { memo } from "react";
-import { Card, CardMedia, CardContent, Typography, Button } from "@mui/material";
+import {
+  Card,
+  CardMedia,
+  CardContent,
+  Typography,
+  Button,
+} from "@mui/material";
 import { Link } from "react-router-dom";
 
 const MealCard = memo(({ meal, onAddToCart, isDark, isAdding }) => (
@@ -75,6 +81,7 @@ const MealCard = memo(({ meal, onAddToCart, isDark, isAdding }) => (
         </Typography>
         <Button
           variant="contained"
+          aria-label="Add to Cart"
           fullWidth
           size="medium"
           sx={{

@@ -61,6 +61,7 @@ export default function DesktopNavbar({
         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mx: 3 }}>
           {navLinks.map((link) => (
             <Button
+              aria-label={link.text}
               key={link.text}
               component={NavLink}
               to={link.path}
@@ -90,13 +91,14 @@ export default function DesktopNavbar({
           {/* Search */}
           <Box sx={{ maxWidth: 280, mt: 3 }}>
             <SearchBar
+              aria-label="Search"
               searchQuery={searchQuery}
               setSearchQuery={setSearchQuery}
             />
           </Box>
 
           {/* Cart */}
-          <IconButton component={NavLink} to="/cart">
+          <IconButton component={NavLink} to="/cart" aria-label="Cart">
             <Badge
               badgeContent={totalItems}
               color="error"
@@ -108,9 +110,14 @@ export default function DesktopNavbar({
 
           {/* Avatar / Login */}
           {isAuthenticated ? (
-            <AvatarDropdown onLogout={onLogout} />
+            <AvatarDropdown onLogout={onLogout} aria-label="User Menu" />
           ) : (
-            <Button component={NavLink} to="/signup" sx={{ color: iconColor }}>
+            <Button
+              component={NavLink}
+              to="/signup"
+              sx={{ color: iconColor }}
+              aria-label="Login"
+            >
               Login
             </Button>
           )}
