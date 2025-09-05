@@ -7,7 +7,8 @@ import OverallRating from "./RatingOverall";
 import { Skeleton, Card } from "@mui/material";
 
 // Memoized BlogCard
-const BlogCard = memo(({ blog }) => {
+// BlogCard now accepts idx as prop
+const BlogCard = memo(({ blog, idx }) => {
   const imageUrl = blog.image_url
     ? blog.image_url.startsWith("http")
       ? blog.image_url
@@ -20,12 +21,15 @@ const BlogCard = memo(({ blog }) => {
         src={imageUrl}
         alt={blog.title}
         className={styles.image}
-        loading="lazy"
+        loading={idx === 0 ? "eager" : "lazy"} // ✅ fixed
+        fetchpriority={idx === 0 ? "high" : "auto"} // ✅ fixed
+        width="400"
+        height="250"
         srcSet={
           blog.image_url
-            ? `${imageUrl}?w=320 320w,
-               ${imageUrl}?w=480 480w,
-               ${imageUrl}?w=800 800w`
+            ? `${imageUrl}?w=320&format=webp 320w,
+               ${imageUrl}?w=480&format=webp 480w,
+               ${imageUrl}?w=800&format=webp 800w`
             : undefined
         }
         sizes="(max-width: 600px) 320px, (max-width: 960px) 480px, 800px"

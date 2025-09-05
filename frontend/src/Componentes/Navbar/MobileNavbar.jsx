@@ -158,7 +158,11 @@ export default function MobileNavbar({
             </Badge>
           </IconButton>
 
-          <IconButton color="inherit" onClick={() => setDrawerOpen(true)}>
+          <IconButton
+            color="inherit"
+            onClick={() => setDrawerOpen(true)}
+            aria-label="Open Menu"
+          >
             <MenuIcon sx={{ color: iconColor }} aria-label="Open Menu" />
           </IconButton>
         </Box>

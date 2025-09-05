@@ -20,6 +20,7 @@ export default function Footer() {
         color: "text.primary",
         py: { xs: 4, md: 8 },
         borderColor: "divider",
+        minHeight: "200px",
       }}
     >
       <Container maxWidth="lg">

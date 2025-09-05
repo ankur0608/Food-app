@@ -23,61 +23,81 @@ export default function Reservation() {
       <h1 className={styles.title}>Make Reservation</h1>
       <p className={styles.subtitle}>Get in touch with the restaurant</p>
 
-      <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className={styles.form}
+        aria-label="Reservation form"
+      >
         <div className={styles.row}>
           {/* Date */}
           <div className={styles.group}>
-            <label>Date</label>
+            <label htmlFor="date">Date</label>
             <div className={styles.inputWrapper}>
-              <LuCalendarDays className={styles.icon} />
+              <LuCalendarDays className={styles.icon} aria-hidden="true" />
               <input
+                id="date"
                 type="date"
+                aria-label="Select reservation date"
                 {...register("date", { required: "Date is required" })}
                 className={styles.input}
               />
             </div>
             {errors.date && (
-              <p className={styles.error}>{errors.date.message}</p>
+              <p role="alert" className={styles.error}>
+                {errors.date.message}
+              </p>
             )}
           </div>
 
           {/* Time */}
           <div className={styles.group}>
-            <label>Time</label>
+            <label htmlFor="time">Time</label>
             <div className={styles.inputWrapper}>
-              <LuClock9 className={styles.icon} />
+              <LuClock9 className={styles.icon} aria-hidden="true" />
               <input
+                id="time"
                 type="time"
+                aria-label="Select reservation time"
                 {...register("time", { required: "Time is required" })}
                 className={styles.input}
               />
             </div>
             {errors.time && (
-              <p className={styles.error}>{errors.time.message}</p>
+              <p role="alert" className={styles.error}>
+                {errors.time.message}
+              </p>
             )}
           </div>
 
           {/* Guests */}
           <div className={styles.group}>
-            <label>Guests</label>
+            <label htmlFor="guests">Guests</label>
             <div className={styles.inputWrapper}>
-              <PiUsersThreeLight className={styles.icon} />
+              <PiUsersThreeLight className={styles.icon} aria-hidden="true" />
               <input
+                id="guests"
                 type="number"
                 min="1"
                 max="20"
                 placeholder="Number of Guests"
+                aria-label="Enter number of guests"
                 {...register("guests", { required: "Guest count is required" })}
                 className={styles.input}
               />
             </div>
             {errors.guests && (
-              <p className={styles.error}>{errors.guests.message}</p>
+              <p role="alert" className={styles.error}>
+                {errors.guests.message}
+              </p>
             )}
           </div>
         </div>
 
-        <button type="submit" className={styles.button}>
+        <button
+          type="submit"
+          className={styles.button}
+          aria-label="Submit reservation"
+        >
           Reserve
         </button>
       </form>

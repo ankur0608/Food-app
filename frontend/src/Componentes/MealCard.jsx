@@ -35,7 +35,8 @@ export default function MealCard({ meal, addingId, handleAddToCart }) {
         <CardMedia
           component="img"
           alt={meal.name}
-          loading="lazy"
+          // ✅ Don't lazy-load the LCP image
+          fetchpriority="high"
           decoding="async"
           sx={{
             height: 180,

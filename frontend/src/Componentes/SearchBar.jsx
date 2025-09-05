@@ -88,6 +88,7 @@ export default function SearchBar({ searchQuery, setSearchQuery }) {
         <TextField
           inputRef={inputRef}
           value={searchQuery}
+          aria-label="Search meals"
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search meals..."
           size="small"

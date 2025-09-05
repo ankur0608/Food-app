@@ -1,4 +1,5 @@
 "use client";
+import { useCallback } from "react";
 import styles from "./Contact.module.css";
 import { useForm } from "react-hook-form";
 import { FaRegUser } from "react-icons/fa";
@@ -7,7 +8,7 @@ import { TbDeviceMobile } from "react-icons/tb";
 import { LuCalendarDays, LuClock9 } from "react-icons/lu";
 import { PiUsersThreeLight } from "react-icons/pi";
 import { useTheme } from "../../Store/theme.jsx";
-import { useToast } from "../../Store/ToastContext.jsx"; // import your toast context
+import { useToast } from "../../Store/ToastContext.jsx";
 
 export default function ContactForm() {
   const {
@@ -17,40 +18,43 @@ export default function ContactForm() {
     formState: { errors },
   } = useForm();
   const { theme } = useTheme();
-  const { showToast } = useToast(); // ✅ get toast function
+  const { showToast } = useToast();
 
-  const onSubmit = async (data) => {
-    console.log("📦 Sending reservation data:", data);
+  const onSubmit = useCallback(
+    async (data) => {
+      console.log("📦 Sending reservation data:", data);
 
-    try {
-      const response = await fetch(
-        "https://food-app-d8r3.onrender.com/contact",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
+      try {
+        const response = await fetch(
+          "https://food-app-d8r3.onrender.com/contact",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+          }
+        );
+
+        const result = await response.json();
+        console.log("📥 Server response:", result);
+
+        if (!response.ok) {
+          showToast(result.error || "Failed to submit", "error");
+          return;
         }
-      );
 
-      const result = await response.json();
-      console.log("📥 Server response:", result);
-
-      if (!response.ok) {
-        showToast(result.error || "Failed to submit", "error"); // ✅ toast error
-        return;
+        showToast("Reservation submitted successfully!", "success");
+        reset();
+      } catch (error) {
+        console.error("🚨 Error submitting reservation:", error);
+        showToast("Something went wrong. Please try again.", "error");
       }
-
-      showToast("Reservation submitted successfully!", "success"); // ✅ toast success
-      reset();
-    } catch (error) {
-      console.error("🚨 Error submitting reservation:", error);
-      showToast("Something went wrong. Please try again.", "error"); // ✅ toast error
-    }
-  };
+    },
+    [reset, showToast]
+  );
 
   return (
     <div className={`${styles["contact-container"]} ${styles[theme]}`}>
-      <h1>Make a Reservation</h1>
+      <h2>Make a Reservation</h2>
 
       <form
         onSubmit={handleSubmit(onSubmit)}
@@ -59,12 +63,14 @@ export default function ContactForm() {
         {/* First + Last Name */}
         <div className={styles["form-row"]}>
           <div className={styles["form-group"]}>
-            <label>First Name</label>
+            <label htmlFor="firstName">First Name</label>
             <div className={styles["input-wrapper"]}>
               <FaRegUser className={styles.icon} />
               <input
+                id="firstName"
                 type="text"
                 placeholder="First Name"
+                autoComplete="given-name"
                 {...register("firstName", {
                   required: "First name is required",
                 })}
@@ -77,12 +83,14 @@ export default function ContactForm() {
           </div>
 
           <div className={styles["form-group"]}>
-            <label>Last Name</label>
+            <label htmlFor="lastName">Last Name</label>
             <div className={styles["input-wrapper"]}>
               <FaRegUser className={styles.icon} />
               <input
+                id="lastName"
                 type="text"
                 placeholder="Last Name"
+                autoComplete="family-name"
                 {...register("lastName", { required: "Last name is required" })}
                 className={styles.input}
               />
@@ -95,12 +103,14 @@ export default function ContactForm() {
 
         {/* Email */}
         <div className={styles["form-group"]}>
-          <label>Email</label>
+          <label htmlFor="email">Email</label>
           <div className={styles["input-wrapper"]}>
             <IoMailOutline className={styles.icon} />
             <input
+              id="email"
               type="email"
               placeholder="Email"
+              autoComplete="email"
               {...register("email", {
                 required: "Email is required",
                 pattern: {
@@ -118,12 +128,14 @@ export default function ContactForm() {
 
         {/* Phone */}
         <div className={styles["form-group"]}>
-          <label>Phone</label>
+          <label htmlFor="phone">Phone</label>
           <div className={styles["input-wrapper"]}>
             <TbDeviceMobile className={styles.icon} />
             <input
+              id="phone"
               type="tel"
               placeholder="Phone"
+              autoComplete="tel"
               {...register("phone", { required: "Phone number is required" })}
               className={styles.input}
             />
@@ -136,11 +148,13 @@ export default function ContactForm() {
         {/* Date + Time */}
         <div className={styles["form-row"]}>
           <div className={styles["form-group"]}>
-            <label>Date</label>
+            <label htmlFor="date">Date</label>
             <div className={styles["input-wrapper"]}>
               <LuCalendarDays className={styles.icon} />
               <input
+                id="date"
                 type="date"
+                autoComplete="off"
                 {...register("date", { required: "Date is required" })}
                 className={styles.input}
               />
@@ -151,11 +165,13 @@ export default function ContactForm() {
           </div>
 
           <div className={styles["form-group"]}>
-            <label>Time</label>
+            <label htmlFor="time">Time</label>
             <div className={styles["input-wrapper"]}>
               <LuClock9 className={styles.icon} />
               <input
+                id="time"
                 type="time"
+                autoComplete="off"
                 {...register("time", { required: "Time is required" })}
                 className={styles.input}
               />
@@ -168,14 +184,16 @@ export default function ContactForm() {
 
         {/* Guests */}
         <div className={styles["form-group"]}>
-          <label>Guests</label>
+          <label htmlFor="guests">Guests</label>
           <div className={styles["input-wrapper"]}>
             <PiUsersThreeLight className={styles.icon} />
             <input
+              id="guests"
               type="number"
               min="1"
               max="20"
               placeholder="Number of Guests"
+              autoComplete="off"
               {...register("guests", { required: "Guest count is required" })}
               className={styles.input}
             />

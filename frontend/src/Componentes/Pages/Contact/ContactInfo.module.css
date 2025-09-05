@@ -22,6 +22,7 @@
 
 .image {
   width: 100%;
+  height: 400px;
   max-width: 500px;
   border-radius: 12px;
   object-fit: cover;
@@ -34,6 +35,7 @@
   border-radius: 12px;
   object-fit: cover;
 }
+
 .contactText,
 .addressText {
   margin-top: 1rem;

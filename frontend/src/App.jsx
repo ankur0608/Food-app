@@ -17,7 +17,7 @@ import Home from "./Componentes/Pages/Home.jsx";
 // const Home = lazy(() => import("./Componentes/Pages/Home.jsx"));
 const Meals = lazy(() => import("./Componentes/Pages/Meals.jsx"));
 const MealsDetail = lazy(() => import("./Componentes/Pages/MealsDetails.jsx"));
-const About = lazy(() => import("./Componentes/Pages/About.jsx"));
+const About = lazy(() => import("./Componentes/Pages/AboutUs/About.jsx"));
 const Contact = lazy(() => import("./Componentes/Pages/Contact/Contact.jsx"));
 const Signup = lazy(() => import("./Componentes/Sign-up.jsx"));
 const Login = lazy(() => import("./Componentes/Login.jsx"));
