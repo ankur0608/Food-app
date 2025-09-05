@@ -6,14 +6,14 @@
   padding: 40px 20px;
   min-height: 100vh;
   box-sizing: border-box;
-  background-color: #ffffff;
+  background-color: #fff;
   font-family: "Arial", sans-serif;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Theme variations */
 .light {
-  background-color: #f0f2f5;
+  background-color: #fff;
   color: #333;
 }
 

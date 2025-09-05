@@ -21,20 +21,21 @@ const BlogCard = memo(({ blog, idx }) => {
         src={imageUrl}
         alt={blog.title}
         className={styles.image}
-        loading={idx === 0 ? "eager" : "lazy"} // ✅ fixed
-        fetchpriority={idx === 0 ? "high" : "auto"} // ✅ fixed
+        loading={idx === 0 ? "eager" : "lazy"} // first image loads eagerly
+        fetchpriority={idx === 0 ? "high" : "auto"} // high priority for first image
         width="400"
         height="250"
         srcSet={
           blog.image_url
             ? `${imageUrl}?w=320&format=webp 320w,
-               ${imageUrl}?w=480&format=webp 480w,
-               ${imageUrl}?w=800&format=webp 800w`
+         ${imageUrl}?w=480&format=webp 480w,
+         ${imageUrl}?w=800&format=webp 800w`
             : undefined
         }
         sizes="(max-width: 600px) 320px, (max-width: 960px) 480px, 800px"
         onError={(e) => (e.target.src = "/assets/default-blog.jpg")}
       />
+
       <div className={styles.cardContent}>
         <h3 className={styles.title}>
           {blog.title.length > 60
