@@ -20,6 +20,7 @@ function Layout() {
     "/blog",
     "/cart",
     "/checkout",
+    "/payment-history",
   ];
 
   // Check if current path starts with any of the restricted routes

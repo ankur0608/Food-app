@@ -14,9 +14,13 @@ import {
   Stepper,
   Step,
   StepLabel,
-  Alert,
   Stack,
   Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Box,
 } from "@mui/material";
 
 // Lazy load step components
@@ -33,10 +37,11 @@ const CheckoutForm = () => {
   const { items, clearCart } = useContext(CartContext);
   const total = location.state?.total || 0;
 
-  const [showPaymentToast, setShowPaymentToast] = useState(false);
+  const [showPaymentPopup, setShowPaymentPopup] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
 
   const savedUser = JSON.parse(localStorage.getItem("user")) || {};
+  const user_id = savedUser.id || null;
   const savedProgress = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
 
   const {
@@ -109,29 +114,29 @@ const CheckoutForm = () => {
                 razorpay_signature: response.razorpay_signature,
                 amount: order.amount / 100,
                 currency: order.currency,
-                ...formData,
+                name: formData.name,
+                email: formData.email,
+                mobile: formData.mobile,
+                // 👇 Combine into single text field
+                address: `${formData.addressLine}, ${formData.city}, ${formData.state}, ${formData.pincode}, ${formData.country}`,
                 items,
-                user_id: savedUser.id,
+                user_id: user_id,
               }),
             }
           );
-
-          if (!saveRes.ok) return alert("Payment saved failed!");
+          console.log("💾 Saving payment info:", user_id);
+          if (!saveRes.ok) return alert("Payment save failed!");
 
           clearCart();
           localStorage.removeItem(STORAGE_KEY);
-          setShowPaymentToast(true);
-          setTimeout(() => {
-            setShowPaymentToast(false);
-            navigate("/payment-history");
-          }, 3000);
+          setShowPaymentPopup(true);
         },
         prefill: {
           name: formData.name,
           email: formData.email,
           contact: formData.mobile,
         },
-        theme: { color: "#0f172a" },
+        theme: { color: "#ff6600" },
       };
 
       const rzp = new window.Razorpay(options);
@@ -158,89 +163,180 @@ const CheckoutForm = () => {
   };
 
   return (
-    <Paper
-      elevation={6}
-      sx={{ maxWidth: 650, mx: "auto", mt: 12, mb: 10, p: 4, borderRadius: 3 }}
-      role="form"
-      aria-label="Checkout form"
-    >
-      {showPaymentToast && (
-        <Alert severity="success" sx={{ mb: 2 }} role="alert">
-          Payment completed successfully. Redirecting...
-        </Alert>
-      )}
-
-      <Typography
-        variant="h5"
-        fontWeight={600}
-        textAlign="center"
-        mb={3}
-        aria-label="Checkout title"
+    <>
+      <Paper
+        elevation={8}
+        sx={{
+          maxWidth: 750,
+          mx: "auto",
+          mt: 10,
+          mb: 12,
+          p: { xs: 3, md: 5 },
+          borderRadius: 4,
+          bgcolor: "background.paper",
+          boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
+        }}
       >
-        Checkout
-      </Typography>
+        <Typography
+          variant="h4"
+          fontWeight={700}
+          textAlign="center"
+          mb={2}
+          color="primary"
+        >
+          Checkout
+        </Typography>
 
-      <Typography
-        variant="subtitle1"
-        fontWeight={500}
-        textAlign="center"
-        mb={3}
-        aria-label="Total amount"
+        <Typography
+          variant="h6"
+          fontWeight={500}
+          textAlign="center"
+          mb={4}
+          color="text.secondary"
+        >
+          Total Amount: <strong>₹{parseFloat(total).toFixed(2)}</strong>
+        </Typography>
+
+        {/* Modern Stepper */}
+        <Stepper
+          activeStep={activeStep}
+          alternativeLabel
+          sx={{
+            mb: 5,
+            "& .MuiStepIcon-root": {
+              color: "#d1d5db",
+            },
+            "& .MuiStepIcon-root.Mui-active": {
+              color: "#ff6600",
+            },
+            "& .MuiStepIcon-root.Mui-completed": {
+              color: "#4ade80",
+            },
+          }}
+        >
+          {steps.map((label) => (
+            <Step key={label}>
+              <StepLabel>{label}</StepLabel>
+            </Step>
+          ))}
+        </Stepper>
+
+        <form onSubmit={handleSubmit(onSubmit)} noValidate>
+          <Suspense fallback={<Typography>Loading step...</Typography>}>
+            <Box
+              sx={{
+                p: 3,
+                borderRadius: 3,
+                bgcolor: "#fafafa",
+                mb: 4,
+                boxShadow: "inset 0 1px 4px rgba(0,0,0,0.05)",
+              }}
+            >
+              {activeStep === 0 && (
+                <UserDetailsForm control={control} errors={errors} />
+              )}
+              {activeStep === 1 && (
+                <AddressForm control={control} errors={errors} />
+              )}
+              {activeStep === 2 && (
+                <PaymentReview items={items} total={total} />
+              )}
+            </Box>
+          </Suspense>
+
+          {/* Navigation */}
+          <Stack direction="row" justifyContent="space-between" mt={4}>
+            {activeStep > 0 && (
+              <Button
+                onClick={handleBack}
+                variant="outlined"
+                sx={{
+                  borderRadius: 3,
+                  px: 4,
+                  py: 1.2,
+                  textTransform: "none",
+                }}
+              >
+                Back
+              </Button>
+            )}
+            {activeStep < steps.length - 1 ? (
+              <Button
+                variant="contained"
+                onClick={handleNext}
+                sx={{
+                  borderRadius: 3,
+                  px: 4,
+                  py: 1.2,
+                  textTransform: "none",
+                  background: "linear-gradient(90deg,#ff6600,#ff8533)",
+                }}
+              >
+                Next
+              </Button>
+            ) : (
+              <Button
+                variant="contained"
+                onClick={handleSubmit(onSubmit)} // 👈 call manually
+                sx={{
+                  borderRadius: 3,
+                  px: 4,
+                  py: 1.2,
+                  textTransform: "none",
+                  fontWeight: 600,
+                  background: "linear-gradient(90deg,#ff6600,#ff8533)",
+                }}
+              >
+                Proceed to Pay
+              </Button>
+            )}
+          </Stack>
+        </form>
+      </Paper>
+
+      {/* Payment Success Popup */}
+      <Dialog
+        open={showPaymentPopup}
+        onClose={() => {
+          setShowPaymentPopup(false);
+          navigate("/payment-history");
+        }}
+        aria-labelledby="payment-success-dialog"
+        maxWidth="xs"
+        fullWidth
       >
-        Total Amount: ₹{parseFloat(total).toFixed(2)}
-      </Typography>
-
-      <Stepper activeStep={activeStep} alternativeLabel sx={{ mb: 4 }}>
-        {steps.map((label) => (
-          <Step key={label}>
-            <StepLabel aria-label={`Step ${label}`}>{label}</StepLabel>
-          </Step>
-        ))}
-      </Stepper>
-
-      <form onSubmit={handleSubmit(onSubmit)} noValidate>
-        <Suspense fallback={<Typography>Loading step...</Typography>}>
-          {activeStep === 0 && (
-            <UserDetailsForm control={control} errors={errors} />
-          )}
-          {activeStep === 1 && (
-            <AddressForm control={control} errors={errors} />
-          )}
-          {activeStep === 2 && <PaymentReview items={items} total={total} />}
-        </Suspense>
-
-        {/* Navigation */}
-        <Stack direction="row" justifyContent="space-between" mt={4}>
-          {activeStep > 0 && (
-            <Button
-              onClick={handleBack}
-              variant="outlined"
-              aria-label="Back button"
-            >
-              Back
-            </Button>
-          )}
-          {activeStep < steps.length - 1 ? (
-            <Button
-              variant="contained"
-              onClick={handleNext}
-              aria-label="Next button"
-            >
-              Next
-            </Button>
-          ) : (
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              aria-label="Proceed to payment"
-            >
-              Proceed to Pay
-            </Button>
-          )}
-        </Stack>
-      </form>
-    </Paper>
+        <DialogTitle
+          id="payment-success-dialog"
+          sx={{ fontWeight: 700, textAlign: "center", mt: 1, color: "primary" }}
+        >
+          🎉 Payment Successful
+        </DialogTitle>
+        <DialogContent sx={{ textAlign: "center", py: 2 }}>
+          <Typography variant="body1" color="text.secondary">
+            Thank you for your purchase! Your payment has been processed
+            successfully.
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ justifyContent: "center", pb: 2 }}>
+          <Button
+            variant="contained"
+            sx={{
+              borderRadius: 3,
+              px: 4,
+              py: 1.2,
+              textTransform: "none",
+              background: "linear-gradient(90deg,#ff6600,#ff8533)",
+            }}
+            onClick={() => {
+              setShowPaymentPopup(false);
+              navigate("/payment-history");
+            }}
+          >
+            OK
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
   );
 };
 

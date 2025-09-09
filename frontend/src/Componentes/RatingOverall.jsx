@@ -1,41 +1,55 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../supabaseClient";
-import { Box, Typography, Rating, Skeleton, useTheme } from "@mui/material";
+import { Box, Typography, Rating, Skeleton } from "@mui/material";
 import StarIcon from "@mui/icons-material/Star";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
 
-export default function OverallRating({
-  itemId, // id of the food or blog post
-  tableName, // 'food_reviews' or 'post_reviews'
-  foreignKey, // 'food_id' or 'post_id'
-}) {
-  const theme = useTheme();
+export default function OverallRating({ itemId, tableName, foreignKey }) {
   const [average, setAverage] = useState(null);
   const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
+  const fetchAverageRating = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from(tableName)
+      .select("rating")
+      .eq(foreignKey, itemId);
+
+    if (!error && data.length > 0) {
+      const total = data.reduce((sum, r) => sum + r.rating, 0);
+      setAverage(total / data.length);
+      setCount(data.length);
+    } else {
+      setAverage(null);
+      setCount(0);
+    }
+    setLoading(false);
+  };
+
   useEffect(() => {
-    const fetchAverageRating = async () => {
-      setLoading(true);
-
-      const { data, error } = await supabase
-        .from(tableName)
-        .select("rating")
-        .eq(foreignKey, itemId);
-
-      if (!error && data.length > 0) {
-        const total = data.reduce((sum, r) => sum + r.rating, 0);
-        setAverage(total / data.length);
-        setCount(data.length);
-      } else {
-        setAverage(null);
-        setCount(0);
-      }
-
-      setLoading(false);
-    };
-
     fetchAverageRating();
+
+    // Subscribe to realtime changes
+    const channel = supabase
+      .channel(`realtime-${tableName}-${itemId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: tableName,
+          filter: `${foreignKey}=eq.${itemId}`,
+        },
+        () => {
+          fetchAverageRating(); // update rating when table changes
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [itemId, tableName, foreignKey]);
 
   if (loading) {
@@ -54,19 +68,12 @@ export default function OverallRating({
   }
 
   if (count === 0 || !average) {
-    return (
-      <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
-        No ratings yet
-      </Typography>
-    );
+    return <Typography>No ratings yet</Typography>;
   }
 
   return (
-    <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-      <Typography
-        variant="body1"
-        sx={{ fontWeight: 600, color: theme.palette.primary.main }}
-      >
+    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+      <Typography variant="body1" sx={{ fontWeight: 600 }}>
         {average.toFixed(1)}
       </Typography>
 
@@ -76,14 +83,10 @@ export default function OverallRating({
         readOnly
         size="small"
         icon={<StarIcon fontSize="inherit" sx={{ color: "#FFD700" }} />}
-        emptyIcon={
-          <StarBorderIcon fontSize="inherit" sx={{ color: "#FFD700" }} />
-        }
+        emptyIcon={<StarBorderIcon fontSize="inherit" sx={{ color: "#FFD700" }} />}
       />
 
-      <Typography variant="body2" color="text.secondary">
-        ({count})
-      </Typography>
+      <Typography variant="body2">({count})</Typography>
     </Box>
   );
 }

@@ -1,10 +1,10 @@
-import ContactInfo from "./ContactInfo";
+// import ContactInfo from "./ContactInfo";
 import ContactForm from "./ContactForm";
 import OpeningHours from "../../OpeningHours";
 function Contact() {
   return (
     <>
-      <ContactInfo />
+      {/* <ContactInfo /> */}
       <ContactForm />
       <OpeningHours />
     </>

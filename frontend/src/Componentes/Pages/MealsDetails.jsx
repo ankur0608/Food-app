@@ -10,16 +10,12 @@ import {
   CardContent,
   Box,
   Skeleton,
-  // IconButton,
 } from "@mui/material";
-// import FavoriteIcon from "@mui/icons-material/Favorite";
-// import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useTheme } from "../Store/theme.jsx";
 import ReviewsSection from "../../Componentes/ReviewsSection.jsx";
 import AddToCartButton from "../AddToCartButton.jsx";
-// import { useToast } from "../../Componentes/Store/ToastContext.jsx";
-// import useUserWishlist from "../../hooks/useUserWishlist.jsx";
+import OverallRating from "../RatingOverall.jsx";
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
@@ -35,20 +31,12 @@ export default function MealDetail() {
   const { name } = useParams();
   const navigate = useNavigate();
   const { theme } = useTheme();
-  // const { showToast } = useToast();
 
-  // const user = JSON.parse(localStorage.getItem("user"));
-  // const {
-  //   isWishlisted,
-  //   toggleWishlist,
-  //   loading: wishlistLoading,
-  // } = useUserWishlist(user?.id);
-
+  // Fetch meal details
   useEffect(() => {
     const fetchMeal = async () => {
       setLoading(true);
       try {
-        // Fetch meal details
         const { data: mealData, error: mealError } = await supabase
           .from("foods")
           .select("*")
@@ -58,13 +46,11 @@ export default function MealDetail() {
         if (mealError) throw mealError;
         setMeal(mealData);
 
-        // Fetch meal image
         if (mealData.image) {
-          const { data: imgData, error: imgError } = supabase.storage
+          const { data: imgData } = supabase.storage
             .from("meal-images")
             .getPublicUrl(mealData.image);
 
-          if (imgError) throw imgError;
           setImageUrl(imgData.publicUrl);
         }
       } catch (err) {
@@ -78,114 +64,162 @@ export default function MealDetail() {
     fetchMeal();
   }, [name]);
 
-  // const handleWishlist = async () => {
-  //   if (!user) {
-  //     showToast("Please login first", "error");
-  //     return;
-  //   }
-
-  //   if (!meal) return;
-
-  //   await toggleWishlist(meal.id);
-
-  //   showToast(
-  //     isWishlisted(meal.id) ? "Removed from wishlist" : "Added to wishlist",
-  //     isWishlisted(meal.id) ? "info" : "success"
-  //   );
-  // };
-
-  if (loading /* || wishlistLoading */) {
+  if (loading) {
     return (
-      <Container sx={{ mt: 4, height: 800 }}>
+      <Container sx={{ mt: 15 }}>
         <Skeleton variant="rectangular" width="100%" height={350} />
-        <Skeleton variant="text" width="60%" />
+        <Skeleton variant="text" width="60%" sx={{ mt: 2 }} />
         <Skeleton variant="text" width="40%" />
         <Skeleton variant="text" width="80%" />
       </Container>
     );
   }
 
-  if (error) {
+  if (error || !meal) {
     return (
       <Container sx={{ mt: 4 }}>
-        <Typography color="error">{error}</Typography>
+        <Typography color="error">{error || "Meal not found."}</Typography>
       </Container>
     );
   }
 
   return (
-    <Container maxWidth="md" sx={{ pt: 12 }}>
+    <Container
+      maxWidth="xl"
+      sx={{ pt: 12, pb: 6, px: { xs: 2, sm: 3, md: 10 } }}
+    >
       <Button
         variant="outlined"
         startIcon={<ArrowBackIcon />}
         onClick={() => navigate(-1)}
-        sx={{ mb: 2 }}
+        sx={{ mb: 3 }}
       >
         Back
       </Button>
 
       <Card
         sx={{
-          mb: 4,
-          bgcolor: theme === "dark" ? "#1a1a1a" : "#fdfdfd",
+          display: "flex",
+          flexDirection: { xs: "column", md: "row" },
+          bgcolor: theme === "dark" ? "#1a1a1a" : "#fff",
           color: theme === "dark" ? "#f5f5f5" : "#1a1a1a",
-          borderRadius: 3,
-          overflow: "hidden",
+          borderRadius: 4,
           boxShadow:
             theme === "dark"
-              ? "0 2px 12px rgba(0,0,0,0.6)"
-              : "0 2px 12px rgba(0,0,0,0.1)",
-          transition: "all 0.3s ease",
-          position: "relative",
+              ? "0 8px 30px rgba(0,0,0,0.6)"
+              : "0 8px 30px rgba(0,0,0,0.1)",
+          gap: 4,
         }}
       >
         <CardMedia
           component="img"
-          height="400"
-          image={meal.image.startsWith("http") ? meal.image : imageUrl}
+          height={400}
+          sx={{
+            width: { xs: "100%", md: "50%" },
+            objectFit: "cover",
+            borderRadius: { xs: 0, md: "16px 0 0 16px" },
+          }}
+          image={
+            meal.image.startsWith("http")
+              ? meal.image
+              : imageUrl || "/assets/default-meal.jpg"
+          }
           alt={meal.name}
           onError={(e) => (e.target.src = "/assets/default-meal.jpg")}
-          sx={{
-            objectFit: "cover",
-            filter: theme === "dark" ? "brightness(0.85)" : "none",
-          }}
         />
 
-        {/* Wishlist Button removed */}
-
-        <CardContent>
-          <Typography variant="h4" gutterBottom sx={{ fontWeight: "bold" }}>
+        <CardContent
+          sx={{
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            px: { xs: 2, sm: 4, md: 6 },
+            py: { xs: 3, sm: 4, md: 5 },
+          }}
+        >
+          <Typography variant="h4" fontWeight="bold" gutterBottom>
             {meal.name}
           </Typography>
-          <Typography variant="body1" gutterBottom sx={{ mb: 2 }}>
+
+          <Typography
+            variant="body1"
+            sx={{
+              color: theme === "dark" ? "#f5f5f5" : "#1a1a1a",
+              lineHeight: 1.8,
+              fontSize: "1.05rem",
+              whiteSpace: "pre-line",
+              mb: 3,
+            }}
+          >
             {meal.description}
           </Typography>
+
+          {/* Overall rating with real-time updates */}
+          <OverallRating
+            itemId={meal.id}
+            tableName="food_reviews"
+            foreignKey="food_id"
+          />
+
           <Typography
             variant="h6"
             color="primary"
             sx={{
-              fontWeight: "600",
-              px: 2,
-              py: 1,
+              fontWeight: 700,
+              mt: 2,
+              px: 3,
+              py: 1.5,
               borderRadius: 2,
-              backgroundColor:
-                theme === "dark" ? "rgba(255,255,255,0.05)" : "#f0f0f0",
+              display: "inline-block",
+              mb: 4,
+              fontSize: "1.2rem",
             }}
           >
             ₹{meal.price}
           </Typography>
 
-          <Box sx={{ mt: 3 }}>
-            <AddToCartButton food={meal} />
-          </Box>
+          <Button
+            variant="contained"
+            size="large"
+            fullWidth
+            sx={{
+              py: 1.8,
+              fontSize: "1.1rem",
+              borderRadius: 3,
+              fontWeight: 600,
+              background:
+                theme === "dark"
+                  ? "linear-gradient(90deg, #ff7e5f, #feb47b)"
+                  : "linear-gradient(90deg, #ff6a00, #ff8e53)",
+              color: "#fff",
+              boxShadow:
+                theme === "dark"
+                  ? "0 6px 20px rgba(0,0,0,0.5)"
+                  : "0 6px 20px rgba(0,0,0,0.15)",
+              transition: "all 0.3s ease",
+              "&:hover": {
+                transform: "translateY(-2px)",
+                boxShadow:
+                  theme === "dark"
+                    ? "0 8px 25px rgba(0,0,0,0.6)"
+                    : "0 8px 25px rgba(0,0,0,0.2)",
+              },
+            }}
+            onClick={() => AddToCartButton({ food: meal })}
+          >
+            Add to Cart
+          </Button>
         </CardContent>
       </Card>
 
-      <ReviewsSection
-        itemId={meal.id}
-        tableName="food_reviews"
-        foreignKey="food_id"
-      />
+      <Box sx={{ mt: 4 }}>
+        {/* ReviewsSection with real-time updates */}
+        <ReviewsSection
+          itemId={meal.id}
+          tableName="food_reviews"
+          foreignKey="food_id"
+        />
+      </Box>
     </Container>
   );
 }

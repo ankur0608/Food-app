@@ -6,17 +6,30 @@ import {
   CircularProgress,
   Divider,
   Paper,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  IconButton,
 } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
+import RateReviewIcon from "@mui/icons-material/RateReview"; // icon for the button
 import ReviewForm from "./ReviewForm";
 import PostReviewsList from "./PostReviewsList";
 import MealsReviewsList from "./MealsReviewsList";
 
-export default function ReviewsSection({ itemId, tableName, foreignKey }) {
+export default function ReviewsSection({
+  itemId,
+  tableName,
+  foreignKey,
+  onReviewChange, // callback from parent
+}) {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
+  const [openDialog, setOpenDialog] = useState(false);
 
-  // Get current user from Supabase or localStorage
+  // Get current user
   const getUser = async () => {
     try {
       const { data } = await supabase.auth.getSession();
@@ -31,6 +44,7 @@ export default function ReviewsSection({ itemId, tableName, foreignKey }) {
     } catch (err) {
       console.error("Supabase session error:", err.message);
     }
+    // fallback to localStorage or anonymous
     return (
       JSON.parse(localStorage.getItem("user")) || {
         full_name: "Anonymous",
@@ -73,6 +87,7 @@ export default function ReviewsSection({ itemId, tableName, foreignKey }) {
     [itemId, tableName, foreignKey]
   );
 
+  // Initialize user and fetch reviews
   useEffect(() => {
     const init = async () => {
       const currentUser = await getUser();
@@ -86,21 +101,80 @@ export default function ReviewsSection({ itemId, tableName, foreignKey }) {
     tableName === "meal_reviews" ? MealsReviewsList : PostReviewsList;
 
   return (
-    <Paper elevation={2} sx={{ mt: 5, p: { xs: 2, sm: 3 }, borderRadius: 2 }}>
-      <Typography variant="h5" fontWeight={700} gutterBottom>
-        Customer Reviews
-      </Typography>
-      <Divider sx={{ mb: 3 }} />
-      <Box sx={{ mt: 4 }}>
-        <ReviewForm
-          itemId={itemId}
-          tableName={tableName}
-          foreignKey={foreignKey}
-          onReviewAdded={() => fetchReviews(user)}
-          user={user}
-        />
+    <Paper elevation={2} sx={{ mt: 5, p: { xs: 2, sm: 3 }, borderRadius: 3 }}>
+      {/* Title + Button */}
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 3,
+        }}
+      >
+        <Typography variant="h5" fontWeight={700}>
+          Customer Reviews
+        </Typography>
+
+        <Button
+          variant="outlined"
+          startIcon={<RateReviewIcon />}
+          onClick={() => setOpenDialog(true)}
+          disabled={!user}
+          sx={{
+            backgroundColor: "#ffffff",
+            color: "#333",
+            borderRadius: 3,
+            textTransform: "none",
+            boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
+            "&:hover": {
+              backgroundColor: "#f5f5f5",
+              boxShadow: "0 4px 10px rgba(0,0,0,0.15)",
+            },
+          }}
+        >
+          Write a Review
+        </Button>
       </Box>
+
       <Divider sx={{ mb: 3 }} />
+
+      {/* Review Dialog */}
+      <Dialog
+        open={openDialog}
+        onClose={() => setOpenDialog(false)}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          Write a Review
+          <IconButton onClick={() => setOpenDialog(false)}>
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent>
+          <ReviewForm
+            itemId={itemId}
+            tableName={tableName}
+            foreignKey={foreignKey}
+            user={user}
+            onReviewAdded={() => {
+              fetchReviews(user); // refresh list
+              onReviewChange?.(); // notify parent MealDetail
+              setOpenDialog(false);
+            }}
+          />
+        </DialogContent>
+      </Dialog>
+
+      <Divider sx={{ mb: 3 }} />
+
+      {/* Reviews List */}
       {loading ? (
         <Box sx={{ display: "flex", justifyContent: "center", py: 3 }}>
           <CircularProgress size={28} />
@@ -114,7 +188,10 @@ export default function ReviewsSection({ itemId, tableName, foreignKey }) {
           reviews={reviews}
           userId={user?.id}
           tableName={tableName}
-          onReviewDeleted={() => fetchReviews(user)}
+          onReviewDeleted={() => {
+            fetchReviews(user);
+            onReviewChange?.(); // notify parent after deletion
+          }}
         />
       )}
     </Paper>
