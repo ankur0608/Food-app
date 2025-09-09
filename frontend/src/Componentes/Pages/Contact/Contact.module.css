@@ -29,6 +29,13 @@
   font-weight: bold;
   text-align: center;
 }
+.subtitle {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+  text-align: center;
+  line-height: 1.6;
+}
 
 .contact-form {
   background-color: var(--form-bg-color, #ffffff);

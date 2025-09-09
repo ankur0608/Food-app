@@ -46,8 +46,24 @@ export default function Login() {
         return;
       }
 
-      localStorage.setItem("user", JSON.stringify(sessionData.user));
+      const user = sessionData.user;
+      localStorage.setItem("user", JSON.stringify(user));
       showToast("🎉 Login successful!", "success");
+
+      // ✅ Assign new-user coupon
+      try {
+        await fetch("http://localhost:5000/coupons/assign-new-user", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            user_id: user.id,
+            name: user.user_metadata?.full_name || "Guest",
+            email: user.email,
+          }),
+        });
+      } catch (err) {
+        console.error("Failed to assign coupon:", err);
+      }
 
       setTimeout(() => navigate("/"), 500);
     } catch {
@@ -57,14 +73,31 @@ export default function Login() {
 
   // ✅ Google login
   const handleGoogleLogin = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/google-redirect`,
-      },
+      options: { redirectTo: `${window.location.origin}/google-redirect` },
     });
 
-    if (error) showToast("❌ Google login failed", "error");
+    if (error) return showToast("❌ Google login failed", "error");
+
+    if (user) {
+      try {
+        await fetch("http://localhost:5000/coupons/assign-new-user", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            user_id: user.id,
+            name: user.user_metadata?.full_name || "Guest",
+            email: user.email,
+          }),
+        });
+      } catch (err) {
+        console.error("Failed to assign coupon:", err);
+      }
+    }
   };
 
   return (

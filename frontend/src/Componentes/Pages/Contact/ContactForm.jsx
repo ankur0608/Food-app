@@ -55,7 +55,10 @@ export default function ContactForm() {
   return (
     <div className={`${styles["contact-container"]} ${styles[theme]}`}>
       <h2>Make a Reservation</h2>
-
+      <p className={styles.subtitle}>
+        Reserve your table quickly and easily. Fill in the details below and
+        we’ll confirm your booking.
+      </p>
       <form
         onSubmit={handleSubmit(onSubmit)}
         className={styles["contact-form"]}

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Paper,
   Typography,
@@ -18,13 +18,35 @@ export default function CartSummary({
   deliveryCharges,
   finalAmount,
   navigate,
+  userId, // pass current user id
 }) {
-  const applyCoupon = () => {
-    if (coupon === "SAVE50") {
-      setDiscount(50);
-    } else {
+  const [loading, setLoading] = useState(false);
+
+  const applyCoupon = async () => {
+    if (!coupon) return;
+
+    setLoading(true);
+    try {
+      const res = await fetch("http://localhost:5000/coupons/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: userId, code: coupon }),
+      });
+      const data = await res.json();
+
+      if (data.valid) {
+        setDiscount(data.discount);
+        alert(`🎉 Coupon applied! You got ${data.discount}% off`);
+      } else {
+        setDiscount(0);
+        alert(`❌ ${data.message}`);
+      }
+    } catch (err) {
+      console.error(err);
       setDiscount(0);
+      alert("❌ Failed to validate coupon");
     }
+    setLoading(false);
   };
 
   return (
@@ -36,8 +58,12 @@ export default function CartSummary({
 
       <Stack spacing={1}>
         <Typography variant="body1">Items: {items.length}</Typography>
-        <Typography variant="body1">Subtotal: ₹{totalAmount.toFixed(2)}</Typography>
-        <Typography variant="body1">Delivery Charges: ₹{deliveryCharges}</Typography>
+        <Typography variant="body1">
+          Subtotal: ₹{totalAmount.toFixed(2)}
+        </Typography>
+        <Typography variant="body1">
+          Delivery Charges: ₹{deliveryCharges}
+        </Typography>
         <Typography variant="body1">Discount: -₹{discount}</Typography>
         <Divider sx={{ my: 1 }} />
         <Typography variant="h6" fontWeight="bold">
@@ -58,8 +84,9 @@ export default function CartSummary({
           color="secondary"
           onClick={applyCoupon}
           sx={{ borderRadius: 2 }}
+          disabled={loading}
         >
-          Apply
+          {loading ? "Applying..." : "Apply"}
         </Button>
       </Stack>
 
@@ -68,7 +95,9 @@ export default function CartSummary({
           variant="contained"
           color="primary"
           sx={{ borderRadius: 2 }}
-          onClick={() => navigate("/checkout", { state: { total: finalAmount } })}
+          onClick={() =>
+            navigate("/checkout", { state: { total: finalAmount } })
+          }
         >
           Proceed to Checkout
         </Button>

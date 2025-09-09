@@ -180,7 +180,6 @@ app.post("/save-payment", async (req, res) => {
   }
 });
 
-
 app.post("/create-order", async (req, res) => {
   const { amount, currency } = req.body;
   if (!amount || !currency) {
@@ -230,6 +229,80 @@ app.post("/contact", async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: "Internal Server Error" });
   }
+});
+
+app.post("/assign-new-user", async (req, res) => {
+  const { user_id, name, email } = req.body;
+
+  if (!user_id || !email)
+    return res.status(400).json({ error: "user_id and email required" });
+
+  // Check if user already has coupon
+  const { data: existing } = await supabase
+    .from("user_coupons")
+    .select("*")
+    .eq("user_id", user_id)
+    .single();
+
+  if (existing)
+    return res.status(200).json({ message: "Coupon already assigned" });
+
+  // Get WELCOME10 coupon
+  const { data: coupon } = await supabase
+    .from("coupons")
+    .select("*")
+    .eq("code", "WELCOME10")
+    .single();
+
+  if (!coupon) return res.status(404).json({ error: "Coupon not found" });
+
+  // Assign coupon
+  await supabase.from("user_coupons").insert({ user_id, coupon_id: coupon.id });
+
+  // Send email
+  const transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port: 587,
+    auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+  });
+
+  await transporter.sendMail({
+    from: '"Hotel App" <no-reply@hotel.com>',
+    to: email,
+    subject: "Welcome Coupon 🎉",
+    html: `<p>Hi ${name},</p>
+           <p>Here is your welcome coupon: <b>${coupon.code}</b> for ${coupon.discount_percent}% off your first booking!</p>`,
+  });
+
+  res.status(201).json({ message: "Coupon assigned and email sent" });
+});
+
+app.post("/validate", async (req, res) => {
+  const { user_id, code } = req.body;
+
+  if (!user_id || !code)
+    return res.status(400).json({ error: "user_id and code required" });
+
+  const { data: userCoupon } = await supabase
+    .from("user_coupons")
+    .select("coupon(*)")
+    .eq("user_id", user_id)
+    .single();
+
+  if (!userCoupon || userCoupon.coupon.code !== code)
+    return res.status(400).json({ valid: false, message: "Invalid coupon" });
+
+  const coupon = userCoupon.coupon;
+  if (!coupon.active)
+    return res.status(400).json({ valid: false, message: "Coupon inactive" });
+  if (coupon.used_count >= coupon.max_uses)
+    return res
+      .status(400)
+      .json({ valid: false, message: "Coupon limit reached" });
+  if (coupon.expires_at && new Date(coupon.expires_at) < new Date())
+    return res.status(400).json({ valid: false, message: "Coupon expired" });
+
+  res.json({ valid: true, discount: coupon.discount_percent });
 });
 
 app.listen(PORT, () => {
