@@ -30,7 +30,7 @@ function Signup() {
           email: data.email,
           password: data.password,
           options: {
-            data: { name: data.name },
+            data: { full_name: data.name },
             emailRedirectTo: `${window.location.origin}/login?verified=true`,
           },
         });
@@ -41,16 +41,36 @@ function Signup() {
       }
 
       const user = signUpData.user;
+
       if (user) {
+        // Optional: insert into custom 'users' table
         const { error: insertError } = await supabase
           .from("users")
           .insert([{ id: user.id, name: data.name, email: data.email }]);
-
-        if (insertError) {
+        if (insertError)
           console.error(
             "⚠️ Error inserting into users table:",
             insertError.message
           );
+
+        // ✅ Assign welcome coupon via backend
+        try {
+          const response = await fetch(
+            "http://localhost:5000/assign-new-user",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                user_id: user.id,
+                name: data.name,
+                email: data.email,
+              }),
+            }
+          );
+          const result = await response.json();
+          console.log("Coupon assignment result:", result);
+        } catch (err) {
+          console.error("Failed to assign coupon:", err);
         }
       }
 
@@ -58,7 +78,6 @@ function Signup() {
         "Signup successful! Check your email to verify your account.",
         "success"
       );
-      // navigate("/login");
     } catch (error) {
       console.error("❌ Signup error:", error);
       showToast("Something went wrong. Please try again.", "error");

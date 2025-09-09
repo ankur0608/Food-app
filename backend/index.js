@@ -9,7 +9,7 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const authenticateToken = require("./middleware/auth");
 const { createClient } = require("@supabase/supabase-js");
-
+const nodemailer = require("nodemailer");
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_ANON_KEY
@@ -233,75 +233,115 @@ app.post("/contact", async (req, res) => {
 
 app.post("/assign-new-user", async (req, res) => {
   const { user_id, name, email } = req.body;
+  console.log("🔹 assign-new-user called:", { user_id, name, email });
 
-  if (!user_id || !email)
+  if (!user_id || !email) {
+    console.log("❌ Missing user_id or email");
     return res.status(400).json({ error: "user_id and email required" });
+  }
 
   // Check if user already has coupon
-  const { data: existing } = await supabase
+  const { data: existing, error: existingError } = await supabase
     .from("user_coupons")
     .select("*")
     .eq("user_id", user_id)
     .single();
+  if (existingError)
+    console.error("❌ Error checking existing coupon:", existingError);
 
-  if (existing)
+  if (existing) {
+    console.log("ℹ️ Coupon already assigned");
     return res.status(200).json({ message: "Coupon already assigned" });
+  }
 
   // Get WELCOME10 coupon
-  const { data: coupon } = await supabase
+  const { data: coupon, error: couponError } = await supabase
     .from("coupons")
     .select("*")
     .eq("code", "WELCOME10")
     .single();
+  if (couponError) console.error("❌ Error fetching coupon:", couponError);
+  if (!coupon) {
+    console.log("❌ Coupon WELCOME10 not found");
+    return res.status(404).json({ error: "Coupon not found" });
+  }
 
-  if (!coupon) return res.status(404).json({ error: "Coupon not found" });
+  console.log("ℹ️ Coupon found:", coupon);
 
   // Assign coupon
-  await supabase.from("user_coupons").insert({ user_id, coupon_id: coupon.id });
+  const { data: insertData, error: insertError } = await supabase
+    .from("user_coupons")
+    .insert({ user_id, coupon_id: coupon.id });
+  if (insertError) {
+    console.error("❌ Error inserting user_coupon:", insertError);
+    return res.status(500).json({ error: "Failed to assign coupon" });
+  }
+  console.log("✅ Coupon assigned to user:", insertData);
 
   // Send email
-  const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: 587,
-    auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
-  });
+  try {
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: 587,
+      auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+    });
 
-  await transporter.sendMail({
-    from: '"Hotel App" <no-reply@hotel.com>',
-    to: email,
-    subject: "Welcome Coupon 🎉",
-    html: `<p>Hi ${name},</p>
-           <p>Here is your welcome coupon: <b>${coupon.code}</b> for ${coupon.discount_percent}% off your first booking!</p>`,
-  });
+    const info = await transporter.sendMail({
+      from: '"Hotel App" <no-reply@hotel.com>',
+      to: email,
+      subject: "Welcome Coupon 🎉",
+      html: `<p>Hi ${name},</p>
+             <p>Here is your welcome coupon: <b>${coupon.code}</b> for ${coupon.discount_percent}% off your first booking!</p>`,
+    });
+
+    console.log("✅ Email sent:", info.messageId);
+  } catch (err) {
+    console.error("❌ Failed to send email:", err.message);
+  }
 
   res.status(201).json({ message: "Coupon assigned and email sent" });
 });
 
 app.post("/validate", async (req, res) => {
   const { user_id, code } = req.body;
+  console.log("🔹 validate called:", { user_id, code });
 
-  if (!user_id || !code)
+  if (!user_id || !code) {
+    console.log("❌ Missing user_id or code");
     return res.status(400).json({ error: "user_id and code required" });
+  }
 
-  const { data: userCoupon } = await supabase
+  const { data: userCoupon, error: userCouponError } = await supabase
     .from("user_coupons")
     .select("coupon(*)")
     .eq("user_id", user_id)
     .single();
 
-  if (!userCoupon || userCoupon.coupon.code !== code)
+  if (userCouponError)
+    console.error("❌ Error fetching user coupon:", userCouponError);
+
+  if (!userCoupon || userCoupon.coupon.code !== code) {
+    console.log("❌ Invalid coupon");
     return res.status(400).json({ valid: false, message: "Invalid coupon" });
+  }
 
   const coupon = userCoupon.coupon;
-  if (!coupon.active)
+  if (!coupon.active) {
+    console.log("❌ Coupon inactive");
     return res.status(400).json({ valid: false, message: "Coupon inactive" });
-  if (coupon.used_count >= coupon.max_uses)
+  }
+  if (coupon.used_count >= coupon.max_uses) {
+    console.log("❌ Coupon limit reached");
     return res
       .status(400)
       .json({ valid: false, message: "Coupon limit reached" });
-  if (coupon.expires_at && new Date(coupon.expires_at) < new Date())
+  }
+  if (coupon.expires_at && new Date(coupon.expires_at) < new Date()) {
+    console.log("❌ Coupon expired");
     return res.status(400).json({ valid: false, message: "Coupon expired" });
+  }
 
+  console.log("✅ Coupon valid:", coupon);
   res.json({ valid: true, discount: coupon.discount_percent });
 });
 
