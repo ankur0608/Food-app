@@ -1,11 +1,11 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { supabase } from "../../supabaseClient";
+import { supabase } from "../../../../supabaseClient.js";
 import { Container, Paper } from "@mui/material";
 import BlogSkeleton from "./BlogSkeleton.jsx";
 import BlogHeader from "./BlogHeader.jsx";
 import BlogContent from "./BlogContent.jsx";
-import ReviewsSection from "./ReviewsSection.jsx";
+import ReviewsSection from "../../ReviewsSection.jsx";
 
 export default function BlogDetail() {
   const { id } = useParams();

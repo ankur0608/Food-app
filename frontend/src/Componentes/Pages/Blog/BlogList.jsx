@@ -1,9 +1,9 @@
 import { useEffect, useState, memo } from "react";
 import { Link } from "react-router-dom";
-import { supabase } from "../../supabaseClient";
+import { supabase } from "../../../../supabaseClient";
 import styles from "./BlogList.module.css";
-import { useTheme } from "../Componentes/Store/theme";
-import OverallRating from "./RatingOverall";
+import { useTheme } from "../../Store/theme";
+import OverallRating from "../../RatingOverall";
 import { Skeleton, Card } from "@mui/material";
 
 // Memoized BlogCard

@@ -12,7 +12,7 @@ import ResetPassword from "./Componentes/ResetPassword.jsx";
 import PaymentHistory from "./Componentes/Pages/PaymentHistory.jsx";
 import Profile from "./Componentes/Pages/Profile.jsx";
 import Verify from "./Componentes/Verify.jsx";
-import Home from "./Componentes/Pages/Home.jsx";
+import Home from "./Componentes/Pages/home/Home.jsx";
 // Lazy-loaded pages
 // const Home = lazy(() => import("./Componentes/Pages/Home.jsx"));
 const Meals = lazy(() => import("./Componentes/Pages/Meals.jsx"));
@@ -23,9 +23,11 @@ const Signup = lazy(() => import("./Componentes/Sign-up.jsx"));
 const Login = lazy(() => import("./Componentes/Login.jsx"));
 const ForgotPassword = lazy(() => import("./Componentes/ForgotPassword.jsx"));
 const PrivacyPolicy = lazy(() => import("./Componentes/PrivacyPolicy.jsx"));
-const Cart = lazy(() => import("./Componentes/Pages/Cart.jsx"));
-const BlogList = lazy(() => import("./Componentes/BlogList.jsx"));
-const BlogDetail = lazy(() => import("./Componentes/BlogDetail.jsx"));
+const Cart = lazy(() => import("./Componentes/Pages/Cart/Cart.jsx"));
+const BlogList = lazy(() => import("./Componentes/Pages/Blog/BlogList.jsx"));
+const BlogDetail = lazy(() =>
+  import("./Componentes/Pages/Blog/BlogDetail.jsx")
+);
 // const Wishlist = lazy(() => import("./Componentes/Pages/Wishlist.jsx"));
 // Simple fallback loader
 const Loader = () => (

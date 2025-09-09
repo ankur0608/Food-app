@@ -1,11 +1,11 @@
 import { lazy, Suspense } from "react";
 import { Box } from "@mui/material";
-import { useTheme } from "../Store/theme.jsx";
-import FeaturesSection from "../FeatureCard.jsx";
-import HeroSection from "../HeroSection.jsx";
+import { useTheme } from "../../Store/theme.jsx";
+import FeaturesSection from "./FeatureCard.jsx";
+import HeroSection from "./HeroSection.jsx";
 
-const Slider = lazy(() => import("../Slider/ProductSlider.jsx"));
-const SmallBlog = lazy(() => import("../SmallBlog.jsx"));
+const Slider = lazy(() => import("../../Slider/ProductSlider.jsx"));
+const SmallBlog = lazy(() => import("../../SmallBlog.jsx"));
 
 function Home() {
   const { theme } = useTheme();

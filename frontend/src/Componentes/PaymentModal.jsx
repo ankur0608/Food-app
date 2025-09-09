@@ -1,12 +1,14 @@
 // PaymentModal.jsx
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
 import styles from "../Componentes/Pages/PaymentHistory.module.css";
 
 export default function PaymentModal({ payment, onClose }) {
   if (!payment) return null;
 
-  const downloadPDF = () => {
+  const downloadPDF = async () => {
+    // ⏳ Dynamically import only when needed
+    const { default: jsPDF } = await import("jspdf");
+    const autoTable = (await import("jspdf-autotable")).default;
+
     const doc = new jsPDF();
     doc.setFontSize(16);
     doc.text("Payment Receipt", 14, 20);
