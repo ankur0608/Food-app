@@ -70,6 +70,7 @@ export default function Cart() {
                 user={user}
               />
             </Grid>
+
             <Grid item xs={12} md={4}>
               <CartSummary
                 items={items}
@@ -81,6 +82,7 @@ export default function Cart() {
                 deliveryCharges={deliveryCharges}
                 finalAmount={finalAmount}
                 navigate={navigate}
+                userId={user?.id} // ✅ Pass current user id
               />
             </Grid>
           </Grid>

@@ -333,19 +333,21 @@ app.post("/validate", async (req, res) => {
   // validate route
   const { data: userCoupon, error: userCouponError } = await supabase
     .from("user_coupons")
-    .select("coupon(*)")
+    .select("coupons(*)") // <-- change here to match FK
     .eq("user_id", user_id)
     .maybeSingle();
 
-  if (userCouponError)
+  if (userCouponError) {
     console.error("❌ Error fetching user coupon:", userCouponError);
+    return res.status(500).json({ error: "Failed to fetch coupon" });
+  }
 
-  if (!userCoupon || userCoupon.coupon.code !== code) {
+  if (!userCoupon || userCoupon.coupons.code !== code) {
     console.log("❌ Invalid coupon");
     return res.status(400).json({ valid: false, message: "Invalid coupon" });
   }
 
-  const coupon = userCoupon.coupon;
+  const coupon = userCoupon.coupons;
   if (!coupon.active) {
     console.log("❌ Coupon inactive");
     return res.status(400).json({ valid: false, message: "Coupon inactive" });

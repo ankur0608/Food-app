@@ -30,6 +30,11 @@ export default function CartSummary({
       return;
     }
 
+    if (!userId) {
+      showToast("❌ Please login to apply a coupon", "error");
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await fetch("https://food-app-d8r3.onrender.com/validate", {
@@ -37,6 +42,14 @@ export default function CartSummary({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ user_id: userId, code: coupon.trim() }),
       });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        setDiscount(0);
+        showToast(`❌ ${errorData.message || "Invalid coupon"}`, "error");
+        return;
+      }
+
       const data = await res.json();
 
       if (data.valid) {
