@@ -84,98 +84,64 @@ app.post("/save-payment", async (req, res) => {
     razorpay_payment_id,
     razorpay_signature,
     amount,
-    currency,
-    name,
-    email,
-    mobile,
-    address,
-    items = [],
-  } = req.body;
-
-  try {
-    const { data, error } = await supabase.from("orders").insert([
-      {
-        order_id: razorpay_order_id,
-        payment_id: razorpay_payment_id,
-        signature: razorpay_signature,
-        amount,
-        currency,
-        name,
-        email,
-        mobile,
-        address,
-        items,
-      },
-    ]);
-    if (error) throw error;
-    res.status(201).json({ message: "Payment saved successfully", data });
-  } catch (err) {
-    res.status(500).json({ error: "Failed to save payment" });
-  }
-});
-
-app.post("/save-payment", async (req, res) => {
-  const {
-    razorpay_order_id,
-    razorpay_payment_id,
-    razorpay_signature,
-    amount,
-    currency,
+    currency = "INR",
     name,
     email,
     mobile,
     address,
     items,
-    user_id, // Make sure frontend sends user_id
+    user_id, // required
+    coupon_code = null, // optional
   } = req.body;
 
-  console.log("💳 Payment request received:");
-  console.log({
+  console.log("💳 Payment request received:", {
     razorpay_order_id,
     razorpay_payment_id,
-    razorpay_signature,
     amount,
-    currency,
-    name,
-    email,
-    mobile,
-    address,
-    items,
     user_id,
+    coupon_code,
   });
 
-  // Validation
+  // 🔹 Basic validation
+  if (!razorpay_order_id || !razorpay_payment_id || !amount) {
+    return res.status(400).json({ error: "Missing required payment fields" });
+  }
   if (!items || !Array.isArray(items) || items.length === 0) {
-    console.error("❌ Cart items missing or invalid");
     return res.status(400).json({ error: "Cart items are required" });
   }
-
   if (!user_id) {
-    console.error("❌ user_id missing");
     return res.status(400).json({ error: "user_id is required" });
   }
 
   try {
-    const { data, error } = await supabase.from("orders").insert([
-      {
-        order_id: razorpay_order_id,
-        payment_id: razorpay_payment_id,
-        signature: razorpay_signature,
-        amount,
-        currency,
-        name,
-        email,
-        mobile,
-        address,
-        items,
-        user_id,
-      },
-    ]);
+    // 🔹 Save order in DB
+    const { data, error } = await supabase
+      .from("orders")
+      .insert([
+        {
+          order_id: razorpay_order_id,
+          payment_id: razorpay_payment_id,
+          signature: razorpay_signature,
+          amount,
+          currency,
+          name,
+          email,
+          mobile,
+          address,
+          items,
+          user_id,
+          coupon_code, // optional, only saved if provided
+        },
+      ])
+      .select(); // return inserted row(s)
 
     if (error) throw error;
 
-    console.log("✅ Payment saved successfully:", data);
-    res.status(201).json({ message: "Payment saved successfully", data });
+    console.log("✅ Payment saved successfully:", data[0]);
+    res.status(201).json({
+      message: "Payment saved successfully",
+      order: data[0],
+    });
   } catch (err) {
     console.error("❌ Failed to save payment:", err.message);
     res.status(500).json({ error: "Failed to save payment" });
@@ -332,65 +298,42 @@ app.post("/assign-new-user", async (req, res) => {
     .json({ message: "Coupon assigned and email sent", code: coupon.code });
 });
 
+// /validate (read-only)
 app.post("/validate", async (req, res) => {
   const { user_id, code } = req.body;
-  console.log("🔹 validate called:", { user_id, code });
-
-  if (!user_id || !code) {
-    console.log("❌ Missing user_id or code");
+  if (!user_id || !code)
     return res.status(400).json({ error: "user_id and code required" });
-  }
 
-  // Get coupon assigned to this user
-  const { data: userCoupon, error: userCouponError } = await supabase
+  const { data: userCoupon, error } = await supabase
     .from("user_coupons")
-    .select("coupons(*)") // FK join
+    .select(
+      "coupons(id, code, discount_percent, used_count, max_uses, expires_at, active)"
+    )
     .eq("user_id", user_id)
     .maybeSingle();
 
-  if (userCouponError) {
-    console.error("❌ Error fetching user coupon:", userCouponError);
-    return res.status(500).json({ error: "Failed to fetch coupon" });
-  }
-
-  if (!userCoupon || userCoupon.coupons.code !== code) {
-    console.log("❌ Invalid coupon");
+  if (error) return res.status(500).json({ error: "Failed to fetch coupon" });
+  if (!userCoupon || userCoupon.coupons.code !== code)
     return res.status(400).json({ valid: false, message: "Invalid coupon" });
-  }
 
-  const coupon = userCoupon.coupons;
-
-  // Validation checks
-  if (!coupon.active) {
-    console.log("❌ Coupon inactive");
+  const c = userCoupon.coupons;
+  if (!c.active)
     return res.status(400).json({ valid: false, message: "Coupon inactive" });
-  }
-
-  if (coupon.used_count >= coupon.max_uses) {
-    console.log("❌ Coupon limit reached");
+  if (c.used_count >= c.max_uses)
     return res
       .status(400)
       .json({ valid: false, message: "Coupon limit reached" });
-  }
-
-  if (coupon.expires_at && new Date(coupon.expires_at) < new Date()) {
-    console.log("❌ Coupon expired");
+  if (c.expires_at && new Date(c.expires_at) < new Date())
     return res.status(400).json({ valid: false, message: "Coupon expired" });
-  }
 
-  // ✅ Mark coupon as used (increment used_count)
-  const { error: updateError } = await supabase
-    .from("coupons")
-    .update({ used_count: coupon.used_count + 1 })
-    .eq("id", coupon.id);
-
-  if (updateError) {
-    console.error("❌ Failed to update coupon usage:", updateError);
-    return res.status(500).json({ error: "Failed to update coupon usage" });
-  }
-
-  console.log("✅ Coupon valid and marked as used:", coupon.code);
-  return res.json({ valid: true, discount: coupon.discount_percent });
+  return res.json({
+    valid: true,
+    coupon_id: c.id,
+    discount: c.discount_percent,
+    used_count: c.used_count,
+    max_uses: c.max_uses,
+    expires_at: c.expires_at,
+  });
 });
 
 app.listen(PORT, () => {
