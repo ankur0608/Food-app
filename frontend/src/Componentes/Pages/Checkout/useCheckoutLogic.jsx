@@ -17,7 +17,7 @@ export const useCheckoutLogic = () => {
   const [activeStep, setActiveStep] = useState(0);
 
   const savedUser = JSON.parse(localStorage.getItem("user") || "{}");
-  const user_id = savedUser.id || null;
+
   const savedProgress = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
 
   const {
@@ -97,7 +97,7 @@ export const useCheckoutLogic = () => {
                 mobile: formData.mobile,
                 address: `${formData.addressLine}, ${formData.city}, ${formData.state}, ${formData.pincode}, ${formData.country}`,
                 items,
-                user_id,
+                user_id: savedUser?.id,
               }),
             }
           );

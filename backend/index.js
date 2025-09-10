@@ -316,9 +316,7 @@ app.post("/assign-new-user", async (req, res) => {
       <p>This coupon is valid until <strong>${new Date(
         coupon.expires_at
       ).toLocaleDateString()}</strong>. Don’t miss out!</p>
-      <p>Click below to start booking your stay:</p>
-      <a href="https://your-website.com" style="display: inline-block; padding: 12px 25px; background-color: #2E86DE; color: #fff; text-decoration: none; border-radius: 5px; margin-top: 10px;">Book Now</a>
-      <hr style="margin: 20px 0; border: none; border-top: 1px solid #eee;" />
+     
       <p style="font-size: 12px; color: #777;">If you did not sign up for Hotel App, please ignore this email.</p>
     </div>
   `,
@@ -343,10 +341,10 @@ app.post("/validate", async (req, res) => {
     return res.status(400).json({ error: "user_id and code required" });
   }
 
-  // validate route
+  // Get coupon assigned to this user
   const { data: userCoupon, error: userCouponError } = await supabase
     .from("user_coupons")
-    .select("coupons(*)") // <-- change here to match FK
+    .select("coupons(*)") // FK join
     .eq("user_id", user_id)
     .maybeSingle();
 
@@ -361,23 +359,38 @@ app.post("/validate", async (req, res) => {
   }
 
   const coupon = userCoupon.coupons;
+
+  // Validation checks
   if (!coupon.active) {
     console.log("❌ Coupon inactive");
     return res.status(400).json({ valid: false, message: "Coupon inactive" });
   }
+
   if (coupon.used_count >= coupon.max_uses) {
     console.log("❌ Coupon limit reached");
     return res
       .status(400)
       .json({ valid: false, message: "Coupon limit reached" });
   }
+
   if (coupon.expires_at && new Date(coupon.expires_at) < new Date()) {
     console.log("❌ Coupon expired");
     return res.status(400).json({ valid: false, message: "Coupon expired" });
   }
 
-  console.log("✅ Coupon valid:", coupon);
-  res.json({ valid: true, discount: coupon.discount_percent });
+  // ✅ Mark coupon as used (increment used_count)
+  const { error: updateError } = await supabase
+    .from("coupons")
+    .update({ used_count: coupon.used_count + 1 })
+    .eq("id", coupon.id);
+
+  if (updateError) {
+    console.error("❌ Failed to update coupon usage:", updateError);
+    return res.status(500).json({ error: "Failed to update coupon usage" });
+  }
+
+  console.log("✅ Coupon valid and marked as used:", coupon.code);
+  return res.json({ valid: true, discount: coupon.discount_percent });
 });
 
 app.listen(PORT, () => {
