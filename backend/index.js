@@ -245,7 +245,7 @@ app.post("/assign-new-user", async (req, res) => {
     .from("user_coupons")
     .select("*")
     .eq("user_id", user_id)
-    .single();
+    .maybeSingle();
   if (existingError)
     console.error("❌ Error checking existing coupon:", existingError);
 
@@ -259,14 +259,12 @@ app.post("/assign-new-user", async (req, res) => {
     .from("coupons")
     .select("*")
     .eq("code", "WELCOME10")
-    .single();
+    .maybeSingle();
   if (couponError) console.error("❌ Error fetching coupon:", couponError);
   if (!coupon) {
     console.log("❌ Coupon WELCOME10 not found");
     return res.status(404).json({ error: "Coupon not found" });
   }
-
-  console.log("ℹ️ Coupon found:", coupon);
 
   // Assign coupon
   const { data: insertData, error: insertError } = await supabase
@@ -311,11 +309,12 @@ app.post("/validate", async (req, res) => {
     return res.status(400).json({ error: "user_id and code required" });
   }
 
+  // validate route
   const { data: userCoupon, error: userCouponError } = await supabase
     .from("user_coupons")
     .select("coupon(*)")
     .eq("user_id", user_id)
-    .single();
+    .maybeSingle();
 
   if (userCouponError)
     console.error("❌ Error fetching user coupon:", userCouponError);

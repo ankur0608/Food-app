@@ -27,7 +27,6 @@ export default function Login() {
   useEffect(() => {
     const query = new URLSearchParams(location.search);
     if (query.get("verified") === "true") {
-      // Supabase might auto-login → force logout to require manual login
       supabase.auth.signOut().then(() => {
         showToast("✅ Email verified successfully! Please login.", "success");
       });
@@ -73,33 +72,14 @@ export default function Login() {
     }
   };
 
-  // ✅ Google login
+  // ✅ Google login → redirect handled in GoogleRedirect.jsx
   const handleGoogleLogin = async () => {
-    const {
-      data: { user },
-      error,
-    } = await supabase.auth.signInWithOAuth({
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: { redirectTo: `${window.location.origin}/google-redirect` },
     });
 
-    if (error) return showToast("❌ Google login failed", "error");
-
-    if (user) {
-      try {
-        await fetch(`${BASE_URL}/assign-new-user`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            user_id: user.id,
-            name: user.user_metadata?.full_name || "Guest",
-            email: user.email,
-          }),
-        });
-      } catch (err) {
-        console.error("Failed to assign coupon:", err);
-      }
-    }
+    if (error) showToast("❌ Google login failed", "error");
   };
 
   return (

@@ -22,6 +22,8 @@ function Signup() {
   const { theme } = useTheme();
   const { showToast } = useToast();
 
+  const BASE_URL = "https://food-app-d8r3.onrender.com";
+
   // ✅ Signup handler
   async function onSubmit(data) {
     try {
@@ -43,21 +45,9 @@ function Signup() {
       const user = signUpData.user;
 
       if (user) {
-        // Optional: insert into custom users table
-        const { error: insertError } = await supabase
-          .from("users")
-          .insert([{ id: user.id, name: data.name, email: data.email }]);
-        if (insertError) {
-          console.error(
-            "⚠️ Error inserting into users table:",
-            insertError.message
-          );
-        }
-
         // ✅ Assign welcome coupon via backend
         try {
-          const BASE_URL = "https://food-app-d8r3.onrender.com";
-          const response = await fetch(`${BASE_URL}/assign-new-user`, {
+          await fetch(`${BASE_URL}/assign-new-user`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -66,30 +56,30 @@ function Signup() {
               email: data.email,
             }),
           });
-          const result = await response.json();
-          console.log("Coupon assignment result:", result);
         } catch (err) {
-          console.error("Failed to assign coupon:", err);
+          console.error("⚠️ Failed to assign coupon:", err);
         }
       }
 
       showToast(
-        "Signup successful! Check your email to verify your account.",
+        "🎉 Signup successful! Please check your email to verify your account.",
         "success"
       );
+
+      setTimeout(() => navigate("/login"), 1000);
     } catch (error) {
       console.error("❌ Signup error:", error);
       showToast("Something went wrong. Please try again.", "error");
     }
   }
 
-  // Google Login
+  // ✅ Google Signup/Login
   const handleGoogleLogin = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: { redirectTo: `${window.location.origin}/google-redirect` },
     });
-    if (error) showToast("Google login failed", "error");
+    if (error) showToast("❌ Google signup failed", "error");
   };
 
   return (
