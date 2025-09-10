@@ -1,12 +1,15 @@
-// src/Componentes/GoogleRedirectHandler.jsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../../supabaseClient";
 import { Box, CircularProgress, Typography } from "@mui/material";
+import { useToast } from "../Componentes/Store/ToastContext"; // your toast hook
 
 export default function GoogleRedirectHandler() {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [loading, setLoading] = useState(true);
+
+  const BASE_URL = "https://food-app-d8r3.onrender.com";
 
   useEffect(() => {
     const handleOAuthLogin = async () => {
@@ -15,19 +18,37 @@ export default function GoogleRedirectHandler() {
 
         if (error || !data.session) {
           console.error("OAuth session error:", error);
-          alert("Failed to log in with Google");
+          showToast("❌ Failed to log in with Google", "error");
           navigate("/login");
           return;
         }
 
         const { session } = data;
-        localStorage.setItem("token", session.access_token);
-        localStorage.setItem("user_email", session.user.email);
+        const user = session.user;
 
+        // ✅ Store user info
+        localStorage.setItem("user", JSON.stringify(user));
+
+        // ✅ Assign welcome coupon
+        try {
+          await fetch(`${BASE_URL}/assign-new-user`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              user_id: user.id,
+              name: user.user_metadata?.full_name || "Guest",
+              email: user.email,
+            }),
+          });
+        } catch (err) {
+          console.error("Failed to assign coupon:", err);
+        }
+
+        showToast("🎉 Login successful!", "success");
         navigate("/home");
       } catch (err) {
         console.error("Google login failed:", err);
-        alert("Failed to log in with Google");
+        showToast("❌ Failed to log in with Google", "error");
         navigate("/login");
       } finally {
         setLoading(false);
@@ -35,7 +56,7 @@ export default function GoogleRedirectHandler() {
     };
 
     handleOAuthLogin();
-  }, [navigate]);
+  }, [navigate, showToast]);
 
   return (
     <Box
