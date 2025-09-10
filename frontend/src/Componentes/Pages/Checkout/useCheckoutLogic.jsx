@@ -19,6 +19,11 @@ export const useCheckoutLogic = () => {
   const savedUser = JSON.parse(localStorage.getItem("user") || "{}");
   const savedProgress = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
 
+  console.log("📌 Initial items:", items);
+  console.log("📌 Total amount:", total);
+  console.log("📌 Saved user:", savedUser);
+  console.log("📌 Saved progress:", savedProgress);
+
   const {
     control,
     handleSubmit,
@@ -35,19 +40,29 @@ export const useCheckoutLogic = () => {
       state: "",
       pincode: "",
       country: "India",
-      coupon_code: "", // optional coupon input
+      coupon_code: "",
       ...savedProgress.values,
     },
   });
 
+  console.log("📌 Form default values:", {
+    ...savedProgress.values,
+    name: savedUser.username || "",
+    email: savedUser.email || "",
+  });
+
   // Restore step if saved
   useEffect(() => {
-    if (savedProgress.step) setActiveStep(savedProgress.step);
+    if (savedProgress.step) {
+      console.log("🔄 Restoring saved step:", savedProgress.step);
+      setActiveStep(savedProgress.step);
+    }
   }, []);
 
   // Save progress to localStorage whenever form changes
   useEffect(() => {
     const subscription = watch((values) => {
+      console.log("💾 Form changed, saving progress:", values);
       localStorage.setItem(
         STORAGE_KEY,
         JSON.stringify({ step: activeStep, values })
@@ -58,6 +73,7 @@ export const useCheckoutLogic = () => {
 
   // Load Razorpay script once
   useEffect(() => {
+    console.log("🔗 Loading Razorpay script");
     const script = document.createElement("script");
     script.src = "https://checkout.razorpay.com/v1/checkout.js";
     script.async = true;
@@ -65,6 +81,8 @@ export const useCheckoutLogic = () => {
   }, []);
 
   const handlePayment = async (formData) => {
+    console.log("💳 handlePayment called with formData:", formData);
+
     try {
       // 1️⃣ Create Razorpay order
       const res = await axios.post(
@@ -72,10 +90,11 @@ export const useCheckoutLogic = () => {
         { amount: total * 100, currency: "INR" }
       );
       const order = res.data;
+      console.log("📝 Razorpay order created:", order);
 
       // 2️⃣ Razorpay options
       const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID, // replace with your live key
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         amount: order.amount,
         currency: "INR",
         name: "Meal Checkout",
@@ -83,7 +102,8 @@ export const useCheckoutLogic = () => {
         image: logo,
         order_id: order.id,
         handler: async (response) => {
-          // Save payment in backend
+          console.log("✅ Razorpay payment success response:", response);
+
           const payload = {
             razorpay_order_id: order.id,
             razorpay_payment_id: response.razorpay_payment_id,
@@ -96,8 +116,10 @@ export const useCheckoutLogic = () => {
             address: `${formData.addressLine}, ${formData.city}, ${formData.state}, ${formData.pincode}, ${formData.country}`,
             items,
             user_id: savedUser?.id,
-            coupon_code: formData.coupon_code || null, // optional
+            coupon_code: formData.coupon_code || null,
           };
+
+          console.log("📤 Sending payment payload to backend:", payload);
 
           try {
             const saveRes = await fetch(
@@ -109,6 +131,8 @@ export const useCheckoutLogic = () => {
               }
             );
 
+            console.log("📥 Backend response status:", saveRes.status);
+
             if (!saveRes.ok) {
               console.error("❌ Payment save failed");
               return alert(
@@ -116,9 +140,9 @@ export const useCheckoutLogic = () => {
               );
             }
 
-            // Clear cart & progress
             clearCart();
             localStorage.removeItem(STORAGE_KEY);
+            console.log("🧹 Cart cleared and localStorage removed");
             setShowPaymentPopup(true);
           } catch (err) {
             console.error("❌ Payment save request failed:", err);
@@ -133,7 +157,8 @@ export const useCheckoutLogic = () => {
         theme: { color: "#ff6600" },
       };
 
-      // 3️⃣ Open Razorpay checkout
+      console.log("🛠️ Opening Razorpay checkout with options:", options);
+
       const rzp = new window.Razorpay(options);
       rzp.open();
     } catch (error) {
@@ -143,10 +168,19 @@ export const useCheckoutLogic = () => {
   };
 
   const onSubmit = (data) => {
+    console.log(
+      "📤 onSubmit called with data:",
+      data,
+      "activeStep:",
+      activeStep
+    );
     if (activeStep === 2) {
       handlePayment(data);
     } else {
-      setActiveStep((prev) => prev + 1);
+      setActiveStep((prev) => {
+        console.log("➡️ Moving to next step:", prev + 1);
+        return prev + 1;
+      });
     }
   };
 
