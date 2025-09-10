@@ -254,19 +254,40 @@ app.post("/assign-new-user", async (req, res) => {
     return res.status(200).json({ message: "Coupon already assigned" });
   }
 
-  // Get WELCOME10 coupon
-  const { data: coupon, error: couponError } = await supabase
+  // Check if WELCOME10 coupon exists
+  let { data: coupon, error: couponError } = await supabase
     .from("coupons")
     .select("*")
     .eq("code", "WELCOME10")
     .maybeSingle();
+
   if (couponError) console.error("❌ Error fetching coupon:", couponError);
+
+  // If not found → create it
   if (!coupon) {
-    console.log("❌ Coupon WELCOME10 not found");
-    return res.status(404).json({ error: "Coupon not found" });
+    console.log("ℹ️ WELCOME10 not found, creating one...");
+    const { data: newCoupon, error: createError } = await supabase
+      .from("coupons")
+      .insert({
+        code: "WELCOME10",
+        discount_percent: 10,
+        max_uses: 1,
+        used_count: 0,
+        expires_at: new Date(new Date().setDate(new Date().getDate() + 30)), // expires in 30 days
+        active: true,
+      })
+      .select()
+      .single();
+
+    if (createError) {
+      console.error("❌ Failed to create coupon:", createError);
+      return res.status(500).json({ error: "Failed to create coupon" });
+    }
+    coupon = newCoupon;
+    console.log("✅ Created new coupon:", coupon);
   }
 
-  // Assign coupon
+  // Assign coupon to user
   const { data: insertData, error: insertError } = await supabase
     .from("user_coupons")
     .insert({ user_id, coupon_id: coupon.id });
