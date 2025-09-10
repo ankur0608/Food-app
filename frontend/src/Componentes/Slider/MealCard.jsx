@@ -99,7 +99,7 @@ const MealCard = memo(({ meal, onAddToCart, isDark, isAdding }) => {
               borderRadius: 2,
               fontWeight: 600,
               py: 1.2,
-              background: "linear-gradient(90deg, #ff6600 0%, #ff8533 100%)",
+
               textTransform: "none",
             }}
             onClick={handleAddToCart}

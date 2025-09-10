@@ -1,16 +1,23 @@
-import { Box, Container, Grid, Divider, Button } from "@mui/material";
-// import { FaArrowUp } from "react-icons/fa";
+import {
+  Box,
+  Container,
+  Grid,
+  Divider,
+  IconButton,
+  Tooltip,
+} from "@mui/material";
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import FooterCompanyInfo from "./FooterCompanyInfo";
 import FooterLinks from "./FooterLinks";
 import FooterSocial from "./FooterSocial";
 import FooterBottom from "./FooterBottom";
 
 export default function Footer() {
-  // const handleScrollTop = () => {
-  //   const root = document.getElementById("root");
-  //   const target = root?.scrollTop && root.scrollTop > 0 ? root : window;
-  //   target.scrollTo({ top: 0, behavior: "smooth" });
-  // };
+  const handleScrollTop = () => {
+    const root = document.getElementById("root");
+    const target = root?.scrollTop && root.scrollTop > 0 ? root : window;
+    target.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   return (
     <Box
@@ -20,7 +27,8 @@ export default function Footer() {
         color: "text.primary",
         py: { xs: 4, md: 8 },
         borderColor: "divider",
-        minHeight: "200px",
+        minHeight: "250px",
+        position: "relative",
       }}
     >
       <Container maxWidth="lg">
@@ -58,16 +66,30 @@ export default function Footer() {
         <FooterBottom />
 
         {/* Back to Top */}
-        {/* <Box textAlign="center">
-          <Button
-            variant="contained"
-            startIcon={<FaArrowUp />}
-            onClick={handleScrollTop}
-            sx={{ borderRadius: 8, mt: 2 }}
-          >
-            Back to Top
-          </Button>
-        </Box> */}
+        <Box
+          sx={{
+            position: "absolute",
+            right: { xs: "50%", md: "2%" },
+            bottom: 20,
+            transform: { xs: "translateX(50%)", md: "none" },
+          }}
+        >
+          <Tooltip title="Back to Top">
+            <IconButton
+              onClick={handleScrollTop}
+              sx={{
+                bgcolor: "primary.main",
+                color: "white",
+                "&:hover": { bgcolor: "primary.dark" },
+                boxShadow: 3,
+                p: 1.5,
+                borderRadius: "50%",
+              }}
+            >
+              <ArrowUpwardIcon />
+            </IconButton>
+          </Tooltip>
+        </Box>
       </Container>
     </Box>
   );

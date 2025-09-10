@@ -301,14 +301,27 @@ app.post("/assign-new-user", async (req, res) => {
     const info = await transporter.sendMail({
       from: '"Hotel App" <no-reply@hotel.com>',
       to: email,
-      subject: "Welcome Coupon 🎉",
-      html: `<p>Hi ${name},</p>
-             <p>Here is your welcome coupon: <b>${coupon.code}</b> for ${
-        coupon.discount_percent
-      }% off your first booking!</p>
-             <p>Valid until: ${new Date(
-               coupon.expires_at
-             ).toLocaleDateString()}</p>`,
+      subject: "🎉 Welcome! Your Exclusive Coupon Awaits",
+      html: `
+    <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+      <h2 style="color: #2E86DE;">Hi ${name},</h2>
+      <p>Welcome to <strong>Hotel App</strong>! We are excited to have you on board.</p>
+      <p>As a token of appreciation, here’s your <strong>exclusive welcome coupon</strong>:</p>
+      <div style="background: #f4f4f4; padding: 15px; text-align: center; border-radius: 8px; margin: 20px 0;">
+        <h3 style="margin: 0; color: #27AE60;">${coupon.code}</h3>
+        <p style="margin: 5px 0 0; font-weight: bold;">${
+          coupon.discount_percent
+        }% off your first booking</p>
+      </div>
+      <p>This coupon is valid until <strong>${new Date(
+        coupon.expires_at
+      ).toLocaleDateString()}</strong>. Don’t miss out!</p>
+      <p>Click below to start booking your stay:</p>
+      <a href="https://your-website.com" style="display: inline-block; padding: 12px 25px; background-color: #2E86DE; color: #fff; text-decoration: none; border-radius: 5px; margin-top: 10px;">Book Now</a>
+      <hr style="margin: 20px 0; border: none; border-top: 1px solid #eee;" />
+      <p style="font-size: 12px; color: #777;">If you did not sign up for Hotel App, please ignore this email.</p>
+    </div>
+  `,
     });
 
     console.log("✅ Email sent:", info.messageId);
