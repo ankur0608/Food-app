@@ -79,11 +79,25 @@ app.get("/meals/:name", async (req, res) => {
 });
 
 app.post("/save-payment", async (req, res) => {
-  const { user_id, coupon_code, ...paymentData } = req.body;
+  const {
+    razorpay_order_id,
+    razorpay_payment_id,
+    razorpay_signature,
+    amount,
+    currency = "INR",
+    name,
+    email,
+    mobile,
+    address,
+    items,
+    user_id,
+    coupon_code = null,
+  } = req.body;
 
   try {
     let coupon = null;
 
+    // 1️⃣ Validate coupon if provided
     if (coupon_code) {
       const { data: couponData } = await supabase
         .from("coupons")
@@ -99,37 +113,53 @@ app.post("/save-payment", async (req, res) => {
         return res.status(400).json({ error: "Invalid or expired coupon" });
 
       if (couponData.used_count >= couponData.max_uses)
-        return res.status(400).json({ error: "Coupon limit reached" });
+        return res.status(400).json({ error: "Coupon usage limit reached" });
 
       coupon = couponData;
+    }
 
-      // Increment used_count AFTER payment
+    // 2️⃣ Save order in DB
+    const { data, error } = await supabase
+      .from("orders")
+      .insert([
+        {
+          order_id: razorpay_order_id,
+          payment_id: razorpay_payment_id,
+          signature: razorpay_signature,
+          amount,
+          currency,
+          name,
+          email,
+          mobile,
+          address,
+          items,
+          user_id,
+          coupon_code: coupon?.code || null,
+        },
+      ])
+      .select();
+
+    if (error) throw error;
+
+    // 3️⃣ After successful payment, mark coupon as used
+    if (coupon) {
       await supabase
         .from("coupons")
         .update({ used_count: supabase.raw("used_count + 1") })
         .eq("id", coupon.id);
 
-      // Mark user coupon as used
       await supabase
         .from("user_coupons")
-        .update({ used: true })
+        .update({ used: true, used_at: new Date() })
         .eq("user_id", user_id)
         .eq("coupon_id", coupon.id);
     }
-
-    // Save order in orders table
-    const { data, error } = await supabase
-      .from("orders")
-      .insert([{ ...paymentData, coupon_code: coupon?.code || null }])
-      .select();
-
-    if (error) throw error;
 
     res
       .status(201)
       .json({ message: "Payment saved successfully", order: data[0] });
   } catch (err) {
-    console.error(err);
+    console.error("❌ Failed to save payment:", err.message);
     res.status(500).json({ error: "Failed to save payment" });
   }
 });
