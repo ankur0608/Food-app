@@ -99,21 +99,35 @@ app.post("/save-payment", async (req, res) => {
 
     // 1️⃣ Validate coupon if provided
     if (coupon_code) {
-      const { data: couponData } = await supabase
+      // Fetch coupon
+      const { data: couponData, error: couponError } = await supabase
         .from("coupons")
         .select("*")
         .eq("code", coupon_code)
         .maybeSingle();
 
-      if (
-        !couponData ||
-        !couponData.active ||
-        (couponData.expires_at && new Date(couponData.expires_at) < new Date())
-      )
-        return res.status(400).json({ error: "Invalid or expired coupon" });
+      if (couponError) throw couponError;
 
+      if (!couponData) return res.status(400).json({ error: "Invalid coupon" });
+      if (!couponData.active)
+        return res.status(400).json({ error: "Coupon inactive" });
+      if (couponData.expires_at && new Date(couponData.expires_at) < new Date())
+        return res.status(400).json({ error: "Coupon expired" });
       if (couponData.used_count >= couponData.max_uses)
         return res.status(400).json({ error: "Coupon usage limit reached" });
+
+      // Check if this user already used this coupon
+      const { data: userCoupon } = await supabase
+        .from("user_coupons")
+        .select("*")
+        .eq("user_id", user_id)
+        .eq("coupon_id", couponData.id)
+        .maybeSingle();
+
+      if (userCoupon?.used)
+        return res
+          .status(400)
+          .json({ error: "Coupon already used by this user" });
 
       coupon = couponData;
     }
@@ -143,16 +157,28 @@ app.post("/save-payment", async (req, res) => {
 
     // 3️⃣ After successful payment, mark coupon as used
     if (coupon) {
-      await supabase
+      // Atomically increment used_count
+      const { error: incrementError } = await supabase
         .from("coupons")
         .update({ used_count: supabase.raw("used_count + 1") })
-        .eq("id", coupon.id);
+        .eq("id", coupon.id)
+        .lte("used_count", coupon.max_uses - 1); // Prevent exceeding max_uses
 
-      await supabase
-        .from("user_coupons")
-        .update({ used: true, used_at: new Date() })
-        .eq("user_id", user_id)
-        .eq("coupon_id", coupon.id);
+      if (incrementError)
+        return res
+          .status(400)
+          .json({ error: "Failed to increment coupon usage" });
+
+      // Mark user coupon as used
+      await supabase.from("user_coupons").upsert(
+        {
+          user_id,
+          coupon_id: coupon.id,
+          used: true,
+          used_at: new Date(),
+        },
+        { onConflict: ["user_id", "coupon_id"] } // ensures only one entry per user & coupon
+      );
     }
 
     res
