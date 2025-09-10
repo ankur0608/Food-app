@@ -75,7 +75,7 @@ export const useCheckoutLogic = () => {
 
       // 2️⃣ Razorpay options
       const options = {
-        key: "rzp_test_7jWpAfUxjwYR6P", // replace with your live key
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID, // replace with your live key
         amount: order.amount,
         currency: "INR",
         name: "Meal Checkout",

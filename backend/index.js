@@ -78,117 +78,117 @@ app.get("/meals/:name", async (req, res) => {
   }
 });
 
-app.post("/save-payment", async (req, res) => {
-  const {
-    razorpay_order_id,
-    razorpay_payment_id,
-    razorpay_signature,
-    amount,
-    currency = "INR",
-    name,
-    email,
-    mobile,
-    address,
-    items,
-    user_id,
-    coupon_code = null,
-  } = req.body;
+// app.post("/save-payment", async (req, res) => {
+//   const {
+//     razorpay_order_id,
+//     razorpay_payment_id,
+//     razorpay_signature,
+//     amount,
+//     currency = "INR",
+//     name,
+//     email,
+//     mobile,
+//     address,
+//     items,
+//     user_id,
+//     coupon_code = null,
+//   } = req.body;
 
-  try {
-    let coupon = null;
+//   try {
+//     let coupon = null;
 
-    // 1️⃣ Validate coupon if provided
-    if (coupon_code) {
-      // Fetch coupon
-      const { data: couponData, error: couponError } = await supabase
-        .from("coupons")
-        .select("*")
-        .eq("code", coupon_code)
-        .maybeSingle();
+//     // 1️⃣ Validate coupon if provided
+//     if (coupon_code) {
+//       // Fetch coupon by code
+//       const { data: couponData, error: couponError } = await supabase
+//         .from("coupons")
+//         .select("*")
+//         .eq("code", coupon_code)
+//         .maybeSingle();
+//       if (couponError) throw couponError;
 
-      if (couponError) throw couponError;
+//       if (!couponData) return res.status(400).json({ error: "Invalid coupon" });
+//       if (!couponData.active)
+//         return res.status(400).json({ error: "Coupon inactive" });
+//       if (couponData.expires_at && new Date(couponData.expires_at) < new Date())
+//         return res.status(400).json({ error: "Coupon expired" });
+//       if (couponData.used_count >= couponData.max_uses)
+//         return res.status(400).json({ error: "Coupon usage limit reached" });
 
-      if (!couponData) return res.status(400).json({ error: "Invalid coupon" });
-      if (!couponData.active)
-        return res.status(400).json({ error: "Coupon inactive" });
-      if (couponData.expires_at && new Date(couponData.expires_at) < new Date())
-        return res.status(400).json({ error: "Coupon expired" });
-      if (couponData.used_count >= couponData.max_uses)
-        return res.status(400).json({ error: "Coupon usage limit reached" });
+//       // Check if this user already used this coupon
+//       const { data: userCoupon } = await supabase
+//         .from("user_coupons")
+//         .select("*")
+//         .eq("user_id", user_id)
+//         .eq("coupon_id", couponData.id)
+//         .maybeSingle();
 
-      // Check if this user already used this coupon
-      const { data: userCoupon } = await supabase
-        .from("user_coupons")
-        .select("*")
-        .eq("user_id", user_id)
-        .eq("coupon_id", couponData.id)
-        .maybeSingle();
+//       if (userCoupon?.used)
+//         return res
+//           .status(400)
+//           .json({ error: "Coupon already used by this user" });
 
-      if (userCoupon?.used)
-        return res
-          .status(400)
-          .json({ error: "Coupon already used by this user" });
+//       coupon = couponData;
+//     }
 
-      coupon = couponData;
-    }
+//     // 2️⃣ Save order in DB
+//     const { data: orderData, error: orderError } = await supabase
+//       .from("orders")
+//       .insert([
+//         {
+//           order_id: razorpay_order_id,
+//           payment_id: razorpay_payment_id,
+//           signature: razorpay_signature,
+//           amount,
+//           currency,
+//           name,
+//           email,
+//           mobile,
+//           address,
+//           items,
+//           user_id,
+//           coupon_code: coupon?.code || null,
+//         },
+//       ])
+//       .select()
+//       .single();
 
-    // 2️⃣ Save order in DB
-    const { data, error } = await supabase
-      .from("orders")
-      .insert([
-        {
-          order_id: razorpay_order_id,
-          payment_id: razorpay_payment_id,
-          signature: razorpay_signature,
-          amount,
-          currency,
-          name,
-          email,
-          mobile,
-          address,
-          items,
-          user_id,
-          coupon_code: coupon?.code || null,
-        },
-      ])
-      .select();
+//     if (orderError) throw orderError;
 
-    if (error) throw error;
+//     // 3️⃣ After successful payment, mark coupon as used
+//     if (coupon) {
+//       // Increment used_count safely (without exceeding max_uses)
+//       const { error: incrementError } = await supabase
+//         .from("coupons")
+//         .update({ used_count: supabase.raw("used_count + 1") })
+//         .eq("id", coupon.id)
+//         .lte("used_count", coupon.max_uses - 1);
 
-    // 3️⃣ After successful payment, mark coupon as used
-    if (coupon) {
-      // Atomically increment used_count
-      const { error: incrementError } = await supabase
-        .from("coupons")
-        .update({ used_count: supabase.raw("used_count + 1") })
-        .eq("id", coupon.id)
-        .lte("used_count", coupon.max_uses - 1); // Prevent exceeding max_uses
+//       if (incrementError)
+//         return res
+//           .status(400)
+//           .json({ error: "Failed to increment coupon usage" });
 
-      if (incrementError)
-        return res
-          .status(400)
-          .json({ error: "Failed to increment coupon usage" });
+//       // Mark user coupon as used (upsert to ensure single row)
+//       await supabase.from("user_coupons").upsert(
+//         {
+//           user_id,
+//           coupon_id: coupon.id,
+//           used: true,
+//           used_at: new Date(),
+//         },
+//         { onConflict: ["user_id", "coupon_id"] }
+//       );
+//     }
 
-      // Mark user coupon as used
-      await supabase.from("user_coupons").upsert(
-        {
-          user_id,
-          coupon_id: coupon.id,
-          used: true,
-          used_at: new Date(),
-        },
-        { onConflict: ["user_id", "coupon_id"] } // ensures only one entry per user & coupon
-      );
-    }
-
-    res
-      .status(201)
-      .json({ message: "Payment saved successfully", order: data[0] });
-  } catch (err) {
-    console.error("❌ Failed to save payment:", err.message);
-    res.status(500).json({ error: "Failed to save payment" });
-  }
-});
+//     res
+//       .status(201)
+//       .json({ message: "Payment saved successfully", order: orderData });
+//   } catch (err) {
+//     console.error("❌ Failed to save payment:", err.message);
+//     res.status(500).json({ error: "Failed to save payment" });
+//   }
+// });
 
 app.post("/create-order", async (req, res) => {
   const { amount, currency } = req.body;
@@ -241,64 +241,7 @@ app.post("/contact", async (req, res) => {
   }
 });
 
-app.post("/assign-new-user", async (req, res) => {
-  const { user_id, name, email } = req.body;
-  console.log("🔹 assign-new-user called:", { user_id, name, email });
-
-  if (!user_id || !email) {
-    console.log("❌ Missing user_id or email");
-    return res.status(400).json({ error: "user_id and email required" });
-  }
-
-  // Check if user already has coupon
-  const { data: existing, error: existingError } = await supabase
-    .from("user_coupons")
-    .select("coupon_id")
-    .eq("user_id", user_id)
-    .maybeSingle();
-  if (existingError)
-    console.error("❌ Error checking existing coupon:", existingError);
-
-  if (existing) {
-    console.log("ℹ️ Coupon already assigned");
-    return res.status(200).json({ message: "Coupon already assigned" });
-  }
-
-  // Generate random coupon code (example: WEL-AB12CD34)
-  const randomCode =
-    "WEL-" + crypto.randomBytes(4).toString("hex").toUpperCase();
-
-  // Create coupon in DB
-  const { data: coupon, error: createError } = await supabase
-    .from("coupons")
-    .insert({
-      code: randomCode,
-      discount_percent: 10,
-      max_uses: 1,
-      used_count: 0,
-      expires_at: new Date(new Date().setDate(new Date().getDate() + 30)), // 30 days expiry
-      active: true,
-    })
-    .select()
-    .single();
-
-  if (createError) {
-    console.error("❌ Failed to create coupon:", createError);
-    return res.status(500).json({ error: "Failed to create coupon" });
-  }
-  console.log("✅ Created new coupon:", coupon);
-
-  // Assign coupon to user
-  const { data: insertData, error: insertError } = await supabase
-    .from("user_coupons")
-    .insert({ user_id, coupon_id: coupon.id });
-  if (insertError) {
-    console.error("❌ Error inserting user_coupon:", insertError);
-    return res.status(500).json({ error: "Failed to assign coupon" });
-  }
-  console.log("✅ Coupon assigned to user:", insertData);
-
-  // Send email
+async function sendCouponEmail(name, email, coupon) {
   try {
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
@@ -311,76 +254,158 @@ app.post("/assign-new-user", async (req, res) => {
       to: email,
       subject: "🎉 Welcome! Your Exclusive Coupon Awaits",
       html: `
-    <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-      <h2 style="color: #2E86DE;">Hi ${name},</h2>
-      <p>Welcome to <strong>Hotel App</strong>! We are excited to have you on board.</p>
-      <p>As a token of appreciation, here’s your <strong>exclusive welcome coupon</strong>:</p>
-      <div style="background: #f4f4f4; padding: 15px; text-align: center; border-radius: 8px; margin: 20px 0;">
-        <h3 style="margin: 0; color: #27AE60;">${coupon.code}</h3>
-        <p style="margin: 5px 0 0; font-weight: bold;">${
-          coupon.discount_percent
-        }% off your first booking</p>
-      </div>
-      <p>This coupon is valid until <strong>${new Date(
-        coupon.expires_at
-      ).toLocaleDateString()}</strong>. Don’t miss out!</p>
-     
-      <p style="font-size: 12px; color: #777;">If you did not sign up for Hotel App, please ignore this email.</p>
-    </div>
-  `,
+        <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+          <h2 style="color: #2E86DE;">Hi ${name},</h2>
+          <p>Welcome to <strong>Hotel App</strong>! We are excited to have you on board.</p>
+          <p>Here’s your <strong>exclusive coupon</strong>:</p>
+          <div style="background: #f4f4f4; padding: 15px; text-align: center; border-radius: 8px; margin: 20px 0;">
+            <h3 style="margin: 0; color: #27AE60;">${coupon.code}</h3>
+            <p style="margin: 5px 0 0; font-weight: bold;">${coupon.discount_percent}% off your first booking</p>
+          </div>
+          <p>This coupon is valid until <strong>${new Date(coupon.expires_at).toLocaleDateString()}</strong>.</p>
+        </div>
+      `,
     });
 
     console.log("✅ Email sent:", info.messageId);
   } catch (err) {
     console.error("❌ Failed to send email:", err.message);
   }
+}
 
-  res
-    .status(201)
-    .json({ message: "Coupon assigned and email sent", code: coupon.code });
-});
+async function validateCoupon(user_id, code) {
+  const { data: userCoupons } = await supabase
+    .from("user_coupons")
+    .select("*, coupons(*)")
+    .eq("user_id", user_id);
 
-// /validate (read-only)
-app.post("/validate", async (req, res) => {
-  const { user_id, code } = req.body;
-  if (!user_id || !code)
-    return res.status(400).json({ error: "user_id and code required" });
+  if (!userCoupons) return { valid: false, message: "Invalid coupon" };
+
+  const userCoupon = userCoupons.find((c) => c.coupons.code === code);
+  if (!userCoupon) return { valid: false, message: "Invalid coupon" };
+
+  const c = userCoupon.coupons;
+
+  if (!c.active) return { valid: false, message: "Coupon inactive" };
+  if (userCoupon.used) return { valid: false, message: "Coupon already used" };
+  if (c.used_count >= c.max_uses) return { valid: false, message: "Coupon limit reached" };
+  if (c.expires_at && new Date(c.expires_at) < new Date()) return { valid: false, message: "Coupon expired" };
+
+  return { valid: true, coupon: c, userCoupon };
+}
+
+// ------------------------
+// Routes
+// ------------------------
+
+// Assign new user a coupon
+app.post("/assign-new-user", async (req, res) => {
+  const { user_id, name, email } = req.body;
+  if (!user_id || !email) return res.status(400).json({ error: "user_id and email required" });
 
   try {
-    const { data: userCoupon } = await supabase
+    // Check if user already has a coupon
+    const { data: existingCoupons } = await supabase
       .from("user_coupons")
-      .select("coupons(*)")
-      .eq("user_id", user_id)
-      .maybeSingle();
+      .select("*")
+      .eq("user_id", user_id);
 
-    if (!userCoupon || userCoupon.coupons.code !== code)
-      return res.status(400).json({ valid: false, message: "Invalid coupon" });
+    if (existingCoupons?.length > 0) return res.status(200).json({ message: "Coupon already assigned" });
 
-    const c = userCoupon.coupons;
-    if (!c.active)
-      return res.status(400).json({ valid: false, message: "Coupon inactive" });
-    if (c.used)
-      return res
-        .status(400)
-        .json({ valid: false, message: "Coupon already used" });
-    if (c.used_count >= c.max_uses)
-      return res
-        .status(400)
-        .json({ valid: false, message: "Coupon limit reached" });
-    if (c.expires_at && new Date(c.expires_at) < new Date())
-      return res.status(400).json({ valid: false, message: "Coupon expired" });
+    // Create coupon
+    const randomCode = "WEL-" + crypto.randomBytes(4).toString("hex").toUpperCase();
+    const { data: coupon } = await supabase
+      .from("coupons")
+      .insert({
+        code: randomCode,
+        discount_percent: 10,
+        max_uses: 1,
+        used_count: 0,
+        expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        active: true,
+      })
+      .select()
+      .single();
 
-    res.json({
-      valid: true,
-      coupon_id: c.id,
-      discount: c.discount_percent,
-    });
+    // Assign coupon
+    await supabase.from("user_coupons").insert({ user_id, coupon_id: coupon.id });
+
+    // Send email
+    await sendCouponEmail(name, email, coupon);
+
+    res.status(201).json({ message: "Coupon assigned and email sent", code: coupon.code });
   } catch (err) {
-    console.error(err);
+    console.error("❌ assign-new-user failed:", err.message);
+    res.status(500).json({ error: "Failed to assign coupon" });
+  }
+});
+
+// Validate coupon
+app.post("/validate", async (req, res) => {
+  const { user_id, code } = req.body;
+  if (!user_id || !code) return res.status(400).json({ error: "user_id and code required" });
+
+  try {
+    const result = await validateCoupon(user_id, code);
+    if (!result.valid) return res.status(400).json({ valid: false, message: result.message });
+
+    res.json({ valid: true, coupon_id: result.coupon.id, discount: result.coupon.discount_percent });
+  } catch (err) {
+    console.error("❌ validate failed:", err.message);
     res.status(500).json({ error: "Failed to validate coupon" });
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`✅ Server running at http://localhost:${PORT}`);
+// Save payment & mark coupon as used
+app.post("/save-payment", async (req, res) => {
+  const { razorpay_order_id, razorpay_payment_id, razorpay_signature, amount, currency = "INR", name, email, user_id, coupon_code, items } = req.body;
+
+  try {
+    let coupon = null;
+
+    if (coupon_code) {
+      const result = await validateCoupon(user_id, coupon_code);
+      if (!result.valid) return res.status(400).json({ error: result.message });
+      coupon = result.coupon;
+    }
+
+    const { data: order } = await supabase
+      .from("orders")
+      .insert([{
+        order_id: razorpay_order_id,
+        payment_id: razorpay_payment_id,
+        signature: razorpay_signature,
+        amount,
+        currency,
+        name,
+        email,
+        user_id,
+        items,
+        coupon_code: coupon?.code || null,
+      }])
+      .select()
+      .single();
+
+    if (coupon) {
+      // Increment used_count safely
+      await supabase
+        .from("coupons")
+        .update({ used_count: coupon.used_count + 1 })
+        .eq("id", coupon.id);
+
+      // Mark user coupon as used
+      await supabase
+        .from("user_coupons")
+        .update({ used: true, used_at: new Date() })
+        .eq("user_id", user_id)
+        .eq("coupon_id", coupon.id);
+    }
+
+    res.status(201).json({ message: "Payment saved successfully", order });
+  } catch (err) {
+    console.error("❌ save-payment failed:", err.message);
+    res.status(500).json({ error: "Failed to save payment" });
+  }
 });
+
+app.listen(PORT, () => console.log(`✅ Server running at http://localhost:${PORT}`));
