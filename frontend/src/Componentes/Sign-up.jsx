@@ -22,7 +22,7 @@ function Signup() {
   const { theme } = useTheme();
   const { showToast } = useToast();
 
-  // Submit Handler
+  // ✅ Signup handler
   async function onSubmit(data) {
     try {
       const { data: signUpData, error: signUpError } =
@@ -43,30 +43,29 @@ function Signup() {
       const user = signUpData.user;
 
       if (user) {
-        // Optional: insert into custom 'users' table
+        // Optional: insert into custom users table
         const { error: insertError } = await supabase
           .from("users")
           .insert([{ id: user.id, name: data.name, email: data.email }]);
-        if (insertError)
+        if (insertError) {
           console.error(
             "⚠️ Error inserting into users table:",
             insertError.message
           );
+        }
 
         // ✅ Assign welcome coupon via backend
         try {
-          const response = await fetch(
-            "http://localhost:5000/assign-new-user",
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                user_id: user.id,
-                name: data.name,
-                email: data.email,
-              }),
-            }
-          );
+          const BASE_URL = "https://food-app-d8r3.onrender.com";
+          const response = await fetch(`${BASE_URL}/assign-new-user`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              user_id: user.id,
+              name: data.name,
+              email: data.email,
+            }),
+          });
           const result = await response.json();
           console.log("Coupon assignment result:", result);
         } catch (err) {

@@ -21,6 +21,8 @@ export default function Login() {
   const { theme } = useTheme();
   const { showToast } = useToast();
 
+  const BASE_URL = "https://food-app-d8r3.onrender.com";
+
   // ✅ Handle redirect after email verification
   useEffect(() => {
     const query = new URLSearchParams(location.search);
@@ -52,7 +54,7 @@ export default function Login() {
 
       // ✅ Assign new-user coupon
       try {
-        await fetch("http://localhost:5000/coupons/assign-new-user", {
+        await fetch(`${BASE_URL}/assign-new-user`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -85,7 +87,7 @@ export default function Login() {
 
     if (user) {
       try {
-        await fetch("http://localhost:5000/coupons/assign-new-user", {
+        await fetch(`${BASE_URL}/assign-new-user`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -148,6 +150,7 @@ export default function Login() {
               <small className={styles.small}>{errors.password.message}</small>
             )}
           </div>
+
           <Link to="/forgotpassword" className={styles.Link}>
             Forgot password?
           </Link>
