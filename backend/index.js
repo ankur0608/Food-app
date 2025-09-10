@@ -90,31 +90,36 @@ app.post("/save-payment", async (req, res) => {
     mobile,
     address,
     items,
-    user_id, // required
-    coupon_code = null, // optional
+    user_id,
+    coupon_code = null,
   } = req.body;
 
-  console.log("💳 Payment request received:", {
-    razorpay_order_id,
-    razorpay_payment_id,
-    amount,
-    user_id,
-    coupon_code,
-  });
-
-  // 🔹 Basic validation
-  if (!razorpay_order_id || !razorpay_payment_id || !amount) {
-    return res.status(400).json({ error: "Missing required payment fields" });
-  }
-  if (!items || !Array.isArray(items) || items.length === 0) {
-    return res.status(400).json({ error: "Cart items are required" });
-  }
-  if (!user_id) {
-    return res.status(400).json({ error: "user_id is required" });
-  }
-
   try {
-    // 🔹 Save order in DB
+    let coupon = null;
+
+    // ✅ If coupon_code provided, validate it
+    if (coupon_code) {
+      const { data: couponData, error: couponError } = await supabase
+        .from("coupons")
+        .select("*")
+        .eq("code", coupon_code)
+        .maybeSingle();
+
+      if (couponError) throw couponError;
+
+      if (!couponData) return res.status(400).json({ error: "Invalid coupon" });
+
+      if (!couponData.active)
+        return res.status(400).json({ error: "Coupon inactive" });
+      if (couponData.expires_at && new Date(couponData.expires_at) < new Date())
+        return res.status(400).json({ error: "Coupon expired" });
+      if (couponData.used_count >= couponData.max_uses)
+        return res.status(400).json({ error: "Coupon usage limit reached" });
+
+      coupon = couponData;
+    }
+
+    // 🔹 Save order
     const { data, error } = await supabase
       .from("orders")
       .insert([
@@ -130,18 +135,33 @@ app.post("/save-payment", async (req, res) => {
           address,
           items,
           user_id,
-          coupon_code, // optional, only saved if provided
+          coupon_code: coupon_code || null,
         },
       ])
-      .select(); // return inserted row(s)
+      .select();
 
     if (error) throw error;
 
-    console.log("✅ Payment saved successfully:", data[0]);
-    res.status(201).json({
-      message: "Payment saved successfully",
-      order: data[0],
-    });
+    // 🔹 Mark coupon as used
+    if (coupon) {
+      await supabase
+        .from("coupons")
+        .update({
+          used_count: coupon.used_count + 1,
+        })
+        .eq("id", coupon.id);
+
+      await supabase.from("user_coupons").insert({
+        user_id,
+        coupon_id: coupon.id,
+        used: true,
+        used_at: new Date(),
+      });
+    }
+
+    res
+      .status(201)
+      .json({ message: "Payment saved successfully", order: data[0] });
   } catch (err) {
     console.error("❌ Failed to save payment:", err.message);
     res.status(500).json({ error: "Failed to save payment" });
