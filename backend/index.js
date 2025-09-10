@@ -10,6 +10,8 @@ require("dotenv").config();
 const authenticateToken = require("./middleware/auth");
 const { createClient } = require("@supabase/supabase-js");
 const nodemailer = require("nodemailer");
+const crypto = require("crypto");
+
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_ANON_KEY
@@ -243,7 +245,7 @@ app.post("/assign-new-user", async (req, res) => {
   // Check if user already has coupon
   const { data: existing, error: existingError } = await supabase
     .from("user_coupons")
-    .select("*")
+    .select("coupon_id")
     .eq("user_id", user_id)
     .maybeSingle();
   if (existingError)
@@ -254,38 +256,29 @@ app.post("/assign-new-user", async (req, res) => {
     return res.status(200).json({ message: "Coupon already assigned" });
   }
 
-  // Check if WELCOME10 coupon exists
-  let { data: coupon, error: couponError } = await supabase
+  // Generate random coupon code (example: WEL-AB12CD34)
+  const randomCode =
+    "WEL-" + crypto.randomBytes(4).toString("hex").toUpperCase();
+
+  // Create coupon in DB
+  const { data: coupon, error: createError } = await supabase
     .from("coupons")
-    .select("*")
-    .eq("code", "WELCOME10")
-    .maybeSingle();
+    .insert({
+      code: randomCode,
+      discount_percent: 10,
+      max_uses: 1,
+      used_count: 0,
+      expires_at: new Date(new Date().setDate(new Date().getDate() + 30)), // 30 days expiry
+      active: true,
+    })
+    .select()
+    .single();
 
-  if (couponError) console.error("❌ Error fetching coupon:", couponError);
-
-  // If not found → create it
-  if (!coupon) {
-    console.log("ℹ️ WELCOME10 not found, creating one...");
-    const { data: newCoupon, error: createError } = await supabase
-      .from("coupons")
-      .insert({
-        code: "WELCOME10",
-        discount_percent: 10,
-        max_uses: 1,
-        used_count: 0,
-        expires_at: new Date(new Date().setDate(new Date().getDate() + 30)), // expires in 30 days
-        active: true,
-      })
-      .select()
-      .single();
-
-    if (createError) {
-      console.error("❌ Failed to create coupon:", createError);
-      return res.status(500).json({ error: "Failed to create coupon" });
-    }
-    coupon = newCoupon;
-    console.log("✅ Created new coupon:", coupon);
+  if (createError) {
+    console.error("❌ Failed to create coupon:", createError);
+    return res.status(500).json({ error: "Failed to create coupon" });
   }
+  console.log("✅ Created new coupon:", coupon);
 
   // Assign coupon to user
   const { data: insertData, error: insertError } = await supabase
@@ -310,7 +303,12 @@ app.post("/assign-new-user", async (req, res) => {
       to: email,
       subject: "Welcome Coupon 🎉",
       html: `<p>Hi ${name},</p>
-             <p>Here is your welcome coupon: <b>${coupon.code}</b> for ${coupon.discount_percent}% off your first booking!</p>`,
+             <p>Here is your welcome coupon: <b>${coupon.code}</b> for ${
+        coupon.discount_percent
+      }% off your first booking!</p>
+             <p>Valid until: ${new Date(
+               coupon.expires_at
+             ).toLocaleDateString()}</p>`,
     });
 
     console.log("✅ Email sent:", info.messageId);
@@ -318,7 +316,9 @@ app.post("/assign-new-user", async (req, res) => {
     console.error("❌ Failed to send email:", err.message);
   }
 
-  res.status(201).json({ message: "Coupon assigned and email sent" });
+  res
+    .status(201)
+    .json({ message: "Coupon assigned and email sent", code: coupon.code });
 });
 
 app.post("/validate", async (req, res) => {

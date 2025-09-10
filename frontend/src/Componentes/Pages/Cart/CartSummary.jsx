@@ -7,6 +7,7 @@ import {
   TextField,
   Button,
 } from "@mui/material";
+import { useToast } from "../../Store/ToastContext.jsx";
 
 export default function CartSummary({
   items,
@@ -18,35 +19,43 @@ export default function CartSummary({
   deliveryCharges,
   finalAmount,
   navigate,
-  userId, // pass current user id
+  userId, // current user id
 }) {
   const [loading, setLoading] = useState(false);
+  const { showToast } = useToast();
 
   const applyCoupon = async () => {
-    if (!coupon) return;
+    if (!coupon.trim()) {
+      showToast("⚠️ Please enter a coupon code", "error");
+      return;
+    }
 
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:5000/coupons/validate", {
+      const res = await fetch("https://food-app-d8r3.onrender.com/validate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_id: userId, code: coupon }),
+        body: JSON.stringify({ user_id: userId, code: coupon.trim() }),
       });
       const data = await res.json();
 
       if (data.valid) {
         setDiscount(data.discount);
-        alert(`🎉 Coupon applied! You got ${data.discount}% off`);
+        showToast(
+          `🎉 Coupon applied! You got ${data.discount}% off`,
+          "success"
+        );
       } else {
         setDiscount(0);
-        alert(`❌ ${data.message}`);
+        showToast(`❌ ${data.message}`, "error");
       }
     } catch (err) {
       console.error(err);
       setDiscount(0);
-      alert("❌ Failed to validate coupon");
+      showToast("❌ Failed to validate coupon", "error");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
@@ -78,6 +87,7 @@ export default function CartSummary({
           value={coupon}
           onChange={(e) => setCoupon(e.target.value)}
           fullWidth
+          disabled={loading}
         />
         <Button
           variant="contained"
