@@ -8,7 +8,8 @@ import ChatInput from "./ChatInput";
 import namaste from "../../../assets/namaste.png";
 import ChatIcon from "@mui/icons-material/Chat";
 
-export default function ChatBox({ user }) {
+export default function ChatBox() {
+  const [user, setUser] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMsg, setNewMsg] = useState("");
   const [isOpen, setIsOpen] = useState(false);
@@ -19,32 +20,57 @@ export default function ChatBox({ user }) {
   const messagesEndRef = useRef(null);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const fetchUser = async () => {
+      const {
+        data: { user: currentUser },
+        error,
+      } = await supabase.auth.getUser();
+      if (error) return console.log("Supabase auth error:", error);
+      if (currentUser) {
+        setUser({
+          id: currentUser.id,
+          name: currentUser.user_metadata?.full_name || "Guest",
+          email: currentUser.email,
+        });
+      }
+    };
+    fetchUser();
+  }, []);
+
   const scrollToBottom = () =>
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
 
-  const initialBotMessage = {
-    id: "bot-1",
-    user_id: "bot",
-    message: "Hi! I’m Ira, your assistant. Please select an option:",
-    isBot: true,
-    options: ["Hotel Information", "View Menu", "Make a Reservation"],
-    timestamp: new Date().toLocaleTimeString("en-US", {
-      hour: "numeric",
-      minute: "numeric",
-      hour12: true,
-    }),
-  };
-
-  useEffect(() => resetChat(), []);
-  useEffect(() => scrollToBottom(), [messages]);
-
   const resetChat = () => {
+    const initialBotMessage = {
+      id: "bot-1",
+      user_id: "bot",
+      message: user
+        ? `Hi ${user.name}! Please select an option:`
+        : "Hi! Please login or sign up to get all features.",
+      isBot: true,
+      options: user
+        ? ["Hotel Information", "View Menu", "Make a Reservation"]
+        : [
+            { label: "Login / Sign Up", type: "navigate", path: "/login" },
+            "Hotel Information",
+            "View Menu",
+          ],
+      timestamp: new Date().toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "numeric",
+        hour12: true,
+      }),
+    };
     setMessages([initialBotMessage]);
     setReservation({});
     setReservationStep(null);
     setMenuStep(null);
     setHotelStep(null);
   };
+
+  useEffect(() => resetChat(), [user]);
+  useEffect(() => scrollToBottom(), [messages]);
 
   const isValidEmail = (email) => /\S+@\S+\.\S+/.test(email);
   const isValidPhone = (phone) => /^[0-9]{10}$/.test(phone);
@@ -55,44 +81,9 @@ export default function ChatBox({ user }) {
     const generateId = () =>
       `${Date.now()}-${Math.floor(Math.random() * 10000)}`;
 
-    const greetings = ["hi", "hello", "hey", "namaste"];
-
-    // 1️⃣ If user sends a greeting
-    if (!isBot && greetings.includes(msg.toLowerCase())) {
-      const userMsg = {
-        id: generateId(),
-        user_id: user?.id,
-        message: msg,
-        isBot: false,
-        timestamp: new Date().toLocaleTimeString("en-US", {
-          hour: "numeric",
-          minute: "numeric",
-          hour12: true,
-        }),
-      };
-
-      const botMsg = {
-        id: generateId(),
-        user_id: "bot",
-        message: "👋 Hi there! I’m Ira.",
-        isBot: true,
-        options: ["Hotel Information", "View Menu", "Make a Reservation"],
-        timestamp: new Date().toLocaleTimeString("en-US", {
-          hour: "numeric",
-          minute: "numeric",
-          hour12: true,
-        }),
-      };
-
-      setMessages((prev) => [...prev, userMsg, botMsg]);
-      setNewMsg("");
-      return;
-    }
-
-    // 2️⃣ Normal user message
-    const messageObj = {
+    const userMsg = {
       id: generateId(),
-      user_id: isBot ? "bot" : user?.id,
+      user_id: isBot ? "bot" : user?.id || "guest",
       message: msg,
       isBot,
       timestamp: new Date().toLocaleTimeString("en-US", {
@@ -102,131 +93,123 @@ export default function ChatBox({ user }) {
       }),
     };
 
-    setMessages((prev) => [...prev, messageObj]);
+    setMessages((prev) => [...prev, userMsg]);
     if (!isBot) setNewMsg("");
 
-    // 3️⃣ Default fallback if message not recognized
-    if (
-      !isBot &&
-      !["View Menu", "Hotel Information", "Make a Reservation"].includes(msg)
-    ) {
-      const botFallback = {
-        id: generateId(),
-        user_id: "bot",
-        message:
-          "🙂 I’m not sure what you mean. Please select one of the options below:",
-        isBot: true,
-        options: ["Hotel Information", "View Menu", "Make a Reservation"],
-        timestamp: new Date().toLocaleTimeString("en-US", {
-          hour: "numeric",
-          minute: "numeric",
-          hour12: true,
-        }),
-      };
-      setTimeout(() => setMessages((prev) => [...prev, botFallback]), 500);
+    if (!isBot) handleFlows(msg);
+  };
+
+  const handleFlows = async (msg) => {
+    const generateId = () =>
+      `${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+
+    // Handle button navigation
+    if (typeof msg === "object" && msg.type === "navigate") {
+      navigate(msg.path);
+      return;
     }
 
-    if (!isBot) {
-      // ---- MENU FLOW ----
-      if (msg === "View Menu") {
-        setMenuStep("choice");
-        setTimeout(
-          () =>
-            setMessages((prev) => [
-              ...prev,
-              {
-                id: generateId(),
-                user_id: "bot",
-                message:
-                  "Would you like to see the full menu or search a specific food?",
-                isBot: true,
-                options: ["Full Menu", "Specific Food"],
-                timestamp: new Date().toLocaleTimeString("en-US", {
-                  hour: "numeric",
-                  minute: "numeric",
-                  hour12: true,
-                }),
-              },
-            ]),
-          500
+    // ---- MENU FLOW ----
+    if (msg === "View Menu") {
+      setMenuStep("choice");
+      setTimeout(
+        () =>
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: generateId(),
+              user_id: "bot",
+              message:
+                "Would you like to see the full menu or search a specific food?",
+              isBot: true,
+              options: ["Full Menu", "Specific Food"],
+              timestamp: new Date().toLocaleTimeString("en-US", {
+                hour: "numeric",
+                minute: "numeric",
+                hour12: true,
+              }),
+            },
+          ]),
+        500
+      );
+      return;
+    } else if (menuStep === "choice") {
+      if (msg === "Full Menu") return navigate("/meals");
+      else if (msg === "Specific Food") {
+        setMenuStep("search");
+        return sendMessage(
+          "Please type the name of the food you want to search:",
+          true
         );
       }
-      // ---- FOOD SEARCH LOGIC ----
-      else if (menuStep === "choice") {
-        if (msg === "Full Menu") navigate("/meals");
-        else if (msg === "Specific Food") {
-          setMenuStep("search");
-          sendMessage(
-            "Please type the name of the food you want to search:",
+    } else if (menuStep === "search") {
+      try {
+        const { data, error } = await supabase
+          .from("foods")
+          .select("id, name, price, description, image")
+          .ilike("name", `*${msg}*`);
+
+        if (error || !data || data.length === 0) {
+          return sendMessage(
+            "❌ Sorry, we couldn’t find that food. Try another name.",
             true
           );
         }
-      } else if (menuStep === "search") {
-        try {
-          const { data, error } = await supabase
-            .from("foods")
-            .select("id, name, price, description, image")
-            .ilike("name", `*${msg}*`);
 
-          if (error || !data || data.length === 0) {
-            sendMessage(
-              "❌ Sorry, we couldn’t find that food. Try another name.",
-              true
-            );
-          } else {
-            const food = data[0];
-            const imageSrc = food.image.startsWith("http")
-              ? food.image
-              : `https://food-app-d8r3.onrender.com/images/${food.image}`;
+        const food = data[0];
+        const imageSrc = food.image.startsWith("http")
+          ? food.image
+          : `https://food-app-d8r3.onrender.com/images/${food.image}`;
 
-            setMessages((prev) => [
-              ...prev,
-              {
-                id: generateId(),
-                user_id: "bot",
-                message: `${food.name} - ₹${food.price}\n${
-                  food.description || ""
-                }`,
-                isBot: true,
-                options: ["View Details"],
-                image: imageSrc,
-                timestamp: new Date().toLocaleTimeString("en-US", {
-                  hour: "numeric",
-                  minute: "numeric",
-                  hour12: true,
-                }),
-              },
-            ]);
-
-            setMenuStep({ action: "viewFood", foodName: food.name });
-          }
-        } catch (err) {
-          sendMessage("⚠️ Server error. Please try again later.", true);
-        }
-      } else if (menuStep?.action === "viewFood" && msg === "View Details") {
-        navigate(`/meals/${encodeURIComponent(menuStep.foodName)}`);
-        setMenuStep(null);
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: generateId(),
+            user_id: "bot",
+            message: `${food.name} - ₹${food.price}\n${food.description || ""}`,
+            isBot: true,
+            options: ["View Details"],
+            image: imageSrc,
+            timestamp: new Date().toLocaleTimeString("en-US", {
+              hour: "numeric",
+              minute: "numeric",
+              hour12: true,
+            }),
+          },
+        ]);
+        setMenuStep({ action: "viewFood", foodName: food.name });
+      } catch {
+        sendMessage("⚠️ Server error. Please try again later.", true);
       }
-
-      // ---- RESERVATION FLOW ----
-      if (msg === "Make a Reservation") {
-        setReservation({});
-        setReservationStep("firstName");
-        setTimeout(
-          () => sendMessage("Great! What's your first name?", true),
-          500
-        );
-      } else {
-        handleReservation(msg);
-      }
-
-      // ---- HOTEL INFO FLOW ----
-      if (msg === "Hotel Information") {
-        handleHotelInfo(msg);
-      }
+      return;
+    } else if (menuStep?.action === "viewFood" && msg === "View Details") {
+      navigate(`/meals/${encodeURIComponent(menuStep.foodName)}`);
+      setMenuStep(null);
+      return;
     }
-  };
 
+    // ---- RESERVATION FLOW ----
+    if (msg === "Make a Reservation") {
+      if (!user) {
+        sendMessage("❌ You need to login or sign up first.", true);
+        return;
+      } else {
+        setReservation({
+          firstName: user.name.split(" ")[0],
+          lastName: user.name.split(" ")[1] || "",
+          email: user.email,
+        });
+        setReservationStep("phone");
+        sendMessage("Great! Can I have your phone number? (10 digits)", true);
+      }
+      return;
+    }
+
+    if (reservationStep) handleReservation(msg);
+
+    // ---- HOTEL INFO FLOW ----
+    if (msg === "Hotel Information") handleHotelInfo(msg);
+  };
   const handleReservation = async (msg) => {
     if (!reservationStep) return;
 
@@ -284,37 +267,36 @@ export default function ChatBox({ user }) {
   };
 
   const handleHotelInfo = (msg) => {
-    // ---- HOTEL INFO FLOW ----
-    if (msg === "Hotel Information") {
-      if (!hotelStep) {
-        setHotelStep("summary"); // step active
-        setTimeout(
-          () =>
-            setMessages((prev) => [
-              ...prev,
-              {
-                id: `${Date.now()}-${Math.floor(Math.random() * 10000)}`,
-                user_id: "bot",
-                message:
-                  "Welcome to our hotel! We offer comfortable rooms, a swimming pool, a restaurant, 24/7 reception, and convenient city location.",
-                isBot: true,
-                options: [
-                  { label: "View More", type: "navigate", path: "/faqpage" },
-                ],
-                timestamp: new Date().toLocaleTimeString("en-US", {
-                  hour: "numeric",
-                  minute: "numeric",
-                  hour12: true,
-                }),
-              },
-            ]),
-          500
-        );
-      }
+    const generateId = () =>
+      `${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+
+    if (msg === "Hotel Information" && !hotelStep) {
+      setHotelStep("summary");
+      setTimeout(
+        () =>
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: generateId(),
+              user_id: "bot",
+              message:
+                "Welcome to our hotel! We offer comfortable rooms, a swimming pool, a restaurant, 24/7 reception, and convenient city location.",
+              isBot: true,
+              options: [
+                { label: "View More", type: "navigate", path: "/faqpage" },
+              ],
+              timestamp: new Date().toLocaleTimeString("en-US", {
+                hour: "numeric",
+                minute: "numeric",
+                hour12: true,
+              }),
+            },
+          ]),
+        500
+      );
     } else if (hotelStep === "summary") {
-      // Handle "View More" button click
       if (msg === "View More") {
-        navigate("/faq"); // navigate to FAQ page
+        navigate("/faq");
         setHotelStep(null);
         sendMessage(
           "You can read all frequently asked questions about our hotel here.",
@@ -328,7 +310,6 @@ export default function ChatBox({ user }) {
       }
     }
   };
-
   return (
     <div style={{ position: "fixed", bottom: 20, right: 20, zIndex: 9999 }}>
       {!isOpen && (
