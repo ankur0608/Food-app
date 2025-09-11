@@ -119,7 +119,9 @@ export default function CartSummary({
           color="primary"
           sx={{ borderRadius: 2 }}
           onClick={() =>
-            navigate("/checkout", { state: { total: finalAmount } })
+            navigate("/checkout", {
+              state: { total: finalAmount, coupon_code: coupon }, // 👈 pass coupon_code
+            })
           }
         >
           Proceed to Checkout
