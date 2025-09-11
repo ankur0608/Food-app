@@ -1,6 +1,5 @@
 "use client";
-import { useState, Suspense, lazy } from "react";
-import { useForm } from "react-hook-form";
+import { Suspense, lazy } from "react";
 import {
   Paper,
   Typography,
@@ -24,6 +23,7 @@ const CheckoutForm = () => {
   const {
     items,
     total,
+    coupon_code, // 👈 now available
     activeStep,
     setActiveStep,
     control,
@@ -76,11 +76,23 @@ const CheckoutForm = () => {
           variant="h6"
           fontWeight={500}
           textAlign="center"
-          mb={4}
+          mb={1}
           color="text.secondary"
         >
           Total Amount: <strong>₹{parseFloat(total).toFixed(2)}</strong>
         </Typography>
+
+        {/* 👇 show coupon if passed */}
+        {coupon_code && (
+          <Typography
+            variant="body1"
+            textAlign="center"
+            mb={4}
+            color="success.main"
+          >
+            Coupon Applied: <strong>{coupon_code}</strong>
+          </Typography>
+        )}
 
         {/* Stepper */}
         <Stepper
@@ -119,7 +131,11 @@ const CheckoutForm = () => {
                 <AddressForm control={control} errors={errors} />
               )}
               {activeStep === 2 && (
-                <PaymentReview items={items} total={total} />
+                <PaymentReview
+                  items={items}
+                  total={total}
+                  coupon_code={coupon_code} // 👈 forward to PaymentReview
+                />
               )}
             </Box>
           </Suspense>
