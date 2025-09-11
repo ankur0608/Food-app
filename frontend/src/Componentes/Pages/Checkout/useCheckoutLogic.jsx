@@ -19,8 +19,8 @@ export const useCheckoutLogic = () => {
   const savedUser = JSON.parse(localStorage.getItem("user") || "{}");
   const savedProgress = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
 
-  console.log("📌 Initial items:", items);
-  console.log("📌 Total amount:", total);
+  // console.log("📌 Initial items:", items);
+  // console.log("📌 Total amount:", total);
   console.log("📌 Saved user:", savedUser);
   console.log("📌 Saved progress:", savedProgress);
 
@@ -112,8 +112,9 @@ export const useCheckoutLogic = () => {
             currency: order.currency,
             name: formData.name,
             email: formData.email,
-            mobile: formData.mobile,
             address: `${formData.addressLine}, ${formData.city}, ${formData.state}, ${formData.pincode}, ${formData.country}`,
+            mobile: formData.mobile,
+
             items,
             user_id: savedUser?.id,
             coupon_code: formData.coupon_code || null,

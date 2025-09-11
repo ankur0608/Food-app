@@ -413,6 +413,8 @@ app.post("/save-payment", async (req, res) => {
     currency = "INR",
     name,
     email,
+    mobile,
+    address,
     user_id,
     coupon_code,
     items,
@@ -433,7 +435,7 @@ app.post("/save-payment", async (req, res) => {
       coupon = result.coupon;
     }
 
-    // Save order
+    // 📝 Save order with mobile + address too
     const { data: order, error: orderError } = await supabase
       .from("orders")
       .insert([
@@ -445,6 +447,8 @@ app.post("/save-payment", async (req, res) => {
           currency,
           name,
           email,
+          mobile: mobile || "", // fallback to empty string
+          address: address || "",
           user_id,
           items,
           coupon_code: coupon?.code || null,
@@ -453,11 +457,14 @@ app.post("/save-payment", async (req, res) => {
       .select()
       .single();
 
-    if (orderError) console.error("❌ Error saving order:", orderError);
+    if (orderError) {
+      console.error("❌ Error saving order:", orderError);
+      return res.status(500).json({ error: "Failed to save order" });
+    }
     console.log("✅ Order saved:", order);
 
+    // 🔄 Handle coupon if provided
     if (coupon) {
-      // Increment used_count safely
       const { data: updatedCoupon, error: couponUpdateError } = await supabase
         .from("coupons")
         .update({ used_count: coupon.used_count + 1 })
@@ -467,9 +474,8 @@ app.post("/save-payment", async (req, res) => {
 
       if (couponUpdateError)
         console.error("❌ Error updating coupon usage:", couponUpdateError);
-      console.log("🔄 Coupon usage incremented:", updatedCoupon);
+      else console.log("🔄 Coupon usage incremented:", updatedCoupon);
 
-      // Mark user coupon as used
       const { data: userCouponUpdated, error: userCouponError } = await supabase
         .from("user_coupons")
         .update({ used: true, used_at: new Date() })
@@ -480,7 +486,7 @@ app.post("/save-payment", async (req, res) => {
 
       if (userCouponError)
         console.error("❌ Error marking user coupon as used:", userCouponError);
-      console.log("✅ User coupon marked as used:", userCouponUpdated);
+      else console.log("✅ User coupon marked as used:", userCouponUpdated);
     }
 
     res.status(201).json({ message: "Payment saved successfully", order });
@@ -489,6 +495,7 @@ app.post("/save-payment", async (req, res) => {
     res.status(500).json({ error: "Failed to save payment" });
   }
 });
+
 
 app.listen(PORT, () =>
   console.log(`✅ Server running at http://localhost:${PORT}`)
