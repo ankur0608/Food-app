@@ -49,7 +49,7 @@ export default function Footer() {
             links={[
               { to: "/PrivacyPolicy", label: "Privacy Policy" },
               { to: "/terms-of-use", label: "Terms of Use" },
-              { to: "/sitemap", label: "Sitemap" },
+              { to: "/faqPage", label: "FAQ" },
             ]}
           />
         </Grid>
@@ -69,9 +69,9 @@ export default function Footer() {
         <Box
           sx={{
             position: "absolute",
-            right: { xs: "50%", md: "2%" },
+            left: { xs: "50%", md: "2%" }, // moved from right to left
             bottom: 20,
-            transform: { xs: "translateX(50%)", md: "none" },
+            transform: { xs: "translateX(-50%)", md: "none" }, // adjust for small screens
           }}
         >
           <Tooltip title="Back to Top">

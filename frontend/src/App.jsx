@@ -3,6 +3,7 @@ import {
   createBrowserRouter,
   RouterProvider,
   Navigate,
+  Link,
 } from "react-router-dom";
 
 import Layout from "./Componentes/Navbar/Layout.jsx";
@@ -13,6 +14,7 @@ import PaymentHistory from "./Componentes/Pages/PaymentHistory.jsx";
 import Profile from "./Componentes/Pages/Profile.jsx";
 import Verify from "./Componentes/Verify.jsx";
 import Home from "./Componentes/Pages/home/Home.jsx";
+import FaqPage from "./Componentes/FAQ.jsx";
 // Lazy-loaded pages
 // const Home = lazy(() => import("./Componentes/Pages/Home.jsx"));
 const Meals = lazy(() => import("./Componentes/Pages/Meals.jsx"));
@@ -63,6 +65,10 @@ const router = createBrowserRouter([
         element: <Contact />,
       },
       {
+        path: "faqPage",
+        element: <FaqPage />,
+      },
+      {
         path: "signup",
         element: <Signup />,
       },
@@ -106,6 +112,7 @@ const router = createBrowserRouter([
           </Suspense>
         ),
       },
+
       { path: "google-redirect", element: <GoogleRedirectHandler /> },
       { path: "reset-password", element: <ResetPassword /> },
       { path: "payment-history", element: <PaymentHistory /> },
@@ -131,9 +138,43 @@ const router = createBrowserRouter([
       {
         path: "*",
         element: (
-          <div style={{ padding: "2rem", textAlign: "center" }}>
-            <h1>404 - Page Not Found</h1>
-            <p>Sorry, the page you’re looking for does not exist.</p>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              textAlign: "center",
+              height: "100vh",
+              padding: "2rem",
+              backgroundColor: "#f5f5f5",
+            }}
+          >
+            <h1 style={{ fontSize: "4rem", marginBottom: "1rem" }}>404</h1>
+            <h2 style={{ marginBottom: "1rem" }}>Page Not Found</h2>
+            <p style={{ marginBottom: "2rem" }}>
+              Sorry, the page you’re looking for does not exist.
+            </p>
+            <Link
+              to="/"
+              style={{
+                textDecoration: "none",
+                padding: "1rem 2rem",
+                backgroundColor: "#d32f2f",
+                color: "#fff",
+                borderRadius: "5px",
+                fontWeight: "bold",
+                transition: "background-color 0.3s",
+              }}
+              onMouseOver={(e) =>
+                (e.currentTarget.style.backgroundColor = "#b71c1c")
+              }
+              onMouseOut={(e) =>
+                (e.currentTarget.style.backgroundColor = "#d32f2f")
+              }
+            >
+              Go to Home
+            </Link>
           </div>
         ),
       },

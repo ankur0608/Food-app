@@ -78,118 +78,6 @@ app.get("/meals/:name", async (req, res) => {
   }
 });
 
-// app.post("/save-payment", async (req, res) => {
-//   const {
-//     razorpay_order_id,
-//     razorpay_payment_id,
-//     razorpay_signature,
-//     amount,
-//     currency = "INR",
-//     name,
-//     email,
-//     mobile,
-//     address,
-//     items,
-//     user_id,
-//     coupon_code = null,
-//   } = req.body;
-
-//   try {
-//     let coupon = null;
-
-//     // 1️⃣ Validate coupon if provided
-//     if (coupon_code) {
-//       // Fetch coupon by code
-//       const { data: couponData, error: couponError } = await supabase
-//         .from("coupons")
-//         .select("*")
-//         .eq("code", coupon_code)
-//         .maybeSingle();
-//       if (couponError) throw couponError;
-
-//       if (!couponData) return res.status(400).json({ error: "Invalid coupon" });
-//       if (!couponData.active)
-//         return res.status(400).json({ error: "Coupon inactive" });
-//       if (couponData.expires_at && new Date(couponData.expires_at) < new Date())
-//         return res.status(400).json({ error: "Coupon expired" });
-//       if (couponData.used_count >= couponData.max_uses)
-//         return res.status(400).json({ error: "Coupon usage limit reached" });
-
-//       // Check if this user already used this coupon
-//       const { data: userCoupon } = await supabase
-//         .from("user_coupons")
-//         .select("*")
-//         .eq("user_id", user_id)
-//         .eq("coupon_id", couponData.id)
-//         .maybeSingle();
-
-//       if (userCoupon?.used)
-//         return res
-//           .status(400)
-//           .json({ error: "Coupon already used by this user" });
-
-//       coupon = couponData;
-//     }
-
-//     // 2️⃣ Save order in DB
-//     const { data: orderData, error: orderError } = await supabase
-//       .from("orders")
-//       .insert([
-//         {
-//           order_id: razorpay_order_id,
-//           payment_id: razorpay_payment_id,
-//           signature: razorpay_signature,
-//           amount,
-//           currency,
-//           name,
-//           email,
-//           mobile,
-//           address,
-//           items,
-//           user_id,
-//           coupon_code: coupon?.code || null,
-//         },
-//       ])
-//       .select()
-//       .single();
-
-//     if (orderError) throw orderError;
-
-//     // 3️⃣ After successful payment, mark coupon as used
-//     if (coupon) {
-//       // Increment used_count safely (without exceeding max_uses)
-//       const { error: incrementError } = await supabase
-//         .from("coupons")
-//         .update({ used_count: supabase.raw("used_count + 1") })
-//         .eq("id", coupon.id)
-//         .lte("used_count", coupon.max_uses - 1);
-
-//       if (incrementError)
-//         return res
-//           .status(400)
-//           .json({ error: "Failed to increment coupon usage" });
-
-//       // Mark user coupon as used (upsert to ensure single row)
-//       await supabase.from("user_coupons").upsert(
-//         {
-//           user_id,
-//           coupon_id: coupon.id,
-//           used: true,
-//           used_at: new Date(),
-//         },
-//         { onConflict: ["user_id", "coupon_id"] }
-//       );
-//     }
-
-//     res
-//       .status(201)
-//       .json({ message: "Payment saved successfully", order: orderData });
-//   } catch (err) {
-//     console.error("❌ Failed to save payment:", err.message);
-//     res.status(500).json({ error: "Failed to save payment" });
-//   }
-// });
-
 app.post("/create-order", async (req, res) => {
   const { amount, currency } = req.body;
   if (!amount || !currency) {
@@ -299,10 +187,6 @@ async function validateCoupon(user_id, code) {
 
   return { valid: true, coupon: c, userCoupon };
 }
-
-// ------------------------
-// Routes
-// ------------------------
 // Assign new user a coupon
 app.post("/assign-new-user", async (req, res) => {
   const { user_id, name, email } = req.body;
@@ -495,7 +379,6 @@ app.post("/save-payment", async (req, res) => {
     res.status(500).json({ error: "Failed to save payment" });
   }
 });
-
 
 app.listen(PORT, () =>
   console.log(`✅ Server running at http://localhost:${PORT}`)
