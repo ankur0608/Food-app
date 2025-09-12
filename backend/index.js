@@ -95,8 +95,10 @@ app.post("/create-order", async (req, res) => {
   }
 });
 
+// POST /contact → create a new reservation
 app.post("/contact", async (req, res) => {
   const { firstName, lastName, email, phone, date, time, guests } = req.body;
+
   if (
     !firstName ||
     !lastName ||
@@ -108,6 +110,7 @@ app.post("/contact", async (req, res) => {
   ) {
     return res.status(400).json({ error: "All fields are required" });
   }
+
   try {
     const { data, error } = await supabase.from("contacts").insert([
       {
@@ -118,13 +121,40 @@ app.post("/contact", async (req, res) => {
         date,
         time,
         guests: Number(guests),
+        status: "pending", // explicitly set pending
       },
     ]);
+
     if (error) throw error;
-    res
-      .status(201)
-      .json({ message: "Reservation submitted successfully", data });
+
+    res.status(201).json({
+      message: "Reservation submitted successfully",
+      data,
+    });
   } catch (err) {
+    console.error("Error inserting reservation:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+// GET /contact → fetch all reservations for a specific user
+app.get("/contact", async (req, res) => {
+  const { email } = req.query;
+
+  if (!email) return res.status(400).json({ error: "Email is required" });
+
+  try {
+    const { data, error } = await supabase
+      .from("contacts")
+      .select("*")
+      .eq("email", email)
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+
+    res.status(200).json({ reservations: data });
+  } catch (err) {
+    console.error("Error fetching reservations:", err);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });

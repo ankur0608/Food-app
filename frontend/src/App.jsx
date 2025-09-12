@@ -15,6 +15,7 @@ import Profile from "./Componentes/Pages/Profile.jsx";
 import Verify from "./Componentes/Verify.jsx";
 import Home from "./Componentes/Pages/home/Home.jsx";
 import FaqPage from "./Componentes/FAQ.jsx";
+import MyReservations from "./Componentes/Pages/My-Reservations/My-Reservations.jsx";
 // Lazy-loaded pages
 // const Home = lazy(() => import("./Componentes/Pages/Home.jsx"));
 const Meals = lazy(() => import("./Componentes/Pages/Meals.jsx"));
@@ -118,6 +119,7 @@ const router = createBrowserRouter([
       { path: "payment-history", element: <PaymentHistory /> },
       { path: "profile", element: <Profile /> },
       { path: "verify", element: <Verify /> },
+      { path: "reservations", element: <MyReservations /> },
       {
         path: "blog",
         element: (

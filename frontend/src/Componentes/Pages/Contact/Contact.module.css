@@ -135,6 +135,17 @@
 .button:active {
   transform: translateY(0);
 }
+.errorInput {
+  border: 1px solid red;
+}
+.successMessage {
+  padding: 20px;
+  background-color: #d4edda;
+  color: #155724;
+  border-radius: 8px;
+  font-weight: 600;
+  text-align: center;
+}
 
 /* Theme variables */
 .light .contact-form {

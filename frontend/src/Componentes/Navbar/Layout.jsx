@@ -35,6 +35,7 @@ function Layout() {
     "/cart",
     "/checkout",
     "/payment-history",
+    "/reservations",
   ];
 
   const shouldHideExtras = hiddenPaths.some((path) =>

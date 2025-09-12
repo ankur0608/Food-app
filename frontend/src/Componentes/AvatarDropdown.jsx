@@ -194,7 +194,12 @@ export default function AvatarDropdown({ onLogout }) {
           </ListItemIcon>
           <ListItemText primary="Payment History" />
         </MenuItem>
-
+        <MenuItem component={Link} to="/reservations">
+          <ListItemIcon>
+            <AccountCircleIcon fontSize="small" sx={{ color: iconColor }} />
+          </ListItemIcon>
+          <ListItemText primary="reservations" />
+        </MenuItem>
         <Divider />
 
         <MenuItem onClick={() => setLogoutDialogOpen(true)}>
