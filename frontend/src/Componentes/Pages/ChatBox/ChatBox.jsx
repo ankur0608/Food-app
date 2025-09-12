@@ -257,6 +257,7 @@ export default function ChatBox() {
           res.ok ? "Reservation submitted successfully!" : "❌ Failed to book.",
           true
         );
+        navigate("/reservations");
       } catch {
         sendMessage("❌ Server error. Try later.", true);
       }
