@@ -95,6 +95,7 @@ app.post("/create-order", async (req, res) => {
   }
 });
 
+// ✅ Reschedule Reservation
 app.post("/contact/reschedule", async (req, res) => {
   const { reservationId, newDate, newTime } = req.body;
 
@@ -106,40 +107,50 @@ app.post("/contact/reschedule", async (req, res) => {
     const { data, error } = await supabase
       .from("contacts")
       .update({ date: newDate, time: newTime, status: "rescheduled" })
-      .eq("id", reservationId);
+      .eq("id", reservationId)
+      .select()
+      .single();
 
     if (error) throw error;
 
-    res
-      .status(200)
-      .json({ message: "Reservation rescheduled successfully", data });
+    // 📧 Send reschedule email here if needed
+
+    res.status(200).json({
+      message: "Reservation rescheduled successfully",
+      data,
+    });
   } catch (err) {
     console.error("Error rescheduling reservation:", err);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
-// DELETE /contact/:id → delete a reservation by ID
-app.delete("/contact/:id", async (req, res) => {
-  const reservationId = req.params.id;
 
-  if (!reservationId)
-    return res.status(400).json({ error: "Reservation ID is required" });
+// ✅ Cancel Reservation
+app.put("/contact/cancel/:id", async (req, res) => {
+  const { id } = req.params;
+  const { reason, name, email } = req.body;
 
   try {
     const { data, error } = await supabase
       .from("contacts")
-      .delete()
-      .eq("id", reservationId);
+      .update({ status: "cancelled", cancel_reason: reason })
+      .eq("id", id)
+      .select()
+      .single();
 
     if (error) throw error;
 
-    res.status(200).json({ message: "Reservation deleted successfully", data });
+    // 📧 Send cancel email here (with reason, customer name, etc.)
+    // sendCancelEmail({ to: email, name, reason });
+
+    res.status(200).json({ message: "Reservation cancelled", data });
   } catch (err) {
-    console.error("Error deleting reservation:", err);
+    console.error("Error cancelling reservation:", err);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
-// GET /contact → fetch all reservations for a specific user
+
+// ✅ Fetch Reservations for a user
 app.get("/contact", async (req, res) => {
   const { email } = req.query;
 
@@ -160,25 +171,82 @@ app.get("/contact", async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
-// PUT /contact/:id → update any field of a reservation
+app.post("/contact", async (req, res) => {
+  const {
+    first_name,
+    last_name,
+    firstName,
+    lastName,
+    email,
+    phone,
+    date,
+    time,
+    guests,
+  } = req.body;
+
+  // normalize keys
+  const dataToInsert = {
+    first_name: first_name || firstName,
+    last_name: last_name || lastName,
+    email,
+    phone,
+    date,
+    time,
+    guests,
+  };
+
+  if (
+    !dataToInsert.first_name ||
+    !dataToInsert.last_name ||
+    !dataToInsert.email ||
+    !dataToInsert.phone ||
+    !dataToInsert.date ||
+    !dataToInsert.time ||
+    !dataToInsert.guests
+  ) {
+    return res.status(400).json({ error: "All fields are required" });
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from("contacts")
+      .insert([dataToInsert])
+      .select();
+
+    if (error) throw error;
+
+    res.status(201).json({ message: "Reservation created successfully", data });
+  } catch (err) {
+    console.error("Error creating reservation:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+// ✅ Generic Update Reservation (admin use case)
 app.put("/contact/:id", async (req, res) => {
   const reservationId = req.params.id;
-  const updates = req.body; // {date, time, status, guests, etc.}
+  const updates = req.body; // e.g. { date, time, guests, status }
 
-  if (!reservationId || !updates)
+  if (!reservationId || !updates) {
     return res
       .status(400)
       .json({ error: "Reservation ID and updates required" });
+  }
 
   try {
     const { data, error } = await supabase
       .from("contacts")
       .update(updates)
-      .eq("id", reservationId);
+      .eq("id", reservationId)
+      .select()
+      .single();
 
     if (error) throw error;
 
-    res.status(200).json({ message: "Reservation updated successfully", data });
+    res.status(200).json({
+      message: "Reservation updated successfully",
+      data,
+    });
   } catch (err) {
     console.error("Error updating reservation:", err);
     res.status(500).json({ error: "Internal Server Error" });
