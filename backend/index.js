@@ -95,82 +95,7 @@ app.post("/create-order", async (req, res) => {
   }
 });
 
-// ✅ Reschedule Reservation
-app.post("/contact/reschedule", async (req, res) => {
-  const { reservationId, newDate, newTime } = req.body;
-
-  if (!reservationId || !newDate || !newTime) {
-    return res.status(400).json({ error: "All fields are required" });
-  }
-
-  try {
-    const { data, error } = await supabase
-      .from("contacts")
-      .update({ date: newDate, time: newTime, status: "rescheduled" })
-      .eq("id", reservationId)
-      .select()
-      .single();
-
-    if (error) throw error;
-
-    // 📧 Send reschedule email here if needed
-
-    res.status(200).json({
-      message: "Reservation rescheduled successfully",
-      data,
-    });
-  } catch (err) {
-    console.error("Error rescheduling reservation:", err);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-});
-
-// ✅ Cancel Reservation
-app.put("/contact/cancel/:id", async (req, res) => {
-  const { id } = req.params;
-  const { reason, name, email } = req.body;
-
-  try {
-    const { data, error } = await supabase
-      .from("contacts")
-      .update({ status: "cancelled", cancel_reason: reason })
-      .eq("id", id)
-      .select()
-      .single();
-
-    if (error) throw error;
-
-    // 📧 Send cancel email here (with reason, customer name, etc.)
-    // sendCancelEmail({ to: email, name, reason });
-
-    res.status(200).json({ message: "Reservation cancelled", data });
-  } catch (err) {
-    console.error("Error cancelling reservation:", err);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-});
-
-// ✅ Fetch Reservations for a user
-app.get("/contact", async (req, res) => {
-  const { email } = req.query;
-
-  if (!email) return res.status(400).json({ error: "Email is required" });
-
-  try {
-    const { data, error } = await supabase
-      .from("contacts")
-      .select("*")
-      .eq("email", email)
-      .order("created_at", { ascending: false });
-
-    if (error) throw error;
-
-    res.status(200).json({ reservations: data });
-  } catch (err) {
-    console.error("Error fetching reservations:", err);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-});
+// ✅ Create Reservation
 app.post("/contact", async (req, res) => {
   const {
     first_name,
@@ -222,7 +147,79 @@ app.post("/contact", async (req, res) => {
   }
 });
 
-// ✅ Generic Update Reservation (admin use case)
+// ✅ Fetch Reservations for a user
+app.get("/contact", async (req, res) => {
+  const { email } = req.query;
+
+  if (!email) return res.status(400).json({ error: "Email is required" });
+
+  try {
+    const { data, error } = await supabase
+      .from("contacts")
+      .select("*")
+      .eq("email", email)
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+
+    res.status(200).json({ reservations: data });
+  } catch (err) {
+    console.error("Error fetching reservations:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+// ✅ Reschedule Reservation
+app.post("/contact/reschedule", async (req, res) => {
+  const { reservationId, newDate, newTime } = req.body;
+
+  if (!reservationId || !newDate || !newTime) {
+    return res.status(400).json({ error: "All fields are required" });
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from("contacts")
+      .update({ date: newDate, time: newTime, status: "rescheduled" })
+      .eq("id", reservationId)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    res.status(200).json({
+      message: "Reservation rescheduled successfully",
+      data,
+    });
+  } catch (err) {
+    console.error("Error rescheduling reservation:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+// ✅ Cancel Reservation
+app.put("/contact/cancel/:id", async (req, res) => {
+  const { id } = req.params;
+  const { reason } = req.body;
+
+  try {
+    const { data, error } = await supabase
+      .from("contacts")
+      .update({ status: "cancelled", cancel_reason: reason })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    res.status(200).json({ message: "Reservation cancelled", data });
+  } catch (err) {
+    console.error("Error cancelling reservation:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+// ✅ Generic Update Reservation (Admin use)
 app.put("/contact/:id", async (req, res) => {
   const reservationId = req.params.id;
   const updates = req.body; // e.g. { date, time, guests, status }
