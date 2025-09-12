@@ -171,7 +171,7 @@ const AutoPlaySlider = () => {
             ))}
           </Slider>
         ) : (
-          <Typography>No meals available.</Typography>
+          <Typography>No Meals Available.</Typography>
         )}
       </Box>
     </Box>
