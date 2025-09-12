@@ -24,10 +24,12 @@ export default function CancelDialog({
 
   const handleDelete = async () => {
     try {
-      await axios.delete(
-        `https://food-app-d8r3.onrender.com/contact/${reservation.id}`,
+      await axios.put(
+        `https://food-app-d8r3.onrender.com/contact/cancel/${reservation.id}`,
         {
-          data: { reason: cancelReason, name: userName, email: userEmail },
+          reason: cancelReason,
+          name: userName,
+          email: userEmail,
         }
       );
 
