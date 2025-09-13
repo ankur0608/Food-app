@@ -1,38 +1,40 @@
-import { useForm } from "react-hook-form";
-import styles from "./Signup.module.css";
-import { Link, useNavigate } from "react-router-dom";
-import { useTheme } from "./Store/theme.jsx";
-import googleLogo from "../assets/google.png";
-import { supabase } from "../../supabaseClient.js";
-import { useToast } from "./Store/ToastContext.jsx";
+"use client";
 
-// icons
+import { useForm } from "react-hook-form";
+import { useNavigate, Link } from "react-router-dom";
+import { supabase } from "../../supabaseClient.js";
+import { useTheme } from "./Store/theme.jsx";
+import { useToast } from "./Store/ToastContext.jsx";
+import googleLogo from "../assets/google.png";
+
+// Icons
 import { FaRegUser } from "react-icons/fa";
 import { IoMailOutline } from "react-icons/io5";
 import { TbLockPassword } from "react-icons/tb";
 
-function Signup() {
+import styles from "./Signup.module.css";
+
+export default function Signup() {
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm();
-
   const navigate = useNavigate();
   const { theme } = useTheme();
   const { showToast } = useToast();
 
   const BASE_URL = "https://food-app-d8r3.onrender.com";
 
-  // ✅ Signup handler
-  async function onSubmit(data) {
+  // ✅ Signup with email/password
+  const onSubmit = async (data) => {
     try {
       const { data: signUpData, error: signUpError } =
         await supabase.auth.signUp({
           email: data.email,
           password: data.password,
           options: {
-            data: { full_name: data.name },
+            data: { full_name: data.name }, // store name in user_metadata
             emailRedirectTo: `${window.location.origin}/login?verified=true`,
           },
         });
@@ -43,9 +45,10 @@ function Signup() {
       }
 
       const user = signUpData.user;
-
       if (user) {
-        // ✅ Assign welcome coupon via backend
+        localStorage.setItem("user", JSON.stringify(user));
+
+        // Optional: assign welcome coupon via backend
         try {
           await fetch(`${BASE_URL}/assign-new-user`, {
             method: "POST",
@@ -67,19 +70,19 @@ function Signup() {
       );
 
       setTimeout(() => navigate("/login"), 1000);
-    } catch (error) {
-      console.error("❌ Signup error:", error);
+    } catch (err) {
+      console.error("❌ Signup error:", err);
       showToast("Something went wrong. Please try again.", "error");
     }
-  }
+  };
 
-  // ✅ Google Signup/Login
+  // ✅ Google signup/login
   const handleGoogleLogin = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: { redirectTo: `${window.location.origin}/google-redirect` },
     });
-    if (error) showToast("❌ Google signup failed", "error");
+    if (error) showToast("❌ Google signup/login failed", "error");
   };
 
   return (
@@ -201,7 +204,7 @@ function Signup() {
         </form>
       </div>
 
-      {/* Right side: Google login (desktop only) */}
+      {/* Right side: Google login (desktop) */}
       <div className={styles.rightSide}>
         <h2 className={styles.googleHeading}>Sign up with</h2>
         <button
@@ -220,5 +223,3 @@ function Signup() {
     </div>
   );
 }
-
-export default Signup;

@@ -8,7 +8,7 @@ import {
 
 import Layout from "./Componentes/Navbar/Layout.jsx";
 import Checkout from "./Componentes/Pages/Checkout/steps/Checkout.jsx";
-import GoogleRedirectHandler from "./Componentes/GoogleRedirectHandler.jsx";
+import GoogleRedirect from "./Componentes/GoogleRedirectHandler.jsx";
 import ResetPassword from "./Componentes/ResetPassword.jsx";
 import PaymentHistory from "./Componentes/Pages/PaymentHistory.jsx";
 import Profile from "./Componentes/Pages/Profile.jsx";
@@ -114,7 +114,7 @@ const router = createBrowserRouter([
         ),
       },
 
-      { path: "google-redirect", element: <GoogleRedirectHandler /> },
+      { path: "google-redirect", element: <GoogleRedirect /> },
       { path: "reset-password", element: <ResetPassword /> },
       { path: "payment-history", element: <PaymentHistory /> },
       { path: "profile", element: <Profile /> },

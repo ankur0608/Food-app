@@ -1,14 +1,15 @@
+"use client";
+
 import { useForm } from "react-hook-form";
 import { useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { IoMailOutline } from "react-icons/io5";
 import { TbLockPassword } from "react-icons/tb";
-
-import styles from "./Login.module.css";
-import { useTheme } from "./Store/theme.jsx";
 import { supabase } from "../../supabaseClient.js";
+import { useTheme } from "./Store/theme.jsx";
 import { useToast } from "./Store/ToastContext.jsx";
 import googleLogo from "../assets/google.png";
+import styles from "./Login.module.css";
 
 export default function Login() {
   const {
@@ -43,7 +44,7 @@ export default function Login() {
         });
 
       if (error) {
-        showToast(`${error.message || "Login failed"}`, "error");
+        showToast(error.message || "Login failed", "error");
         return;
       }
 
@@ -51,7 +52,7 @@ export default function Login() {
       localStorage.setItem("user", JSON.stringify(user));
       showToast("🎉 Login successful!", "success");
 
-      // ✅ Assign new-user coupon
+      // Optional: assign new-user coupon via backend
       try {
         await fetch(`${BASE_URL}/assign-new-user`, {
           method: "POST",
@@ -66,20 +67,19 @@ export default function Login() {
         console.error("Failed to assign coupon:", err);
       }
 
-      setTimeout(() => navigate("/"), 500);
+      setTimeout(() => navigate("/home"), 500);
     } catch {
       showToast("❌ Something went wrong. Please try again.", "error");
     }
   };
 
-  // ✅ Google login → redirect handled in GoogleRedirect.jsx
+  // ✅ Google login → handled via GoogleRedirect
   const handleGoogleLogin = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: { redirectTo: `${window.location.origin}/google-redirect` },
     });
-
-    if (error) showToast("❌ Google login failed", "error");
+    if (error) showToast("❌ Google login/signup failed", "error");
   };
 
   return (
@@ -162,7 +162,7 @@ export default function Login() {
         </form>
       </div>
 
-      {/* Right side: Google login (desktop only) */}
+      {/* Right side: Google login (desktop) */}
       <div className={styles.rightSide}>
         <h2 className={styles.googleHeading}>Login with</h2>
         <button

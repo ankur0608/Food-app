@@ -1,75 +1,54 @@
-import { useEffect, useState } from "react";
+"use client";
+
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "../../supabaseClient";
-import { Box, CircularProgress, Typography } from "@mui/material";
-import { useToast } from "../Componentes/Store/ToastContext"; // your toast hook
+import { supabase } from "../../supabaseClient.js";
+import { toast } from "react-hot-toast";
 
-export default function GoogleRedirectHandler() {
+export default function GoogleRedirect() {
   const navigate = useNavigate();
-  const { showToast } = useToast();
-  const [loading, setLoading] = useState(true);
-
-  const BASE_URL = "https://food-app-d8r3.onrender.com";
 
   useEffect(() => {
-    const handleOAuthLogin = async () => {
+    const handleRedirect = async () => {
       try {
         const { data, error } = await supabase.auth.getSession();
 
-        if (error || !data.session) {
-          console.error("OAuth session error:", error);
-          showToast("❌ Failed to log in with Google", "error");
+        if (error || !data?.session) {
+          toast.error("❌ Google login failed. Please try again.");
           navigate("/login");
           return;
         }
 
-        const { session } = data;
-        const user = session.user;
+        const user = data.session.user;
 
-        // ✅ Store user info
+        // ✅ Save user in localStorage
         localStorage.setItem("user", JSON.stringify(user));
 
-        // ✅ Assign welcome coupon
-        try {
-          await fetch(`${BASE_URL}/assign-new-user`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              user_id: user.id,
-              name: user.user_metadata?.full_name || "Guest",
-              email: user.email,
-            }),
-          });
-        } catch (err) {
-          console.error("Failed to assign coupon:", err);
-        }
-
-        showToast("🎉 Login successful!", "success");
+        toast.success("🎉 Welcome back!");
         navigate("/home");
+
+        // 🎁 Assign new user coupon in background
+        fetch("https://food-app-d8r3.onrender.com/assign-new-user", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            user_id: user.id,
+            name: user.user_metadata?.full_name || "Guest",
+            email: user.email,
+          }),
+        }).catch((err) => {
+          console.error("⚠️ Failed to assign coupon:", err);
+          toast.error("Coupon assignment failed. Contact support.");
+        });
       } catch (err) {
-        console.error("Google login failed:", err);
-        showToast("❌ Failed to log in with Google", "error");
+        console.error("Google redirect error:", err);
+        toast.error("Unexpected error. Please try again.");
         navigate("/login");
-      } finally {
-        setLoading(false);
       }
     };
 
-    handleOAuthLogin();
-  }, [navigate, showToast]);
+    handleRedirect();
+  }, [navigate]);
 
-  return (
-    <Box
-      display="flex"
-      flexDirection="column"
-      alignItems="center"
-      justifyContent="center"
-      minHeight="60vh"
-    >
-      {loading && <CircularProgress />}
-      <Typography variant="h6" mt={2}>
-        Logging you in via Google...
-      </Typography>
-    </Box>
-  );
+  return <p className="text-center mt-10">⏳ Finishing Google login...</p>;
 }
