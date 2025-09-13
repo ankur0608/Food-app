@@ -22,8 +22,6 @@ export default function Login() {
   const { theme } = useTheme();
   const { showToast } = useToast();
 
-  const BASE_URL = "https://food-app-d8r3.onrender.com";
-
   // ✅ Handle redirect after email verification
   useEffect(() => {
     const query = new URLSearchParams(location.search);
@@ -34,52 +32,37 @@ export default function Login() {
     }
   }, [location.search, showToast]);
 
-  // ✅ Login with email + password
+  // ✅ Handle normal login
   const onSubmit = async (data) => {
     try {
-      const { data: sessionData, error } =
-        await supabase.auth.signInWithPassword({
-          email: data.email,
-          password: data.password,
-        });
+      const { email, password } = data;
 
-      if (error) {
-        showToast(error.message || "Login failed", "error");
-        return;
-      }
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (error) throw error;
 
-      const user = sessionData.user;
-      localStorage.setItem("user", JSON.stringify(user));
-      showToast("🎉 Login successful!", "success");
-
-      // Optional: assign new-user coupon via backend
-      try {
-        await fetch(`${BASE_URL}/assign-new-user`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            user_id: user.id,
-            name: user.user_metadata?.full_name || "Guest",
-            email: user.email,
-          }),
-        });
-      } catch (err) {
-        console.error("Failed to assign coupon:", err);
-      }
-
-      setTimeout(() => navigate("/home"), 500);
-    } catch {
-      showToast("❌ Something went wrong. Please try again.", "error");
+      showToast("🎉 Logged in successfully!", "success");
+      navigate("/"); // redirect to homepage
+    } catch (error) {
+      showToast(error.message, "error");
     }
   };
 
-  // ✅ Google login → handled via GoogleRedirect
+  // ✅ Handle Google login
   const handleGoogleLogin = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: `${window.location.origin}/google-redirect` },
-    });
-    if (error) showToast("❌ Google login/signup failed", "error");
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/`, // redirect back to app
+        },
+      });
+      if (error) throw error;
+    } catch (error) {
+      showToast(error.message, "error");
+    }
   };
 
   return (

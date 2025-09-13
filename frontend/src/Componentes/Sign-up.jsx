@@ -24,65 +24,42 @@ export default function Signup() {
   const { theme } = useTheme();
   const { showToast } = useToast();
 
-  const BASE_URL = "https://food-app-d8r3.onrender.com";
-
-  // ✅ Signup with email/password
+  // ✅ Handle normal signup
   const onSubmit = async (data) => {
     try {
-      const { data: signUpData, error: signUpError } =
-        await supabase.auth.signUp({
-          email: data.email,
-          password: data.password,
-          options: {
-            data: { full_name: data.name }, // store name in user_metadata
-            emailRedirectTo: `${window.location.origin}/login?verified=true`,
-          },
-        });
+      const { name, email, password } = data;
 
-      if (signUpError) {
-        showToast(signUpError.message || "Signup failed", "error");
-        return;
-      }
+      // Supabase signup with email+password
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { name }, // store user’s name in metadata
+          emailRedirectTo: `${window.location.origin}/login?verified=true`,
+        },
+      });
 
-      const user = signUpData.user;
-      if (user) {
-        localStorage.setItem("user", JSON.stringify(user));
+      if (error) throw error;
 
-        // Optional: assign welcome coupon via backend
-        try {
-          await fetch(`${BASE_URL}/assign-new-user`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              user_id: user.id,
-              name: data.name,
-              email: data.email,
-            }),
-          });
-        } catch (err) {
-          console.error("⚠️ Failed to assign coupon:", err);
-        }
-      }
-
-      showToast(
-        "🎉 Signup successful! Please check your email to verify your account.",
-        "success"
-      );
-
-      setTimeout(() => navigate("/login"), 1000);
-    } catch (err) {
-      console.error("❌ Signup error:", err);
-      showToast("Something went wrong. Please try again.", "error");
+      showToast("📧 Check your email to confirm your account!", "info");
+    } catch (error) {
+      showToast(error.message, "error");
     }
   };
 
-  // ✅ Google signup/login
+  // ✅ Handle Google login
   const handleGoogleLogin = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: `${window.location.origin}/google-redirect` },
-    });
-    if (error) showToast("❌ Google signup/login failed", "error");
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/`, // redirect back to app
+        },
+      });
+      if (error) throw error;
+    } catch (error) {
+      showToast(error.message, "error");
+    }
   };
 
   return (
@@ -108,13 +85,7 @@ export default function Signup() {
                 id="name"
                 placeholder="Enter your name"
                 className={styles.input}
-                {...register("name", {
-                  required: "Name is required",
-                  pattern: {
-                    value: /^[A-Za-z\s]+$/,
-                    message: "Name must contain only letters",
-                  },
-                })}
+                {...register("name", { required: "Name is required" })}
               />
             </div>
             {errors.name && (
@@ -134,13 +105,7 @@ export default function Signup() {
                 id="email"
                 placeholder="Enter your Gmail address"
                 className={styles.input}
-                {...register("email", {
-                  required: "Email is required",
-                  pattern: {
-                    value: /^[a-zA-Z0-9._%+-]+@gmail\.com$/,
-                    message: "Only Gmail addresses allowed",
-                  },
-                })}
+                {...register("email", { required: "Email is required" })}
               />
             </div>
             {errors.email && (
@@ -162,11 +127,9 @@ export default function Signup() {
                 className={styles.input}
                 {...register("password", {
                   required: "Password is required",
-                  pattern: {
-                    value:
-                      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])(?!.*\s).{8,15}$/,
-                    message:
-                      "8–15 chars, uppercase, lowercase, number & special char required",
+                  minLength: {
+                    value: 8,
+                    message: "At least 8 characters required",
                   },
                 })}
               />

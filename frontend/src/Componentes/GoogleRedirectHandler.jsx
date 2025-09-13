@@ -11,6 +11,7 @@ export default function GoogleRedirect() {
   useEffect(() => {
     const handleRedirect = async () => {
       try {
+        // ✅ Get active session from Supabase
         const { data, error } = await supabase.auth.getSession();
 
         if (error || !data?.session) {
@@ -24,10 +25,12 @@ export default function GoogleRedirect() {
         // ✅ Save user in localStorage
         localStorage.setItem("user", JSON.stringify(user));
 
-        toast.success("🎉 Welcome back!");
+        toast.success(
+          `🎉 Welcome back, ${user.user_metadata?.full_name || "User"}!`
+        );
         navigate("/home");
 
-        // 🎁 Assign new user coupon in background
+        // 🎁 Assign new user coupon (background request)
         fetch("https://food-app-d8r3.onrender.com/assign-new-user", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -38,7 +41,6 @@ export default function GoogleRedirect() {
           }),
         }).catch((err) => {
           console.error("⚠️ Failed to assign coupon:", err);
-          toast.error("Coupon assignment failed. Contact support.");
         });
       } catch (err) {
         console.error("Google redirect error:", err);
@@ -50,5 +52,9 @@ export default function GoogleRedirect() {
     handleRedirect();
   }, [navigate]);
 
-  return <p className="text-center mt-10">⏳ Finishing Google login...</p>;
+  return (
+    <div style={{ textAlign: "center", marginTop: "40px", fontSize: "18px" }}>
+      ⏳ Finishing Google login...
+    </div>
+  );
 }

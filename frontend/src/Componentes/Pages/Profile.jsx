@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "../../../supabaseClient";
 import { useTheme } from "../Store/theme.jsx";
 
-// MUI imports
+// MUI
 import {
   Box,
   Paper,
@@ -13,7 +13,6 @@ import {
   Button,
   Stack,
   CircularProgress,
-  IconButton,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
@@ -27,30 +26,25 @@ export default function Profile() {
   const { theme } = useTheme();
 
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("user"));
+    const fetchAuthUser = async () => {
+      const {
+        data: { user: supaUser },
+        error,
+      } = await supabase.auth.getUser();
 
-    if (storedUser) {
-      setUser(storedUser);
-      setFormData({ name: storedUser.name, avatar: storedUser.avatar });
-    }
-
-    const fetchUser = async () => {
-      const { data: supaUserData } = await supabase.auth.getUser();
-      const supaUser = supaUserData?.user;
-      if (!supaUser) return;
-
-      const { data: userRow } = await supabase
-        .from("users")
-        .select("*")
-        .eq("id", supaUser.id)
-        .single();
+      if (error || !supaUser) {
+        console.error("❌ No Supabase Auth user found:", error);
+        return;
+      }
 
       const currentUser = {
         id: supaUser.id,
         email: supaUser.email,
-        name: userRow?.name || supaUser.user_metadata?.name || supaUser.email,
+        name:
+          supaUser.user_metadata?.name ||
+          supaUser.user_metadata?.full_name ||
+          supaUser.email,
         avatar:
-          userRow?.avatar ||
           supaUser.user_metadata?.avatar_url ||
           supaUser.user_metadata?.picture ||
           "",
@@ -58,13 +52,16 @@ export default function Profile() {
 
       setUser(currentUser);
       setFormData({ name: currentUser.name, avatar: currentUser.avatar });
+
+      // Save to localStorage for quick reload
       localStorage.setItem("user", JSON.stringify(currentUser));
     };
 
-    fetchUser();
+    fetchAuthUser();
   }, []);
 
   const handleEditToggle = () => setIsEditing(!isEditing);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -72,17 +69,17 @@ export default function Profile() {
 
   const handleSave = async () => {
     if (!user) return;
+
     const updatedUser = { ...user, ...formData };
     setUser(updatedUser);
     localStorage.setItem("user", JSON.stringify(updatedUser));
 
-    await supabase.auth.updateUser({
+    // ✅ Update Supabase Auth metadata
+    const { error } = await supabase.auth.updateUser({
       data: { name: formData.name, avatar_url: formData.avatar },
     });
-    await supabase
-      .from("users")
-      .update({ name: formData.name, avatar: formData.avatar })
-      .eq("id", user.id);
+
+    if (error) console.error("Update error:", error);
 
     setIsEditing(false);
   };
